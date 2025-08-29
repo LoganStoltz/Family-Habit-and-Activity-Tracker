@@ -1,0 +1,105 @@
+<template>
+  <section class="login-main-section">
+
+    <!-- Login Form -->
+    <div class="login-form-section">
+        <form class="login-form" @submit.prevent="submitForm">
+            <div class="form-group">
+                <label for="userName">User Name</label>
+                <input type="text" id="name" v-model="form.userName" required />
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" v-model="form.password" />
+            </div>
+
+            <button type="submit" class="submit-button">Send Message</button>
+        </form>
+    </div>
+  </section>
+</template>
+
+<script>
+</script>
+
+<style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+
+.login-main-section {
+  font-family: 'Inter', sans-serif;
+  background: rgb(52, 54, 77);
+  min-height: 100vh;
+}
+
+/* Form */
+.login-form-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.192);
+  border-radius: 16px;
+  padding: 2rem;
+  margin: 2rem auto;        
+  box-shadow: var(--box-shadow-default);
+  width: 80%;
+}
+
+.login-form {
+  background: var(--background-light);
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: var(--box-shadow-default);
+  margin: 0 auto;
+  width: 100%;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--text-dark-on-light);
+}
+
+input,
+textarea {
+  width: 100%;
+  padding: 1rem;
+  font-size: 1rem;
+  border-radius: 10px;
+  border: 2px solid #ccc;
+  font-family: 'Inter', sans-serif;
+  resize: none;
+  background: var(--box-shadow-default);
+  color: white;
+}
+
+input:focus,
+textarea:focus {
+  outline: none;
+  border: 2px solid var(--accent-blue);
+}
+
+.submit-button {
+  background-color: var(--background-blue);
+  color: var(--text-primary);
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  width: 100%;
+}
+
+.submit-button:hover {
+  background-color: var(--accent-yellow);
+  color: var(--background-header);
+}
+</style>
