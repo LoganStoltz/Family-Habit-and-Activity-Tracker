@@ -1,17 +1,42 @@
 <template>
-  <section class="login-main-section">
+  <section class="Registration-main-section">
+    
+    <!-- Registration Form -->
+    <div class="Registration-form-section">
+        <form class="Registration-form" @submit.prevent="submitForm">
+            <div class="Registration-group">
+                <label for="firstName">First Name</label>
+                <input type="text" id="firstName" v-model="form.firstName" required />
+            </div>
 
-    <!-- Login Form -->
-    <div class="login-form-section">
-        <form class="login-form" @submit.prevent="submitForm">
-            <div class="form-group">
+            <div class="Registration-group">
+                <label for="lastName">Last Name</label>
+                <input type="text" id="lastName" v-model="form.lastName" required />
+            </div>
+
+            <div class="Registration-group">
                 <label for="userName">User Name</label>
-                <input type="text" id="name" v-model="form.userName" required />
+                <input type="text" id="userName" v-model="form.userName" required />
+            </div>
+
+            <div class="Registration-group">
+                <label for="Email">Email</label>
+                <input type="email" id="email" v-model="form.email" />
+            </div>
+
+            <div class="Registration-group">
+                <label for="phoneNumber">Email</label>
+                <input type="tel" id="phoneNumber" v-model="form.phoneNumber" />
             </div>
 
             <div class="form-group">
                 <label for="password">Password</label>
                 <input type="password" id="password" v-model="form.password" required/>
+            </div>
+
+            <div class="form-group">
+                <label for="rePassword">Password</label>
+                <input type="password" id="rePassword" v-model="form.rePassword" required/>
             </div>
 
             <button type="submit" class="submit-button">Send Message</button>
@@ -26,14 +51,14 @@
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
 
-.login-main-section {
+.Registration-main-section {
   font-family: 'Inter', sans-serif;
   background: rgb(52, 54, 77);
   min-height: 100vh;
 }
 
 /* Form */
-.login-form-section {
+.Registration-form-section {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -46,7 +71,7 @@
   width: 80%;
 }
 
-.login-form {
+.Registration-form {
   background: var(--background-light);
   padding: 2rem;
   border-radius: 16px;
