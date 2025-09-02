@@ -5,12 +5,14 @@ The Family Habit & Activity Tracker is designed to help bring order to that chao
 By combining habit tracking for adults with structured baby care logging, the app makes it easier for parents to maintain balance, stay healthy, and have all the data they need at their fingertips — whether for personal wellness or for sharing with a pediatrician.
 
 
+
 🎯 Goals:
 
 Support adults in maintaining their good habits during life’s most demanding transition.
 Help parents log and track their baby’s critical routines (feeding, sleep, diapers, symptoms).
 Provide clear, simple analytics that make trends easy to see.
 Deliver a mobile-first, family-friendly tool that grows with its users.
+
 
 
 🔑 Planned Features:
@@ -33,7 +35,9 @@ Unified daily/weekly overview for both adult habits and baby logs.
 Fully responsive Vue.js app (works on desktop and mobile browsers).
 
 
+
 🎨 Long-Term Goals:
+
 Gamification: Habit Garden for adults and Completion Badges from day/week/month long habbits, Milestone Tracker for babies.
 Exportable Reports: PDFs for doctor visits.
 Reminders: Nudges for habits, feeding, or diaper changes.
