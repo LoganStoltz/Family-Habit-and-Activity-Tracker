@@ -3,6 +3,7 @@
   <!-- Desktop Navigation -->
   <nav class="nav">
     <router-link to="/" class="btn-home">Home</router-link>
+    <router-link to="/profile-select" class="btn-profile-select">Profile Select</router-link>
     <router-link to="/registration" class="btn-registration">Registration</router-link>
     <router-link to="/login" class="btn-login" v-if="!user">Login</router-link>
     <button v-if="user" class="btn-logout" @click="logout">Logout</button>
