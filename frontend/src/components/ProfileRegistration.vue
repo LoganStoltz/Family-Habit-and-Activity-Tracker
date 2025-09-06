@@ -39,11 +39,12 @@ const form = reactive({
 
 async function submitForm() {
     try {
-        const response = await fetch("http://localhost:3000/users", {
+        const response = await fetch("http://localhost:3000/profiles", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                profiles:{
+                userID: localStorage.getItem('userID'),
+                profiles: {
                     first_name: form.firstName,
                     last_name: form.lastName,
                     dob: form.dob,
