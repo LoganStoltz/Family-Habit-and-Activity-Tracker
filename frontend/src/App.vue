@@ -10,12 +10,14 @@ import Header from './components/Header.vue';
 </script>
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+
 :root {
   /* Typography */
   --font-family-base: 'Inter', sans-serif;
 
   /* Colors - Backgrounds */
-  --main-background-dark: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+  --main-background-dark: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
   --background-light: linear-gradient(to right, #5a7480, #384c6b);
   --background-blue: #6f8bbe77;
   --background-header: #1e425f;
@@ -32,7 +34,7 @@ import Header from './components/Header.vue';
   /* Colors - Accent & Brand */
   --accent-blue: hsl(146, 100%, 93%);
   --accent-yellow: #ffd166;
-  --heading-gradient: linear-gradient(to right, #74ebd5, #e3caff);
+  --heading-gradient: linear-gradient(135deg, #74ebd5, #e3caff);
 
   /* Shadows */
   --box-shadow-default: 0 12px 36px rgba(0, 0, 0, 0.25);
@@ -40,5 +42,91 @@ import Header from './components/Header.vue';
 
   /* Border radius */
   --radius-large: 16px;
+  --radius-medium: 12px;
+  --radius-small: 8px;
+
+  /* Transitions */
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-family-base);
+  background: var(--main-background-dark);
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+#app {
+  min-height: 100vh;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Global button styles */
+.btn {
+  font-family: var(--font-family-base);
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius-medium);
+  cursor: pointer;
+  transition: var(--transition-normal);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Loading animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.6s ease-out;
+}
+
+/* Responsive utilities */
+@media (max-width: 1200px) {
+  :root {
+    --box-shadow-default: 0 8px 24px rgba(0, 0, 0, 0.2);
+    --box-shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.4);
+  }
+}
+
+@media (max-width: 768px) {
+  body {
+    font-size: 14px;
+  }
 }
 </style>
