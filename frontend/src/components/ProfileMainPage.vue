@@ -12,7 +12,7 @@
       <p class="welcome-message">Welcome to your personal habit and activity tracker.</p>
       
       <div class="profile-actions">
-        <button class="action-button">View Habits</button>
+        <router-link to="/habits" class="action-button">View Habits</router-link>
         <button class="action-button">Track Activity</button>
         <router-link to="/profile-settings" class="action-button secondary">Settings</router-link>
       </div>
