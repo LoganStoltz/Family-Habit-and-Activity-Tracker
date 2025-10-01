@@ -75,28 +75,10 @@ const submitForm = async () => {
     const data = await response.json();
     console.log('Profile created:', data);
 
-    // Format the profile data consistently for localStorage
-    const newProfile = {
-      id: data.id,
-      firstName: data.first_name,
-      lastName: data.last_name || '',
-      dob: data.dob,
-      profile_type: data.profile_type
-    };
-
-    // Store the new profile in localStorage
-    localStorage.setItem('profile', JSON.stringify(newProfile));
-    
-    // Fire storage event so Header and other components pick up the change immediately
-    window.dispatchEvent(new Event('storage'));
-
-    // Emit the profile-created event with the formatted profile data (not raw data)
-    emit('profile-created', newProfile);
+    window.location.reload();
 
     alert('Profile created successfully!');
     
-    // Redirect to the profile main page
-    router.push('/profile-main');
   } catch (err) {
     console.error(err);
     alert('Something went wrong while creating the profile.');

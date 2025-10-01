@@ -1,8 +1,15 @@
 <template>
   <div class="profile-main-container">
     <div class="profile-welcome" v-if="profile">
-      <h2>Hello {{ profile.firstName }}{{ profile.lastName ? ' ' + profile.lastName : '' }}!</h2>
-      <p>Welcome to your personal habit and activity tracker.</p>
+      <div class="profile-header">
+        <h2>Hello {{ profile.firstName }}{{ profile.lastName ? ' ' + profile.lastName : '' }}!</h2>
+        <div class="profile-details">
+          <p class="profile-type">{{ profile.profile_type || 'Profile' }}</p>
+          <p class="profile-age" v-if="profile.dob">Born: {{ formatDate(profile.dob) }}</p>
+        </div>
+      </div>
+      
+      <p class="welcome-message">Welcome to your personal habit and activity tracker.</p>
       
       <div class="profile-actions">
         <button class="action-button">View Habits</button>
@@ -22,36 +29,64 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
 
-const profile = ref<{ firstName: string; lastName?: string } | null>(null);
+interface Profile {
+  id: number;
+  firstName: string;
+  lastName?: string;
+  dob?: string;
+  profile_type?: string;
+}
 
-// Function to load profile data
+const profile = ref<Profile | null>(null);
+
 const loadProfile = () => {
+  // Check if user is still logged in first
+  const storedUser = localStorage.getItem('user');
+  if (!storedUser) {
+    // If no user is logged in, clear any stored profile
+    localStorage.removeItem('profile');
+    profile.value = null;
+    return;
+  }
+  
   const storedProfile = localStorage.getItem('profile');
-  const newProfile = storedProfile ? JSON.parse(storedProfile) : null;
-  profile.value = newProfile;
-  console.log('ProfileMainPage loaded profile:', newProfile);
+  if (storedProfile) {
+    profile.value = JSON.parse(storedProfile);
+  }
+};
+
+const formatDate = (dateString: string) => {
+  if (!dateString) return '';
+  
+  // Parse the date string manually to avoid timezone issues (date being off by one day)
+  // Assumes format is YYYY-MM-DD
+  const [year, month, day] = dateString.split('-').map(Number);
+  
+  // Create date object with local timezone (month is 0-indexed)
+  const date = new Date(year, month - 1, day);
+  
+  return date.toLocaleDateString('en-US', { 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  });
 };
 
 onMounted(() => {
-  // Initial load
   loadProfile();
 
-  // Listen for storage changes (for cross-tab updates)
-  const handleStorageChange = () => {
-    loadProfile();
+  const handleProfileUpdate = (event: Event) => {
+    const customEvent = event as CustomEvent;
+    if (customEvent.detail) {
+      profile.value = customEvent.detail;
+    } else {
+      loadProfile();
+    }
   };
 
-  // Listen for custom profile update events (for same-tab updates)
-  const handleProfileUpdate = () => {
-    loadProfile();
-  };
-
-  window.addEventListener('storage', handleStorageChange);
   window.addEventListener('profileUpdated', handleProfileUpdate);
 
-  // Clean up event listeners when component is unmounted
   onUnmounted(() => {
-    window.removeEventListener('storage', handleStorageChange);
     window.removeEventListener('profileUpdated', handleProfileUpdate);
   });
 });
@@ -98,6 +133,42 @@ onMounted(() => {
   -webkit-text-fill-color: transparent;
   background-clip: text;
   line-height: 1.2;
+}
+
+.profile-header {
+  margin-bottom: 2rem;
+}
+
+.profile-details {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.profile-type {
+  background: linear-gradient(135deg, var(--accent-yellow), #ff9800);
+  color: #1e3a5f;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.profile-age {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  margin: 0;
+  opacity: 0.8;
+}
+
+.welcome-message {
+  color: var(--text-secondary);
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  line-height: 1.6;
 }
 
 .profile-actions {

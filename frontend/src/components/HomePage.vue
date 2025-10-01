@@ -28,7 +28,12 @@ export default {
 
     const logout = () => {
       localStorage.removeItem('user');
+      localStorage.removeItem('profile');
       user.value = null;
+      
+      // Trigger storage event to update other components (like Header)
+      window.dispatchEvent(new Event('storage'));
+      
       router.push('/login');
     };
 

@@ -70,9 +70,6 @@ export default defineComponent({
       // Notify other components of the change
       window.dispatchEvent(new Event('storage'));
       
-      // Fire custom event for same-tab updates
-      window.dispatchEvent(new Event('profileUpdated'));
-      
       // Redirect to profile main page
       router.push('/profile-main');
     };
