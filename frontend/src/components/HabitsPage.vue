@@ -7,10 +7,6 @@
         <button class="dashboard-btn log-baby">🍼 Log Baby Activity</button>
       </div>
     </div>
-    <div class="dashboard-tabs">
-      <button :class="['tab', activeTab === 'habits' ? 'active' : '']" @click="activeTab = 'habits'">My Habits</button>
-      <button :class="['tab', activeTab === 'baby' ? 'active' : '']" @click="activeTab = 'baby'">Baby Care</button>
-    </div>
     <div class="dashboard-cards">
       <div v-for="habit in filteredHabits" :key="habit.id" class="dashboard-card">
         <div class="card-header">
@@ -24,7 +20,7 @@
           </div>
         </div>
         <div class="card-action-row">
-          <button class="card-action-btn" :style="actionBtnStyle(habit)" @click="handleIncrement(habit)" :disabled="incrementing[habit.id]">
+          <button class="card-action-btn" :style="actionBtnStyle(habit)" @click="handleIncrement(habit)" :disabled="incrementing[habit.id] || habit.completed || (habitLogs[habit.id]?.length >= habit.goal_value)">
             <span v-if="incrementing[habit.id]">Logging...</span>
             <span v-else>+1 {{ habit.name }}</span>
           </button>
@@ -53,13 +49,30 @@
         </form>
       </div>
     </div>
+    <div v-if="showDiaperModal" class="modal-overlay">
+      <DiaperChangeLog @log-submitted="submitDiaperLog" @close="showDiaperModal = false" />
+    </div>
+    <div v-if="showFeedingModal" class="modal-overlay">
+      <FeedingLog @log-submitted="submitFeedingLog" @close="showFeedingModal = false" />
+    </div>
+    <div v-if="showDrinkingWaterModal" class="modal-overlay">
+      <DrinkingWaterLogs @log-submitted="submitDrinkingWaterLog" @close="showDrinkingWaterModal = false" />
+    </div>
+    <div v-if="showGenericModal" class="modal-overlay">
+      <GenericHabitLog @log-submitted="submitGenericLog" @close="showGenericModal = false" />
+    </div>
   </div>
 </template>
 
 <script>
 import { ref, onMounted, computed } from 'vue';
+import DiaperChangeLog from './logs/DiaperChangeLog.vue';
+import FeedingLog from './logs/FeedingLog.vue';
+import DrinkingWaterLogs from './logs/DrinkingWaterLogs.vue';
+import GenericHabitLog from './logs/GenericHabitLog.vue';
 
 export default {
+  components: { DiaperChangeLog, FeedingLog, DrinkingWaterLogs, GenericHabitLog },
   setup() {
     const habits = ref([]);
     const habitLogs = ref({}); // { habitId: [logs] }
@@ -73,6 +86,11 @@ export default {
     const addError = ref('');
     const incrementing = ref({}); // { habitId: boolean }
     const incrementError = ref({}); // { habitId: string }
+    const showDiaperModal = ref(false);
+    const showFeedingModal = ref(false);
+    const showDrinkingWaterModal = ref(false);
+    const showGenericModal = ref(false);
+    const selectedHabit = ref(null);
 
     // Get current user and profile id
     const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -142,21 +160,64 @@ export default {
       }
     };
 
-    // Increment habit count by creating a new log
-    const handleIncrement = async (habit) => {
+    // Open the correct modal for logging
+    const handleIncrement = (habit) => {
+      selectedHabit.value = habit;
+      if (habit.name.includes('Diaper Change')) {
+        showDiaperModal.value = true;
+      } 
+      else if (habit.name.includes('Feeding')) {
+        showFeedingModal.value = true;
+      } 
+      else if (habit.name.includes('Drink Water')) {
+        showDrinkingWaterModal.value = true;
+      } 
+      else {
+        showGenericModal.value = true;
+      }
+    };
+
+    // Handle log submission for each modal
+    const submitDiaperLog = async (logData) => {
+      showDiaperModal.value = false;
+      await submitHabitLog(selectedHabit.value, logData);
+    };
+    const submitFeedingLog = async (logData) => {
+      showFeedingModal.value = false;
+      await submitHabitLog(selectedHabit.value, logData);
+    };
+    const submitDrinkingWaterLog = async (logData) => {
+      showDrinkingWaterModal.value = false;
+      await submitHabitLog(selectedHabit.value, logData);
+    };
+    const submitGenericLog = async (logData) => {
+      showGenericModal.value = false;
+      await submitHabitLog(selectedHabit.value, logData);
+    };
+
+    // Unified log submitter
+    const submitHabitLog = async (habit, logData) => {
       incrementing.value[habit.id] = true;
       incrementError.value[habit.id] = '';
       try {
-        const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+        const today = new Date().toISOString().slice(0, 10);
+        // Always include amount: 1 for habits that increment by count
+        let amount = 1;
+        // If logData.amount is provided (e.g., for custom logs), use it
+        if (typeof logData.amount !== 'undefined') {
+          amount = logData.amount;
+        }
+        const payload = {
+          habit_log: {
+            log_date: today,
+            amount,
+            ...logData
+          }
+        };
         const response = await fetch(`http://localhost:3000/habits/${habit.id}/habit_logs`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            habit_log: {
-              count: 1,
-              log_date: today
-            }
-          })
+          body: JSON.stringify(payload)
         });
         if (!response.ok) {
           const errorData = await response.json();
@@ -164,11 +225,27 @@ export default {
           throw new Error(incrementError.value[habit.id]);
         }
         await fetchLogs(habit.id);
+        
+        // Check if habit meets goal
+        const logs = habitLogs.value[habit.id] || [];
+        if (logs.length >= habit.goal_value && !habit.completed) {
+          await markHabitComplete(habit.id);
+          habit.completed = true; // update locally
+        }
       } catch (err) {
         incrementError.value[habit.id] = err.message || 'Failed to log.';
       } finally {
         incrementing.value[habit.id] = false;
+        selectedHabit.value = null;
       }
+    };
+
+    const markHabitComplete = async (habitId) => {
+      await fetch(`http://localhost:3000/habits/${habitId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ habit: { completed: true } })
+      });
     };
 
     // Progress bar style
@@ -213,7 +290,15 @@ export default {
       addError,
       handleIncrement,
       incrementing,
-      incrementError
+      incrementError,
+      showDiaperModal,
+      showFeedingModal,
+      showGenericModal,
+      showDrinkingWaterModal,
+      submitDrinkingWaterLog,
+      submitDiaperLog,
+      submitFeedingLog,
+      submitGenericLog
     };
   }
 }
