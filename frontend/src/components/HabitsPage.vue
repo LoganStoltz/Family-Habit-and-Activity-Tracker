@@ -1,65 +1,132 @@
 <template>
-  <div class="habits-dashboard">
-    <div class="dashboard-header">
-      <h1>Habits & Care</h1>
-      <div class="dashboard-actions">
-        <button class="dashboard-btn add-habit" @click="showAddHabit = true">+ Add Habit</button>
-        <button class="dashboard-btn log-baby">🍼 Log Baby Activity</button>
-      </div>
+  <div class="habits-page">
+
+    <div class="page-header">
+      <h2>{{ profile.firstName }}'s Habits & Care</h2>
     </div>
-    <div class="dashboard-cards">
-      <div v-for="habit in filteredHabits" :key="habit.id" class="dashboard-card">
-        <div class="card-header">
-          <span class="card-title">{{ habit.name }}</span>
-          <!-- Example icon: <span class="card-icon">💧</span> -->
-        </div>
-        <div class="card-progress">
-          <div class="progress-label">{{ habitLogs[habit.id]?.length || 0 }}/{{ habit.goal_value }} {{ habit.goal_type }}</div>
-          <div class="progress-bar">
-            <div class="progress-fill" :style="progressStyle(habit)"></div>
-          </div>
-        </div>
-        <div class="card-action-row">
-          <button class="card-action-btn" :style="actionBtnStyle(habit)" @click="handleIncrement(habit)" :disabled="incrementing[habit.id] || habit.completed || (habitLogs[habit.id]?.length >= habit.goal_value)">
-            <span v-if="incrementing[habit.id]">Logging...</span>
-            <span v-else>+1 {{ habit.name }}</span>
+
+    <div class="habits-dashboard">
+      <!-- Header -->
+      <div class="dashboard-header">
+        <h1>Habits & Care</h1>
+        <div class="dashboard-actions">
+          <button class="dashboard-btn add-habit" @click="showAddHabit = true">+ Add Habit</button>
+          <button v-if="profile.profile_type === 'Baby'" class="dashboard-btn log-baby">
+            🍼 Log Baby Milestones
           </button>
-          <span v-if="incrementError[habit.id]" style="color:#d32f2f; font-size:0.9rem; margin-left:0.5rem;">{{ incrementError[habit.id] }}</span>
         </div>
-        <div class="card-streak">
-          <span class="streak-icon">🔥</span>
-          <span>{{ getStreak(habit.id) }}-day streak</span>
-        </div>
-        <div v-if="incrementError[habit.id]" class="card-error">{{ incrementError[habit.id] }}</div>
       </div>
-    </div>
-    <div v-if="showAddHabit" class="modal-overlay">
-      <div class="modal">
-        <h2>Add New Habit</h2>
-        <form @submit.prevent="addHabit" class="modal-form">
-          <input v-model="newHabitName" placeholder="New habit name" required />
-          <input v-model="newHabitDescription" placeholder="Description" />
-          <input v-model="newHabitGoalType" placeholder="Goal type (e.g. daily, weekly)" />
-          <input v-model="newHabitGoalValue" type="number" placeholder="Goal value" />
-          <div v-if="addError" class="modal-error">{{ addError }}</div>
-          <div class="modal-actions">
-            <button type="submit" class="modal-add" :disabled="isAdding">{{ isAdding ? 'Adding...' : 'Add' }}</button>
-            <button type="button" class="modal-cancel" @click="showAddHabit = false">Cancel</button>
+
+      <!-- Habits Cards -->
+      <div class="dashboard-cards">
+        <div v-for="habit in filteredHabits" :key="habit.id" class="dashboard-card">
+          <div class="card-header">
+            <span class="card-title">{{ habit.name }}</span>
           </div>
-        </form>
+          <div class="card-progress">
+            <div class="progress-label">
+              <template v-if="habit.goal_value">
+                {{ habitLogs[habit.id]?.length || 0 }}/{{ habit.goal_value }} {{ habit.goal_type }}
+              </template>
+              <template v-else>
+                {{ habitLogs[habit.id]?.length || 0 }} logged
+              </template>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" :style="progressStyle(habit)"></div>
+            </div>
+          </div>
+          <div class="card-action-row">
+            <button
+              class="card-action-btn"
+              :style="actionBtnStyle(habit)"
+              @click="handleIncrement(habit)"
+              :disabled="incrementing[habit.id] || habit.completed"
+            >
+              <span v-if="incrementing[habit.id]">Logging...</span>
+              <span v-else>
+                <template v-if="habit.goal_value && habit.completed">Complete</template>
+                <template v-else>Log {{ habit.name }}</template>
+              </span>
+            </button>
+            <button 
+              class="delete-habit-btn"
+              @click="confirmDeleteHabit(habit)"
+              :disabled="isDeleting[habit.id]"
+            >
+              {{ isDeleting[habit.id] ? 'Deleting...' : 'Delete Habit' }}
+            </button>
+          </div>
+          <div v-if="incrementError[habit.id]" class="card-error">{{ incrementError[habit.id] }}</div>
+        </div>
       </div>
-    </div>
-    <div v-if="showDiaperModal" class="modal-overlay">
-      <DiaperChangeLog @log-submitted="submitDiaperLog" @close="showDiaperModal = false" />
-    </div>
-    <div v-if="showFeedingModal" class="modal-overlay">
-      <FeedingLog @log-submitted="submitFeedingLog" @close="showFeedingModal = false" />
-    </div>
-    <div v-if="showDrinkingWaterModal" class="modal-overlay">
-      <DrinkingWaterLogs @log-submitted="submitDrinkingWaterLog" @close="showDrinkingWaterModal = false" />
-    </div>
-    <div v-if="showGenericModal" class="modal-overlay">
-      <GenericHabitLog @log-submitted="submitGenericLog" @close="showGenericModal = false" />
+
+      <!-- Reusable Confirmation Modal -->
+      <ConfirmDeleteModal
+        v-if="showConfirmModal"
+        :title="'Delete Habit?'"
+        :message="`Are you sure you want to delete <strong>${habitToDelete?.name}</strong>?`"
+        :warning="'This action cannot be undone!'"
+        :loading="isDeleting[habitToDelete?.id]"
+        :confirmText="'Yes, Delete'"
+        :cancelText="'Cancel'"
+        :loadingText="'Deleting...'"
+        @confirm="() => removeHabit(habitToDelete.id)"
+        @cancel="cancelDelete"
+      />
+
+      <!-- Add Habit Modal -->
+      <div v-if="showAddHabit" class="modal-overlay">
+        <div class="modal">
+          <h2>Add New Habit</h2>
+          <form @submit.prevent="addHabit" class="modal-form">
+            <input v-model="newHabitName" placeholder="New habit name" required />
+            <input v-model="newHabitDescription" placeholder="Description" />
+            <select v-model="newHabitGoalType" required>
+              <option value="" disabled selected hidden>Frequency (e.g. daily, weekly)</option>
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+            </select>
+            <label for="habitHasGoal">
+              <input
+                type="checkbox"
+                id="habitHasGoal"
+                v-model="habitHasGoal"
+                @change="onHabitHasGoalChange"
+              />
+              Set a goal for this habit?
+            </label>
+            <input
+              v-if="habitHasGoal"
+              v-model="newHabitGoalValue"
+              type="number"
+              placeholder="Goal value"
+            />
+            <div v-if="addError" class="modal-error">{{ addError }}</div>
+            <div class="modal-actions">
+              <button type="submit" class="modal-add" :disabled="isAdding">
+                {{ isAdding ? 'Adding...' : 'Add' }}
+              </button>
+              <button type="button" class="modal-cancel" @click="showAddHabit = false">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Log Modals -->
+      <div v-if="showDiaperModal" class="modal-overlay">
+        <DiaperChangeLog @log-submitted="submitDiaperLog" @close="showDiaperModal = false" />
+      </div>
+      <div v-if="showFeedingModal" class="modal-overlay">
+        <FeedingLog @log-submitted="submitFeedingLog" @close="showFeedingModal = false" />
+      </div>
+      <div v-if="showDrinkingWaterModal" class="modal-overlay">
+        <DrinkingWaterLogs @log-submitted="submitDrinkingWaterLog" @close="showDrinkingWaterModal = false" />
+      </div>
+      <div v-if="showGenericModal" class="modal-overlay">
+        <GenericHabitLog @log-submitted="submitGenericLog" @close="showGenericModal = false" />
+      </div>
     </div>
   </div>
 </template>
@@ -70,12 +137,15 @@ import DiaperChangeLog from './logs/DiaperChangeLog.vue';
 import FeedingLog from './logs/FeedingLog.vue';
 import DrinkingWaterLogs from './logs/DrinkingWaterLogs.vue';
 import GenericHabitLog from './logs/GenericHabitLog.vue';
+import ConfirmDeleteModal from './ConfirmDeleteModal.vue';
 
 export default {
-  components: { DiaperChangeLog, FeedingLog, DrinkingWaterLogs, GenericHabitLog },
+  components: { DiaperChangeLog, FeedingLog, DrinkingWaterLogs, GenericHabitLog, ConfirmDeleteModal },
   setup() {
+    // State
     const habits = ref([]);
-    const habitLogs = ref({}); // { habitId: [logs] }
+    const habitLogs = ref({});
+    const habitHasGoal = ref(false);
     const newHabitName = ref('');
     const newHabitDescription = ref('');
     const newHabitGoalType = ref('');
@@ -83,16 +153,19 @@ export default {
     const showAddHabit = ref(false);
     const activeTab = ref('habits');
     const isAdding = ref(false);
+    const isDeleting = ref({});
+    const habitToDelete = ref(null);
     const addError = ref('');
-    const incrementing = ref({}); // { habitId: boolean }
-    const incrementError = ref({}); // { habitId: string }
+    const incrementing = ref({});
+    const incrementError = ref({});
+    const showConfirmModal = ref(false);
     const showDiaperModal = ref(false);
     const showFeedingModal = ref(false);
     const showDrinkingWaterModal = ref(false);
     const showGenericModal = ref(false);
     const selectedHabit = ref(null);
 
-    // Get current user and profile id
+    // User/Profile
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const userId = user?.id;
     const profile = JSON.parse(localStorage.getItem('profile') || '{}');
@@ -101,10 +174,9 @@ export default {
     // Fetch habits for current profile
     const fetchHabits = async () => {
       try {
-        const response = await fetch(`http://localhost:3000/users/${userId}/profiles/${profileId}/habits`); // Updated URL
+        const response = await fetch(`http://localhost:3000/users/${userId}/profiles/${profileId}/habits`);
         const data = await response.json();
         habits.value = data;
-        // Fetch logs for each habit
         for (const habit of data) {
           await fetchLogs(habit.id);
         }
@@ -116,7 +188,7 @@ export default {
     // Fetch logs for a habit
     const fetchLogs = async (habitId) => {
       try {
-        const response = await fetch(`http://localhost:3000/habits/${habitId}/habit_logs`); // Updated URL
+        const response = await fetch(`http://localhost:3000/habits/${habitId}/habit_logs`);
         const data = await response.json();
         habitLogs.value[habitId] = data;
       } catch (err) {
@@ -124,7 +196,15 @@ export default {
       }
     };
 
-    // Add a new habit to backend
+    // Checkbox handler
+    const onHabitHasGoalChange = (event) => {
+      habitHasGoal.value = event.target.checked;
+      if (!habitHasGoal.value) {
+        newHabitGoalValue.value = '';
+      }
+    };
+
+    // Add a new habit
     const addHabit = async () => {
       isAdding.value = true;
       addError.value = '';
@@ -152,7 +232,7 @@ export default {
         newHabitGoalType.value = '';
         newHabitGoalValue.value = '';
         showAddHabit.value = false;
-        await fetchHabits(); // Refresh list
+        await fetchHabits();
       } catch (err) {
         addError.value = err.message || 'Failed to add habit.';
       } finally {
@@ -160,24 +240,54 @@ export default {
       }
     };
 
-    // Open the correct modal for logging
+    // Step 1: Show confirmation modal
+    const confirmDeleteHabit = (habit_id) => {
+      habitToDelete.value = habit_id;
+      showConfirmModal.value = true;
+    };
+
+    // Step 2: Cancel deletion
+    const cancelDelete = () => {
+      habitToDelete.value = null;
+      showConfirmModal.value = false;
+    };
+
+    // Step 3: Remove a habit
+    const removeHabit = async (habitId) => {
+      isDeleting.value[habitId] = true;
+      try {
+        const response = await fetch(`http://localhost:3000/habits/${habitId}`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        if (!response.ok) {
+          throw new Error('Failed to delete habit');
+        }
+        await fetchHabits();
+      } catch (err) {
+        console.error('Error deleting habit:', err);
+      } finally {
+        isDeleting.value[habitId] = false;
+        cancelDelete();
+      }
+    };
+
+
+    // Open correct modal for logging
     const handleIncrement = (habit) => {
       selectedHabit.value = habit;
       if (habit.name.includes('Diaper Change')) {
         showDiaperModal.value = true;
-      } 
-      else if (habit.name.includes('Feeding')) {
+      } else if (habit.name.includes('Feeding')) {
         showFeedingModal.value = true;
-      } 
-      else if (habit.name.includes('Drink Water')) {
+      } else if (habit.name.includes('Drink Water')) {
         showDrinkingWaterModal.value = true;
-      } 
-      else {
+      } else {
         showGenericModal.value = true;
       }
     };
 
-    // Handle log submission for each modal
+    // Log submission handlers
     const submitDiaperLog = async (logData) => {
       showDiaperModal.value = false;
       await submitHabitLog(selectedHabit.value, logData);
@@ -201,9 +311,7 @@ export default {
       incrementError.value[habit.id] = '';
       try {
         const today = new Date().toISOString().slice(0, 10);
-        // Always include amount: 1 for habits that increment by count
         let amount = 1;
-        // If logData.amount is provided (e.g., for custom logs), use it
         if (typeof logData.amount !== 'undefined') {
           amount = logData.amount;
         }
@@ -221,16 +329,16 @@ export default {
         });
         if (!response.ok) {
           const errorData = await response.json();
+          console.error('Habit log error:', errorData);
           incrementError.value[habit.id] = errorData.error || 'Failed to log.';
           throw new Error(incrementError.value[habit.id]);
         }
         await fetchLogs(habit.id);
-        
-        // Check if habit meets goal
+        await fetchHabits();
         const logs = habitLogs.value[habit.id] || [];
-        if (logs.length >= habit.goal_value && !habit.completed) {
+        if (habit.goal_value && logs.length >= habit.goal_value && !habit.completed) {
           await markHabitComplete(habit.id);
-          habit.completed = true; // update locally
+          habit.completed = true;
         }
       } catch (err) {
         incrementError.value[habit.id] = err.message || 'Failed to log.';
@@ -240,6 +348,7 @@ export default {
       }
     };
 
+    // Mark habit complete
     const markHabitComplete = async (habitId) => {
       await fetch(`http://localhost:3000/habits/${habitId}`, {
         method: 'PATCH',
@@ -255,93 +364,143 @@ export default {
       return `width: ${percent}%; background: #4f9dff; height: 8px; border-radius: 8px;`;
     };
 
-    // Action button style (color by habit)
+    // Action button style
     const actionBtnStyle = (habit) => {
       const colors = ['#4f9dff', '#74ebd5', '#a78bfa', '#ffd166', '#ff8fa3'];
       const idx = habit.id % colors.length;
       return `background: ${colors[idx]}; color: #fff; font-weight: 600; border-radius: 8px; padding: 0.7rem 1.2rem; font-size: 1rem; box-shadow: 0 2px 8px rgba(79,157,255,0.10);`;
     };
 
-    // Streak calculation (mock: just logs count for now)
+    // Streak calculation
     const getStreak = (habitId) => {
-      const logs = habitLogs.value[habitId] || [];
-      return logs.length;
+      const logs = (habitLogs.value[habitId] || [])
+        .map(log => new Date(log.log_date))
+        .sort((a, b) => a - b);
+
+      if (logs.length === 0) return 0;
+
+      let streak = 1;
+      for (let i = 1; i < logs.length; i++) {
+        const diffHours = (logs[i] - logs[i - 1]) / (1000 * 60 * 60);
+        if (diffHours >= 24 && diffHours <= 48) {
+          streak++;
+        } else if (diffHours > 48) {
+          streak = 1;
+        }
+      }
+      const now = new Date();
+      const lastLogDiff = (now - logs[logs.length - 1]) / (1000 * 60 * 60);
+      if (lastLogDiff > 48) streak = 0;
+      return streak;
     };
 
-    const filteredHabits = computed(() => habits.value.filter(h => h.name && h.goal_value));
+    // Computed habits
+    const filteredHabits = computed(() => habits.value);
 
     onMounted(fetchHabits);
 
     return {
+      // --- Data ---
       habits,
+      profile,
       filteredHabits,
       habitLogs,
+
+      // --- Create Habit ---
       newHabitName,
       newHabitDescription,
       newHabitGoalType,
       newHabitGoalValue,
+      habitHasGoal,
+      onHabitHasGoalChange,
       addHabit,
-      showAddHabit,
-      activeTab,
-      progressStyle,
-      actionBtnStyle,
-      getStreak,
-      isAdding,
       addError,
+      isAdding,
+      showAddHabit,
+
+      // --- Delete Habit ---
+      confirmDeleteHabit,
+      cancelDelete,
+      removeHabit,
+      habitToDelete,
+      showConfirmModal,
+      isDeleting,
+
+      // --- Update Habit ---
+      markHabitComplete,
+
+      // --- Habit Logging ---
       handleIncrement,
       incrementing,
       incrementError,
+      submitDrinkingWaterLog,
+      submitDiaperLog,
+      submitFeedingLog,
+      submitGenericLog,
+      submitHabitLog,
+
+      // --- UI State ---
+      activeTab,
       showDiaperModal,
       showFeedingModal,
       showGenericModal,
       showDrinkingWaterModal,
-      submitDrinkingWaterLog,
-      submitDiaperLog,
-      submitFeedingLog,
-      submitGenericLog
+
+      // --- Helpers / Computed ---
+      progressStyle,
+      actionBtnStyle,
+      getStreak,
     };
   }
 }
 </script>
 
 <style>
-
+.page-header {
+  text-align: center;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: linear-gradient(90deg, #4f9dff, #74ebd5);
+  margin: 2rem 0 1rem 0;
+}
 
 .habits-dashboard {
-  max-width: 900px;
-  margin: 2rem auto;
-  padding: 2.5rem 1.5rem;
-  background: linear-gradient(120deg, #f8fafc 60%, #e0f7fa 100%);
-  border-radius: 32px;
-  box-shadow: 0 8px 32px rgba(79,157,255,0.10);
+  max-width: 1100px;
+  margin: 2.5rem auto;
+  padding: 2.5rem 2rem;
+  background: linear-gradient(120deg, #f8fafc 70%, #e0f7fa 100%);
+  border-radius: 36px;
+  box-shadow: 0 8px 32px rgba(79,157,255,0.12);
 }
+
 .dashboard-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2.5rem;
 }
 .dashboard-header h1 {
-  font-size: 2.3rem;
+  font-size: 2.7rem;
   font-weight: 800;
   background: linear-gradient(90deg, #4f9dff, #74ebd5);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  margin: 0;
 }
 .dashboard-actions {
   display: flex;
-  gap: 1.2rem;
+  gap: 1.5rem;
 }
 .dashboard-btn {
-  font-size: 1.08rem;
+  font-size: 1.12rem;
   font-weight: 700;
-  border-radius: 10px;
-  padding: 0.7rem 1.5rem;
+  border-radius: 12px;
+  padding: 0.8rem 1.7rem;
   background: #fff;
   color: #4f9dff;
   border: 2px solid #e0e7ef;
-  box-shadow: 0 2px 8px rgba(79,157,255,0.07);
+  box-shadow: 0 2px 8px rgba(79,157,255,0.09);
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
 }
@@ -356,134 +515,137 @@ export default {
   border: none;
 }
 .dashboard-btn:hover {
-  filter: brightness(1.08);
+  filter: brightness(1.12);
 }
-.dashboard-tabs {
-  display: flex;
-  gap: 2rem;
-  margin-bottom: 2.2rem;
-  border-bottom: 2px solid #e0e7ef;
-}
-.tab {
-  background: none;
-  border: none;
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: #90a4ae;
-  padding: 0.7rem 0.5rem;
-  cursor: pointer;
-  position: relative;
-}
-.tab.active {
-  color: #4f9dff;
-}
-.tab.active::after {
-  content: '';
-  display: block;
-  height: 3px;
-  width: 100%;
-  background: #4f9dff;
-  border-radius: 2px;
-  position: absolute;
-  left: 0;
-  bottom: -8px;
-}
+
 .dashboard-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2.5rem;
+  margin-top: 1rem;
 }
 .dashboard-card {
   background: #fff;
-  border-radius: 18px;
-  box-shadow: 0 4px 16px rgba(79,157,255,0.09);
-  padding: 1.5rem 1.2rem;
+  border-radius: 22px;
+  box-shadow: 0 4px 24px rgba(79,157,255,0.11);
+  padding: 2rem 1.5rem 1.5rem 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 1.1rem;
+  gap: 1.2rem;
   min-height: 220px;
   position: relative;
+  transition: box-shadow 0.2s;
+}
+.dashboard-card:hover {
+  box-shadow: 0 8px 32px rgba(79,157,255,0.18);
 }
 .card-header {
   display: flex;
   align-items: center;
   gap: 0.7rem;
-  font-size: 1.25rem;
+  font-size: 1.35rem;
   font-weight: 700;
   color: #4f9dff;
+  margin-bottom: 0.5rem;
 }
 .card-title {
-  font-size: 1.18rem;
+  font-size: 1.22rem;
   font-weight: 700;
-}
-.card-icon {
-  font-size: 1.5rem;
 }
 .card-progress {
   margin-top: 0.2rem;
 }
 .progress-label {
-  font-size: 1rem;
+  font-size: 1.05rem;
   color: #90a4ae;
   margin-bottom: 0.3rem;
 }
 .progress-bar {
   width: 100%;
-  height: 8px;
+  height: 10px;
   background: #e0e7ef;
   border-radius: 8px;
   overflow: hidden;
 }
 .progress-fill {
-  height: 8px;
+  height: 10px;
   border-radius: 8px;
   transition: width 0.3s;
 }
+
 .card-action-row {
-  margin-top: 0.7rem;
+  margin-top: 1rem;
   display: flex;
-  justify-content: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 .card-action-btn {
-  font-size: 1.05rem;
+  font-size: 1.08rem;
   font-weight: 700;
   border: none;
   border-radius: 10px;
-  padding: 0.7rem 1.2rem;
+  padding: 0.8rem 1.4rem;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(79,157,255,0.10);
   transition: background 0.2s;
 }
-.card-streak {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 1rem;
-  color: #ff9800;
-  font-weight: 600;
+.delete-habit-btn {
+  background: linear-gradient(135deg, #e63946, #dc2626);
+  color: white;
+  border: none;
+  padding: 0.8rem 1.4rem;
+  border-radius: 10px;
+  font-size: 1.08rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(230, 57, 70, 0.18);
 }
-.streak-icon {
-  font-size: 1.2rem;
+.delete-habit-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(230, 57, 70, 0.28);
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
 }
+.delete-habit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+.card-error {
+  color: #d32f2f;
+  font-size: 0.98rem;
+  margin-top: 0.5rem;
+  text-align: left;
+}
+
+/* Modal Overlay */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0,0,0,0.25);
+  background: rgba(30, 41, 59, 0.45);
+  backdrop-filter: blur(4px) brightness(0.9);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
 }
+
+/* Modal */
 .modal {
   background: #fff;
-  border-radius: 18px;
-  box-shadow: 0 8px 32px rgba(79,157,255,0.18);
-  padding: 2rem 2.5rem;
-  min-width: 320px;
-  max-width: 90vw;
+  border-radius: 20px;
+  box-shadow: 0 12px 40px rgba(30,41,59,0.18);
+  padding: 2.5rem 2.5rem 2rem 2.5rem;
+  min-width: 340px;
+  max-width: 95vw;
+  color: #222;
+  font-size: 1.15rem;
+  font-weight: 500;
+  text-align: center;
+  border: 2px solid #4f9dff;
 }
 .modal-form {
   display: flex;
@@ -491,22 +653,48 @@ export default {
   gap: 1rem;
   margin-top: 1rem;
 }
-.modal-form input {
+.modal-form input, select {
   padding: 0.7rem;
   border-radius: 8px;
   border: 1.5px solid #b3c2d6;
   font-size: 1rem;
   background: #f6fafd;
 }
+.modal-form input::placeholder, select {
+  color: #494949;
+}
+.modal-form select:valid {
+  color: #000;
+}
+.modal-form input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  accent-color: #494949;
+  margin-right: 0.6rem;
+  vertical-align: middle;
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+  box-shadow: 0 1px 4px rgba(79,157,255,0.08);
+}
+.modal-form label[for="habitHasGoal"] {
+  font-size: 1.08rem;
+  font-weight: 400;
+  color: #494949;
+  vertical-align: middle;
+  cursor: pointer;
+  margin-bottom: 0;
+  margin-right: 0.5rem;
+}
 .modal-error {
   color: #d32f2f;
-  font-size: 0.9rem;
+  font-size: 0.98rem;
   margin-top: 0.5rem;
 }
 .modal-actions {
   display: flex;
   gap: 1rem;
-  margin-top: 1rem;
+  margin-top: 1.5rem;
+  justify-content: center;
 }
 .modal-add {
   background: linear-gradient(135deg, #4f9dff, #74ebd5);
@@ -526,17 +714,28 @@ export default {
   padding: 0.7rem 1.5rem;
   cursor: pointer;
 }
-@media (max-width: 900px) {
+
+/* Responsive */
+@media (max-width: 1200px) {
   .habits-dashboard {
-    padding: 1rem 0.2rem;
+    padding: 1.5rem 0.5rem;
     max-width: 100%;
   }
   .dashboard-cards {
-    grid-template-columns: 1fr;
-    gap: 1.2rem;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
   }
+}
+@media (max-width: 800px) {
   .dashboard-header h1 {
-    font-size: 1.5rem;
+    font-size: 2rem;
+  }
+  .dashboard-cards {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .dashboard-card {
+    padding: 1.2rem 0.7rem;
   }
 }
 </style>

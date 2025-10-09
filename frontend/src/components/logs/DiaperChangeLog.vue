@@ -6,6 +6,7 @@
       <label>
         Type:
         <select v-model="changeType" required>
+          <option value="" disabled>Select type</option>
           <option value="wet">Wet</option>
           <option value="dirty">Dirty</option>
           <option value="both">Both</option>
