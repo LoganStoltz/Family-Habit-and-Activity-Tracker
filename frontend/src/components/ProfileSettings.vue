@@ -40,7 +40,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import ConfirmDeleteModal from './ConfirmDeleteModal.vue';
+import { defineAsyncComponent } from 'vue';
+const ConfirmDeleteModal = defineAsyncComponent(() => import('./ConfirmDeleteModal.vue'));
 
 // Define profile type
 interface Profile {

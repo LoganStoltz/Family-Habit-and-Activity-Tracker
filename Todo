@@ -1,0 +1,57 @@
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ROADMAP ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+✅ Completed Features
+User authentication: User creation and login endpoints.
+Profile management: Profiles linked to users, with life stage enum (Baby, Adult). *More to come after first deployment*
+Habit management: Create, view, update, and delete habits for profiles.
+Habit logging: Log habit activities (daily, weekly, etc.) with notes and amounts.
+Frontend UI: Vue components for habits, logs, modals, and dashboard.
+Foreign key constraints: Enforced in the database for data integrity.
+Habit deletion: Deletes associated logs (and now completed habits).
+
+🟡 In Progress / Recently Fixed
+Habit Creation: Allow users to create new habits of their own or choose from a selcetion of prebuilt habits
+Fixing habit deletion: Handling foreign key violations by deleting dependent completed habits.
+Filtering logs by period: Displaying only relevant logs for daily/weekly habits in the UI.
+Marking habits as completed: Posting to the correct nested endpoint and updating backend logic.
+Habit progress tracking: Progress bars and streak calculations in the frontend.
+Completed habits: Table and API for marking habits as completed.
+Mobile responsiveness: Improve UI for mobile devices.
+
+📝 To Implement / Next Steps
+*Analytics: Charts for habit streaks, completion rates, and trends.
+*Unit and integration tests: Add automated tests for backend and frontend. 
+Habit reminders/notifications: Send reminders for habits not logged in the current period.
+Habit editing: Allow users to edit habit details and goals.
+Habit archiving: Option to archive habits instead of deleting.
+Milestone tracking: Special logs and UI for baby milestones.
+Family sharing: Invite/manage multiple users per family, assign habits to others.
+Accessibility improvements: Make the app more accessible (ARIA, keyboard navigation).
+Admin dashboard: Manage users, profiles, and habits centrally.
+Error handling: More robust error messages and handling in both backend and frontend.
+API documentation: Document all endpoints for future development/integration.
+Deployment: Prepare for production deployment (Heroku, AWS, etc.).
+
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ HABITS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+✅ Habits Implmented
+
+
+🟡 Habits In Progress
+ - Diaper Change (Wet/Dirty/Both, Other Notes)
+ - Fed (Formula/BreastMilk/Other, __ of Ounces, Other Notes)
+ - Exercised (__ of Minutes, Type of Workout, Warmup Yes/No, Cooldown Yes/No, Other Notes)
+ - Sleep (__ Hours, Went to bed by __, Other Notes)
+ - Drank Water (__ glasses of water OR __ Ounces of water, Other Notes)
+ - Meals Eaten (Snack OR Meal, Calories, Other Notes)
+
+📝 Habits To Implement
+ - Meditation (__ of minutes, Other Notes)
+ - Reading (__ of Pages read OR __ of minutes read, Other Notes)
+ - Meals Eaten (Snack OR Meal, Calories, Other Notes)
+ - Cleaning (Notes)
+ - More to come...
+
+
+

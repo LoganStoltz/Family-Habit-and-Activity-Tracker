@@ -1,6 +1,5 @@
 <template>
   <div class="habits-page">
-
     <div class="page-header">
       <h2>{{ profile.firstName }}'s Habits & Care</h2>
     </div>
@@ -25,12 +24,7 @@
           </div>
           <div class="card-progress">
             <div class="progress-label">
-              <template v-if="habit.goal_value">
-                {{ habitLogs[habit.id]?.length || 0 }}/{{ habit.goal_value }} {{ habit.goal_type }}
-              </template>
-              <template v-else>
-                {{ habitLogs[habit.id]?.length || 0 }} logged
-              </template>
+              {{ habitLogs[habit.id]?.length || 0 }} logged
             </div>
             <div class="progress-bar">
               <div class="progress-fill" :style="progressStyle(habit)"></div>
@@ -41,13 +35,10 @@
               class="card-action-btn"
               :style="actionBtnStyle(habit)"
               @click="handleIncrement(habit)"
-              :disabled="incrementing[habit.id] || habit.completed"
+              :disabled="incrementing[habit.id]"
             >
               <span v-if="incrementing[habit.id]">Logging...</span>
-              <span v-else>
-                <template v-if="habit.goal_value && habit.completed">Complete</template>
-                <template v-else>Log {{ habit.name }}</template>
-              </span>
+              <span v-else>Log {{ habit.name }}</span>
             </button>
             <button 
               class="delete-habit-btn"
@@ -82,27 +73,6 @@
           <form @submit.prevent="addHabit" class="modal-form">
             <input v-model="newHabitName" placeholder="New habit name" required />
             <input v-model="newHabitDescription" placeholder="Description" />
-            <select v-model="newHabitGoalType" required>
-              <option value="" disabled selected hidden>Frequency (e.g. daily, weekly)</option>
-              <option value="daily">Daily</option>
-              <option value="weekly">Weekly</option>
-              <option value="monthly">Monthly</option>
-            </select>
-            <label for="habitHasGoal">
-              <input
-                type="checkbox"
-                id="habitHasGoal"
-                v-model="habitHasGoal"
-                @change="onHabitHasGoalChange"
-              />
-              Set a goal for this habit?
-            </label>
-            <input
-              v-if="habitHasGoal"
-              v-model="newHabitGoalValue"
-              type="number"
-              placeholder="Goal value"
-            />
             <div v-if="addError" class="modal-error">{{ addError }}</div>
             <div class="modal-actions">
               <button type="submit" class="modal-add" :disabled="isAdding">
@@ -145,13 +115,9 @@ export default {
     // State
     const habits = ref([]);
     const habitLogs = ref({});
-    const habitHasGoal = ref(false);
     const newHabitName = ref('');
     const newHabitDescription = ref('');
-    const newHabitGoalType = ref('');
-    const newHabitGoalValue = ref('');
     const showAddHabit = ref(false);
-    const activeTab = ref('habits');
     const isAdding = ref(false);
     const isDeleting = ref({});
     const habitToDelete = ref(null);
@@ -196,14 +162,6 @@ export default {
       }
     };
 
-    // Checkbox handler
-    const onHabitHasGoalChange = (event) => {
-      habitHasGoal.value = event.target.checked;
-      if (!habitHasGoal.value) {
-        newHabitGoalValue.value = '';
-      }
-    };
-
     // Add a new habit
     const addHabit = async () => {
       isAdding.value = true;
@@ -216,9 +174,7 @@ export default {
             habit: {
               profile_id: profileId,
               name: newHabitName.value,
-              description: newHabitDescription.value,
-              goal_type: newHabitGoalType.value,
-              goal_value: newHabitGoalValue.value
+              description: newHabitDescription.value
             }
           })
         });
@@ -229,8 +185,6 @@ export default {
         }
         newHabitName.value = '';
         newHabitDescription.value = '';
-        newHabitGoalType.value = '';
-        newHabitGoalValue.value = '';
         showAddHabit.value = false;
         await fetchHabits();
       } catch (err) {
@@ -240,19 +194,19 @@ export default {
       }
     };
 
-    // Step 1: Show confirmation modal
-    const confirmDeleteHabit = (habit_id) => {
-      habitToDelete.value = habit_id;
+    // Show confirmation modal
+    const confirmDeleteHabit = (habit) => {
+      habitToDelete.value = habit;
       showConfirmModal.value = true;
     };
 
-    // Step 2: Cancel deletion
+    // Cancel deletion
     const cancelDelete = () => {
       habitToDelete.value = null;
       showConfirmModal.value = false;
     };
 
-    // Step 3: Remove a habit
+    // Remove a habit
     const removeHabit = async (habitId) => {
       isDeleting.value[habitId] = true;
       try {
@@ -271,7 +225,6 @@ export default {
         cancelDelete();
       }
     };
-
 
     // Open correct modal for logging
     const handleIncrement = (habit) => {
@@ -311,15 +264,14 @@ export default {
       incrementError.value[habit.id] = '';
       try {
         const today = new Date().toISOString().slice(0, 10);
-        let amount = 1;
-        if (typeof logData.amount !== 'undefined') {
-          amount = logData.amount;
-        }
+        const { notes, ...extraFields } = logData;
         const payload = {
           habit_log: {
+            habit_id: habit.id,
+            profile_id: profileId,
             log_date: today,
-            amount,
-            ...logData
+            notes: notes || '',
+            extra_data: { ...extraFields } // All custom fields go here
           }
         };
         const response = await fetch(`http://localhost:3000/habits/${habit.id}/habit_logs`, {
@@ -329,17 +281,11 @@ export default {
         });
         if (!response.ok) {
           const errorData = await response.json();
-          console.error('Habit log error:', errorData);
           incrementError.value[habit.id] = errorData.error || 'Failed to log.';
           throw new Error(incrementError.value[habit.id]);
         }
         await fetchLogs(habit.id);
         await fetchHabits();
-        const logs = habitLogs.value[habit.id] || [];
-        if (habit.goal_value && logs.length >= habit.goal_value && !habit.completed) {
-          await markHabitComplete(habit.id);
-          habit.completed = true;
-        }
       } catch (err) {
         incrementError.value[habit.id] = err.message || 'Failed to log.';
       } finally {
@@ -348,19 +294,10 @@ export default {
       }
     };
 
-    // Mark habit complete
-    const markHabitComplete = async (habitId) => {
-      await fetch(`http://localhost:3000/habits/${habitId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ habit: { completed: true } })
-      });
-    };
-
-    // Progress bar style
+    // Progress bar style (just shows % of logs, always 100% if at least one log)
     const progressStyle = (habit) => {
       const logs = habitLogs.value[habit.id] || [];
-      const percent = Math.min(100, Math.round((logs.length / (habit.goal_value || 1)) * 100));
+      const percent = logs.length > 0 ? 100 : 0;
       return `width: ${percent}%; background: #4f9dff; height: 8px; border-radius: 8px;`;
     };
 
@@ -371,65 +308,28 @@ export default {
       return `background: ${colors[idx]}; color: #fff; font-weight: 600; border-radius: 8px; padding: 0.7rem 1.2rem; font-size: 1rem; box-shadow: 0 2px 8px rgba(79,157,255,0.10);`;
     };
 
-    // Streak calculation
-    const getStreak = (habitId) => {
-      const logs = (habitLogs.value[habitId] || [])
-        .map(log => new Date(log.log_date))
-        .sort((a, b) => a - b);
-
-      if (logs.length === 0) return 0;
-
-      let streak = 1;
-      for (let i = 1; i < logs.length; i++) {
-        const diffHours = (logs[i] - logs[i - 1]) / (1000 * 60 * 60);
-        if (diffHours >= 24 && diffHours <= 48) {
-          streak++;
-        } else if (diffHours > 48) {
-          streak = 1;
-        }
-      }
-      const now = new Date();
-      const lastLogDiff = (now - logs[logs.length - 1]) / (1000 * 60 * 60);
-      if (lastLogDiff > 48) streak = 0;
-      return streak;
-    };
-
     // Computed habits
     const filteredHabits = computed(() => habits.value);
 
     onMounted(fetchHabits);
 
     return {
-      // --- Data ---
       habits,
       profile,
       filteredHabits,
       habitLogs,
-
-      // --- Create Habit ---
       newHabitName,
       newHabitDescription,
-      newHabitGoalType,
-      newHabitGoalValue,
-      habitHasGoal,
-      onHabitHasGoalChange,
       addHabit,
       addError,
       isAdding,
       showAddHabit,
-
-      // --- Delete Habit ---
       confirmDeleteHabit,
       cancelDelete,
       removeHabit,
       habitToDelete,
       showConfirmModal,
       isDeleting,
-
-      // --- Update Habit ---
-      markHabitComplete,
-
-      // --- Habit Logging ---
       handleIncrement,
       incrementing,
       incrementError,
@@ -438,18 +338,12 @@ export default {
       submitFeedingLog,
       submitGenericLog,
       submitHabitLog,
-
-      // --- UI State ---
-      activeTab,
       showDiaperModal,
       showFeedingModal,
       showGenericModal,
       showDrinkingWaterModal,
-
-      // --- Helpers / Computed ---
       progressStyle,
       actionBtnStyle,
-      getStreak,
     };
   }
 }
@@ -465,7 +359,7 @@ export default {
 }
 
 .habits-dashboard {
-  max-width: 1100px;
+  max-width: 1800px;
   margin: 2.5rem auto;
   padding: 2.5rem 2rem;
   background: linear-gradient(120deg, #f8fafc 70%, #e0f7fa 100%);

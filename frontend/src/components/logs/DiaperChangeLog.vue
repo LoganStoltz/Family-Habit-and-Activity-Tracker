@@ -84,4 +84,3 @@ form {
    box-shadow: 0 2px 8px rgba(79,157,255,0.10);
  }
 </style>
-// Moved to logs/DiaperChangeLog.vue
