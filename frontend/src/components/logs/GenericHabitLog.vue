@@ -15,7 +15,7 @@
 <script setup>
 import { ref } from 'vue';
 const notes = ref('');
-const emit = defineEmits(['log-submitted']);
+const emit = defineEmits(['log-submitted', 'close']);
 
 function submitLog() {
   emit('log-submitted', { notes: notes.value });

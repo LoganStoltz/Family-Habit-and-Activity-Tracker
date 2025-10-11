@@ -25,7 +25,7 @@
 import { ref } from 'vue';
 const changeType = ref('');
 const notes = ref('');
-const emit = defineEmits(['log-submitted']);
+const emit = defineEmits(['log-submitted', 'close']);
 
 function submitLog() {
   emit('log-submitted', { change_type: changeType.value, notes: notes.value });
@@ -84,3 +84,4 @@ form {
    box-shadow: 0 2px 8px rgba(79,157,255,0.10);
  }
 </style>
+

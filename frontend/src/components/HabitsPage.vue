@@ -94,6 +94,18 @@
       <div v-if="showDrinkingWaterModal" class="modal-overlay">
         <DrinkingWaterLogs @log-submitted="submitDrinkingWaterLog" @close="showDrinkingWaterModal = false" />
       </div>
+      <div v-if="showExerciseModal" class="modal-overlay">
+        <ExerciseLogs @log-submitted="submitExerciseLog" @close="showExerciseModal = false" />
+      </div>
+      <div v-if="showSleepingModal" class="modal-overlay">
+        <SleepingLog @log-submitted="submitSleepingLog" @close="showSleepingModal = false" />
+      </div>
+      <div v-if="showMeditationModal" class="modal-overlay">
+        <MeditationLog @log-submitted="submitMeditationLog" @close="showMeditationModal = false" />
+      </div>
+      <div v-if="showReadingModal" class="modal-overlay"> 
+        <ReadingLog @log-submitted="submitReadingLog" @close="showReadingLog = false" />
+      </div>
       <div v-if="showGenericModal" class="modal-overlay">
         <GenericHabitLog @log-submitted="submitGenericLog" @close="showGenericModal = false" />
       </div>
@@ -106,11 +118,25 @@ import { ref, onMounted, computed } from 'vue';
 import DiaperChangeLog from './logs/DiaperChangeLog.vue';
 import FeedingLog from './logs/FeedingLog.vue';
 import DrinkingWaterLogs from './logs/DrinkingWaterLogs.vue';
+import ExerciseLogs from './logs/ExerciseLogs.vue';
 import GenericHabitLog from './logs/GenericHabitLog.vue';
 import ConfirmDeleteModal from './ConfirmDeleteModal.vue';
+import MeditationLog from './logs/MeditationLog.vue';
+import ReadingLog from './logs/ReadingLog.vue';
+import SleepingLog from './logs/SleepingLog.vue';
 
 export default {
-  components: { DiaperChangeLog, FeedingLog, DrinkingWaterLogs, GenericHabitLog, ConfirmDeleteModal },
+  components: { 
+    DiaperChangeLog, 
+    FeedingLog, 
+    DrinkingWaterLogs,
+    GenericHabitLog, 
+    ExerciseLogs, 
+    ConfirmDeleteModal, 
+    MeditationLog,
+    ReadingLog,
+    SleepingLog 
+  },
   setup() {
     // State
     const habits = ref([]);
@@ -128,9 +154,13 @@ export default {
     const showDiaperModal = ref(false);
     const showFeedingModal = ref(false);
     const showDrinkingWaterModal = ref(false);
+    const showExerciseModal = ref(false);
+    const showSleepingModal = ref(false);
+    const showMeditationModal = ref(false);
+    const showReadingModal = ref(false);
     const showGenericModal = ref(false);
     const selectedHabit = ref(null);
-
+    
     // User/Profile
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const userId = user?.id;
@@ -235,6 +265,14 @@ export default {
         showFeedingModal.value = true;
       } else if (habit.name.includes('Drink Water')) {
         showDrinkingWaterModal.value = true;
+      } else if (habit.name.includes('Exercise')) {
+          showExerciseModal.value = true;
+      } else if (habit.name.includes('Sleeping')) {
+        showSleepingModal.value = true;
+      } else if (habit.name.includes('Meditation')) {
+        showMeditationModal.value = true;
+      } else if (habit.name.includes('Reading')) {
+        showReadingModal.value = true;
       } else {
         showGenericModal.value = true;
       }
@@ -251,6 +289,22 @@ export default {
     };
     const submitDrinkingWaterLog = async (logData) => {
       showDrinkingWaterModal.value = false;
+      await submitHabitLog(selectedHabit.value, logData);
+    };
+    const submitExerciseLog = async (logData) => {
+      showExerciseModal.value = false;
+      await submitHabitLog(selectedHabit.value, logData);
+    };
+    const submitSleepingLog = async (logData) => {
+      showSleepingModal.value = false;
+      await submitHabitLog(selectedHabit.value, logData);
+    };
+    const submitMeditationLog = async (logData) => {
+      showMeditationModal.value = false;
+      await submitHabitLog(selectedHabit.value, logData);
+    };
+    const submitReadingLog = async (logData) => {
+      showReadingModal.value = false;
       await submitHabitLog(selectedHabit.value, logData);
     };
     const submitGenericLog = async (logData) => {
@@ -336,12 +390,20 @@ export default {
       submitDrinkingWaterLog,
       submitDiaperLog,
       submitFeedingLog,
+      submitExerciseLog,
+      submitSleepingLog,
+      submitMeditationLog,
+      submitReadingLog,
       submitGenericLog,
       submitHabitLog,
       showDiaperModal,
       showFeedingModal,
-      showGenericModal,
       showDrinkingWaterModal,
+      showExerciseModal,
+      showSleepingModal,
+      showMeditationModal,
+      showReadingModal,
+      showGenericModal,
       progressStyle,
       actionBtnStyle,
     };

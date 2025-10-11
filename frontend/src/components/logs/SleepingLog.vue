@@ -4,36 +4,31 @@
     <h2>Log Feeding</h2>
     <form @submit.prevent="submitLog">
       <label>
-        Type:
-        <select v-model="type" required>
-           <option value="" disabled>Select type</option>
-           <option value="breastMilk">Breast Milk</option>
-           <option value="formula">Formula</option>
-           <option value="solids">Solids</option>
-        </select>
+        Amount of sleep in hours:
+        <input v-model.number="amount" type="number" min="0" step="0.5" required />
       </label>
       <label>
-        Amount (oz):
-        <input v-model.number="amount" type="number" min="0" step="0.5" required />
+        Went to bed by:
+        <input v-model="bedtime" type="time" required />
       </label>
       <label>
         Notes:
         <input v-model="notes" placeholder="Optional notes" />
       </label>
-      <button type="submit">Log Feeding</button>
+      <button type="submit">Log Sleep</button>
     </form>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue';
-const type = ref('');
 const amount = ref(0);
+const bedtime = ref('');
 const notes = ref('');
 const emit = defineEmits(['log-submitted', 'close']);
 
 function submitLog() {
-  emit('log-submitted', { type: type.value, amount: amount.value, notes: notes.value });
+  emit('log-submitted', { amount: amount.value, bedtime: bedtime.value, notes: notes.value });
 }
 </script>
 

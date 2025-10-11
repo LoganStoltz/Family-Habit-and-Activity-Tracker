@@ -1,4 +1,4 @@
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ROADMAP ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ROADMAP ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ✅ Completed Features
 User authentication: User creation and login endpoints.
@@ -36,18 +36,20 @@ Deployment: Prepare for production deployment (Heroku, AWS, etc.).
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ HABITS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ✅ Habits Implmented
-
-
-🟡 Habits In Progress
  - Diaper Change (Wet/Dirty/Both, Other Notes)
  - Fed (Formula/BreastMilk/Other, __ of Ounces, Other Notes)
  - Exercised (__ of Minutes, Type of Workout, Warmup Yes/No, Cooldown Yes/No, Other Notes)
  - Sleep (__ Hours, Went to bed by __, Other Notes)
- - Drank Water (__ glasses of water OR __ Ounces of water, Other Notes)
+ - Drank Water (__ glasses/ounces of water, Other Notes)
+
+🟡 Habits In Progress
+ - All premade creation habits 
+ - Drank Water: __ glasses of water OR __ Ounces of water *creation only*
  - Meals Eaten (Snack OR Meal, Calories, Other Notes)
 
 📝 Habits To Implement
  - Meditation (__ of minutes, Other Notes)
+ - Hygine (Bath/Shower, Other Notes)
  - Reading (__ of Pages read OR __ of minutes read, Other Notes)
  - Meals Eaten (Snack OR Meal, Calories, Other Notes)
  - Cleaning (Notes)

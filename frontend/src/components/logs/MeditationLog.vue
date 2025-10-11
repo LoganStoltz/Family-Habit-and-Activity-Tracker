@@ -1,39 +1,32 @@
 <template>
   <div class="modal">
-    <button class="modal-exit" type="button" @click="$emit('close')">×</button>
-    <h2>Log Feeding</h2>
+    <button class="modal-exit" @click="$emit('close')">&times;</button>
+    <h2>Log Exercise</h2>
     <form @submit.prevent="submitLog">
       <label>
-        Type:
-        <select v-model="type" required>
-           <option value="" disabled>Select type</option>
-           <option value="breastMilk">Breast Milk</option>
-           <option value="formula">Formula</option>
-           <option value="solids">Solids</option>
-        </select>
+          Duration (minutes):
+          <input type="number" v-model.number="duration" min="0" step="1" required />
       </label>
       <label>
-        Amount (oz):
-        <input v-model.number="amount" type="number" min="0" step="0.5" required />
+          Notes:
+          <input type="text" v-model="notes" placeholder="Optional notes..." />
       </label>
-      <label>
-        Notes:
-        <input v-model="notes" placeholder="Optional notes" />
-      </label>
-      <button type="submit">Log Feeding</button>
+      <button type="submit">Submit Log</button>
     </form>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue';
-const type = ref('');
-const amount = ref(0);
+const duration = ref(0);
 const notes = ref('');
 const emit = defineEmits(['log-submitted', 'close']);
 
 function submitLog() {
-  emit('log-submitted', { type: type.value, amount: amount.value, notes: notes.value });
+  emit('log-submitted', { 
+    duration: duration.value,
+    notes: notes.value
+  });
 }
 </script>
 
