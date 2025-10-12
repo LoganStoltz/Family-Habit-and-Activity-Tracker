@@ -1,8 +1,12 @@
 <template>
   <div class="modal">
     <button class="modal-exit" type="button" @click="$emit('close')">×</button>
-    <h2>Log Habit</h2>
+    <h2>Log Cleaning</h2>
     <form @submit.prevent="submitLog">
+      <label>
+        Type:
+        <input type="text" v-model="type" placeholder="Type of cleaning">
+      </label>
       <label>
         Notes:
         <input type="text" v-model="notes" placeholder="Additional Notes" />
@@ -15,10 +19,12 @@
 <script setup>
 import { ref } from 'vue';
 const notes = ref('');
+const type = ref('');
 const emit = defineEmits(['log-submitted', 'close']);
 
 function submitLog() {
-  emit('log-submitted', { 
+  emit('log-submitted', {
+    type: type.value,
     notes: notes.value
   });
 }

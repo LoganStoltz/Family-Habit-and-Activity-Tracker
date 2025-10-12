@@ -104,7 +104,13 @@
         <MeditationLog @log-submitted="submitMeditationLog" @close="showMeditationModal = false" />
       </div>
       <div v-if="showReadingModal" class="modal-overlay"> 
-        <ReadingLog @log-submitted="submitReadingLog" @close="showReadingLog = false" />
+        <ReadingLog @log-submitted="submitReadingLog" @close="showReadingModal = false" />
+      </div>
+      <div v-if="showCleaningModal" class="modal-overlay">
+        <CleaningLog @log-submitted="submitCleaningLog" @close="showCleaningModal = false" />
+      </div>
+      <div v-if="showMealModal" class="modal-overlay">
+        <MealLog @log-submitted="submitMealLog" @close="showMealModal = false" />
       </div>
       <div v-if="showGenericModal" class="modal-overlay">
         <GenericHabitLog @log-submitted="submitGenericLog" @close="showGenericModal = false" />
@@ -124,6 +130,8 @@ import ConfirmDeleteModal from './ConfirmDeleteModal.vue';
 import MeditationLog from './logs/MeditationLog.vue';
 import ReadingLog from './logs/ReadingLog.vue';
 import SleepingLog from './logs/SleepingLog.vue';
+import MealLog from './logs/MealLog.vue';
+import CleaningLog from './logs/CleaningLog.vue';
 
 export default {
   components: { 
@@ -135,7 +143,9 @@ export default {
     ConfirmDeleteModal, 
     MeditationLog,
     ReadingLog,
-    SleepingLog 
+    SleepingLog,
+    MealLog,
+    CleaningLog
   },
   setup() {
     // State
@@ -150,7 +160,9 @@ export default {
     const addError = ref('');
     const incrementing = ref({});
     const incrementError = ref({});
+    
     const showConfirmModal = ref(false);
+    
     const showDiaperModal = ref(false);
     const showFeedingModal = ref(false);
     const showDrinkingWaterModal = ref(false);
@@ -158,7 +170,10 @@ export default {
     const showSleepingModal = ref(false);
     const showMeditationModal = ref(false);
     const showReadingModal = ref(false);
+    const showCleaningModal = ref(false);
+    const showMealModal = ref(false);
     const showGenericModal = ref(false);
+
     const selectedHabit = ref(null);
     
     // User/Profile
@@ -273,6 +288,10 @@ export default {
         showMeditationModal.value = true;
       } else if (habit.name.includes('Reading')) {
         showReadingModal.value = true;
+      } else if(habit.name.includes('Cleaning')) {
+        showCleaningModal.value = true;
+      } else if(habit.name.includes('Meal')) {
+        showMealModal.value = true;
       } else {
         showGenericModal.value = true;
       }
@@ -305,6 +324,14 @@ export default {
     };
     const submitReadingLog = async (logData) => {
       showReadingModal.value = false;
+      await submitHabitLog(selectedHabit.value, logData);
+    };
+    const submitCleaningLog = async (logData) => {
+      showCleaningModal.value = false;
+      await submitHabitLog(selectedHabit.value, logData);
+    };
+    const submitMealLog = async (logData) => {
+      showMealModal.value = false;
       await submitHabitLog(selectedHabit.value, logData);
     };
     const submitGenericLog = async (logData) => {
@@ -394,6 +421,8 @@ export default {
       submitSleepingLog,
       submitMeditationLog,
       submitReadingLog,
+      submitCleaningLog,
+      submitMealLog,
       submitGenericLog,
       submitHabitLog,
       showDiaperModal,
@@ -403,9 +432,11 @@ export default {
       showSleepingModal,
       showMeditationModal,
       showReadingModal,
+      showCleaningModal,
+      showMealModal,
       showGenericModal,
       progressStyle,
-      actionBtnStyle,
+      actionBtnStyle
     };
   }
 }
