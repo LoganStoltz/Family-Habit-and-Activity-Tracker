@@ -1,19 +1,15 @@
 <template>
   <div class="modal">
     <button class="modal-exit" type="button" @click="$emit('close')">&times;</button>
-    <h2>Log Sleep</h2>
+    <h2>Log Baby Bath</h2>
     <form @submit.prevent="submitLog">
       <label>
-        Amount of sleep in hours:
-        <input v-model.number="amount" type="number" min="0" step="0.5" required />
+          Lotion Applied:
+          <input type="checkbox" v-model="lotionApplied" />
       </label>
       <label>
-        Went to bed by:
-        <input v-model="bedtime" type="time" required />
-      </label>
-      <label>
-        Notes:
-        <input type="text" v-model="notes" placeholder="Additional Notes" />
+            Notes:
+            <input type="text" v-model="notes" placeholder="Additional Notes" />
       </label>
       <button type="submit">Submit Log</button>
     </form>
@@ -22,15 +18,13 @@
 
 <script setup>
 import { ref } from 'vue';
-const amount = ref(0);
-const bedtime = ref('');
+const lotionApplied = ref('');
 const notes = ref('');
 const emit = defineEmits(['log-submitted', 'close']);
 
 function submitLog() {
-  emit('log-submitted', { 
-    amount: amount.value,
-    bedtime: bedtime.value,
+  emit('log-submitted', {
+    lotionApplied: lotionApplied.value,
     notes: notes.value
   });
 }

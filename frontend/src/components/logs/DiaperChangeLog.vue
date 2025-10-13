@@ -1,6 +1,6 @@
 <template>
   <div class="modal">
-    <button class="modal-exit" type="button" @click="$emit('close')">×</button>
+    <button class="modal-exit" type="button" @click="$emit('close')">&times;</button>
     <h2>Log Diaper Change</h2>
     <form @submit.prevent="submitLog">
       <label>
@@ -16,7 +16,7 @@
         Notes:
         <input v-model="notes" placeholder="Additional notes" />
       </label>
-      <button type="submit">Log Change</button>
+      <button type="submit">Submit Log</button>
     </form>
   </div>
 </template>

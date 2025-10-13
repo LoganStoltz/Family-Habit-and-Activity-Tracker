@@ -9,7 +9,7 @@
       <div class="dashboard-header">
         <h1>Habits & Care</h1>
         <div class="dashboard-actions">
-          <button class="dashboard-btn add-habit" @click="showAddHabit = true">+ Add Habit</button>
+          <button class="dashboard-btn add-habit" @click="showAddNewHabit = true">+ Add Habit</button>
           <button v-if="profile.profile_type === 'Baby'" class="dashboard-btn log-baby">
             🍼 Log Baby Milestones
           </button>
@@ -66,9 +66,10 @@
         @cancel="cancelDelete"
       />
 
-      <!-- Add Habit Modal -->
-      <div v-if="showAddHabit" class="modal-overlay">
+      <!-- Add Habit Modal (Custom) -->
+      <div v-if="showAddCustomHabit" class="modal-overlay">
         <div class="modal">
+          <button class="modal-exit" type="button" @click="showAddCustomHabit = false">&times;</button>
           <h2>Add New Habit</h2>
           <form @submit.prevent="addHabit" class="modal-form">
             <input v-model="newHabitName" placeholder="New habit name" required />
@@ -78,7 +79,52 @@
               <button type="submit" class="modal-add" :disabled="isAdding">
                 {{ isAdding ? 'Adding...' : 'Add' }}
               </button>
-              <button type="button" class="modal-cancel" @click="showAddHabit = false">Cancel</button>
+              <button type="button" class="modal-cancel" @click="showAddCustomHabit = false">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Premade or Custom Choice Modal -->
+      <div v-if="showAddNewHabit" class="modal-overlay">
+        <div class="modal">
+          <button class="modal-exit" type="button" @click="showAddNewHabit = false">&times;</button>
+          <h2>Premade or Custom Habit</h2>
+          <form class="modal-form">
+            <div class="modal-actions">
+              <button type="button" class="modal-add" @click="showAddPreMadeHabit = true; showAddNewHabit = false">Premade</button>
+              <button type="button" class="modal-add" style="background: linear-gradient(135deg, #a78bfa, #ffd166);" @click="showAddCustomHabit = true; showAddNewHabit = false">Custom</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Add Habit Modal (Premade) -->
+      <div v-if="showAddPreMadeHabit" class="modal-overlay">
+        <div class="modal">
+          <button class="modal-exit" type="button" @click="showAddPreMadeHabit = false">&times;</button>
+          <h2>Choose from a Selection of Habits</h2>
+          <form class="modal-form" @submit.prevent="submitPremadeHabit">
+            <select v-model="habitType" required>
+              <option value="" disabled>Select type</option>
+              <option value="adultBath">Adult Hygine</option>
+              <option value="babyBath">Baby Bath</option>
+              <option value="cleaning">Cleaning</option>
+              <option value="diaperChange">Diaper Change</option>
+              <option value="drinkWater">Drinking Water</option>
+              <option value="exercise">Exercise</option>
+              <option value="babyFeed">Baby Feeding</option>
+              <option value="meals">Meals</option>
+              <option value="meditation">Meditation</option>
+              <option value="reading">Reading</option>
+              <option value="sleeping">Sleeping</option>
+            </select>
+            <div v-if="addError" class="modal-error">{{ addError }}</div>
+            <div class="modal-actions">
+              <button type="submit" class="modal-add" :disabled="isAdding">
+                {{ isAdding ? 'Adding...' : 'Submit' }}
+              </button>
+              <button type="button" class="modal-cancel" @click="showAddPreMadeHabit = false">Cancel</button>
             </div>
           </form>
         </div>
@@ -112,6 +158,12 @@
       <div v-if="showMealModal" class="modal-overlay">
         <MealLog @log-submitted="submitMealLog" @close="showMealModal = false" />
       </div>
+      <div v-if="showAdultBathModal" class="modal-overlay">
+        <AdultBathLog @log-submitted="submitAdultBathLog" @close="showAdultBathModal = false" />
+      </div>
+      <div v-if="showBabyBathModal" class="modal-overlay">
+        <BabyBathLog @log-submitted="submitBabyBathLog" @close="showBabyBathModal = false" />
+      </div>
       <div v-if="showGenericModal" class="modal-overlay">
         <GenericHabitLog @log-submitted="submitGenericLog" @close="showGenericModal = false" />
       </div>
@@ -131,6 +183,8 @@ import MeditationLog from './logs/MeditationLog.vue';
 import ReadingLog from './logs/ReadingLog.vue';
 import SleepingLog from './logs/SleepingLog.vue';
 import MealLog from './logs/MealLog.vue';
+import AdultBathLog from './logs/AdultBathLog.vue';
+import BabyBathLog from './logs/BabyBathLog.vue';
 import CleaningLog from './logs/CleaningLog.vue';
 
 export default {
@@ -145,6 +199,8 @@ export default {
     ReadingLog,
     SleepingLog,
     MealLog,
+    AdultBathLog,
+    BabyBathLog,
     CleaningLog
   },
   setup() {
@@ -153,7 +209,9 @@ export default {
     const habitLogs = ref({});
     const newHabitName = ref('');
     const newHabitDescription = ref('');
-    const showAddHabit = ref(false);
+    const showAddCustomHabit = ref(false);
+    const showAddPreMadeHabit = ref(false);
+    const showAddNewHabit = ref(false);
     const isAdding = ref(false);
     const isDeleting = ref({});
     const habitToDelete = ref(null);
@@ -162,6 +220,8 @@ export default {
     const incrementError = ref({});
     
     const showConfirmModal = ref(false);
+
+    const habitType = ref('');
     
     const showDiaperModal = ref(false);
     const showFeedingModal = ref(false);
@@ -172,6 +232,8 @@ export default {
     const showReadingModal = ref(false);
     const showCleaningModal = ref(false);
     const showMealModal = ref(false);
+    const showAdultBathModal = ref(false);
+    const showBabyBathModal = ref(false);
     const showGenericModal = ref(false);
 
     const selectedHabit = ref(null);
@@ -181,6 +243,52 @@ export default {
     const userId = user?.id;
     const profile = JSON.parse(localStorage.getItem('profile') || '{}');
     const profileId = profile?.id;
+
+    const premadeHabitOptions = {
+      adultBath: { name: "Adult Bath", description: "Adult hygiene routine" },
+      babyBath: { name: "Baby Bath", description: "Baby bath time" },
+      cleaning: { name: "Cleaning", description: "Cleaning tasks" },
+      diaperChange: { name: "Diaper Change", description: "Baby diaper change" },
+      drinkWater: { name: "Drinking Water", description: "Track water intake" },
+      exercise: { name: "Exercise", description: "Physical activity" },
+      babyFeed: { name: "Baby Feeding", description: "Feed the baby" },
+      meals: { name: "Meals", description: "Meal tracking" },
+      meditation: { name: "Meditation", description: "Mindfulness practice" },
+      reading: { name: "Reading", description: "Reading habit" },
+      sleeping: { name: "Sleeping", description: "Sleep tracking" }
+    };
+
+    const submitPremadeHabit = async () => {
+      if (!habitType.value) return;
+      isAdding.value = true;
+      addError.value = '';
+      const option = premadeHabitOptions[habitType.value];
+      try {
+        const response = await fetch(`http://localhost:3000/users/${userId}/profiles/${profileId}/habits`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            habit: {
+              profile_id: profileId,
+              name: option.name,
+              description: option.description
+            }
+          })
+        });
+        if (!response.ok) {
+          const errorData = await response.json();
+          addError.value = errorData.error || 'Failed to add habit';
+          throw new Error(addError.value);
+        }
+        habitType.value = '';
+        showAddPreMadeHabit.value = false;
+        await fetchHabits();
+      } catch (err) {
+        addError.value = err.message || 'Failed to add habit.';
+      } finally {
+        isAdding.value = false;
+      }
+    };
 
     // Fetch habits for current profile
     const fetchHabits = async () => {
@@ -230,7 +338,7 @@ export default {
         }
         newHabitName.value = '';
         newHabitDescription.value = '';
-        showAddHabit.value = false;
+        showAddCustomHabit.value = false;
         await fetchHabits();
       } catch (err) {
         addError.value = err.message || 'Failed to add habit.';
@@ -292,6 +400,10 @@ export default {
         showCleaningModal.value = true;
       } else if(habit.name.includes('Meal')) {
         showMealModal.value = true;
+      } else if(habit.name.includes('Adult Bath')) {
+        showAdultBathModal.value = true;
+      } else if(habit.name.includes('Baby Bath')) {
+        showBabyBathModal.value = true;
       } else {
         showGenericModal.value = true;
       }
@@ -332,6 +444,14 @@ export default {
     };
     const submitMealLog = async (logData) => {
       showMealModal.value = false;
+      await submitHabitLog(selectedHabit.value, logData);
+    };
+    const submitAdultBathLog = async (logData) => {
+      showAdultBathModal.value = false;
+      await submitHabitLog(selectedHabit.value, logData);
+    };
+    const submitBabyBathLog = async (logData) => {
+      showBabyBathModal.value = false;
       await submitHabitLog(selectedHabit.value, logData);
     };
     const submitGenericLog = async (logData) => {
@@ -404,7 +524,9 @@ export default {
       addHabit,
       addError,
       isAdding,
-      showAddHabit,
+      showAddCustomHabit,
+      showAddPreMadeHabit,
+      showAddNewHabit,
       confirmDeleteHabit,
       cancelDelete,
       removeHabit,
@@ -414,6 +536,9 @@ export default {
       handleIncrement,
       incrementing,
       incrementError,
+
+      submitPremadeHabit,
+      habitType,
       submitDrinkingWaterLog,
       submitDiaperLog,
       submitFeedingLog,
@@ -423,18 +548,24 @@ export default {
       submitReadingLog,
       submitCleaningLog,
       submitMealLog,
+      submitAdultBathLog,
+      submitBabyBathLog,
       submitGenericLog,
       submitHabitLog,
+
+      showDrinkingWaterModal,
       showDiaperModal,
       showFeedingModal,
-      showDrinkingWaterModal,
       showExerciseModal,
       showSleepingModal,
       showMeditationModal,
       showReadingModal,
       showCleaningModal,
       showMealModal,
+      showAdultBathModal,
+      showBabyBathModal,
       showGenericModal,
+
       progressStyle,
       actionBtnStyle
     };
@@ -451,6 +582,7 @@ export default {
   margin: 2rem 0 1rem 0;
 }
 
+/* Habits & Care Section Styling */
 .habits-dashboard {
   max-width: 1800px;
   margin: 2.5rem auto;
@@ -458,6 +590,9 @@ export default {
   background: linear-gradient(120deg, #f8fafc 70%, #e0f7fa 100%);
   border-radius: 36px;
   box-shadow: 0 8px 32px rgba(79,157,255,0.12);
+  border: 1.5px solid #e0e7ef;
+  position: relative;
+  transition: box-shadow 0.2s;
 }
 
 .dashboard-header {
@@ -465,20 +600,27 @@ export default {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2.5rem;
+  padding-bottom: 1.2rem;
+  border-bottom: 2px solid #e0e7ef;
 }
+
 .dashboard-header h1 {
   font-size: 2.7rem;
-  font-weight: 800;
-  background: linear-gradient(90deg, #4f9dff, #74ebd5);
+  font-weight: 900;
+  background: linear-gradient(90deg, #4f9dff, #74ebd5, #a78bfa);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   margin: 0;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 8px rgba(79,157,255,0.08);
 }
+
 .dashboard-actions {
   display: flex;
   gap: 1.5rem;
 }
+
 .dashboard-btn {
   font-size: 1.12rem;
   font-weight: 700;
@@ -489,20 +631,26 @@ export default {
   border: 2px solid #e0e7ef;
   box-shadow: 0 2px 8px rgba(79,157,255,0.09);
   cursor: pointer;
-  transition: background 0.2s, color 0.2s;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
 }
+
 .dashboard-btn.add-habit {
   background: linear-gradient(135deg, #4f9dff, #74ebd5);
   color: #fff;
   border: none;
+  box-shadow: 0 4px 16px rgba(79,157,255,0.15);
 }
+
 .dashboard-btn.log-baby {
   background: linear-gradient(135deg, #ffd166, #fff3cd);
   color: #a78bfa;
   border: none;
+  box-shadow: 0 4px 16px rgba(167,139,250,0.10);
 }
+
 .dashboard-btn:hover {
   filter: brightness(1.12);
+  box-shadow: 0 6px 24px rgba(79,157,255,0.18);
 }
 
 .dashboard-cards {
@@ -623,8 +771,8 @@ export default {
 /* Modal */
 .modal {
   background: #fff;
-  border-radius: 20px;
-  box-shadow: 0 12px 40px rgba(30,41,59,0.18);
+  border-radius: 24px;
+  box-shadow: 0 12px 40px rgba(79,157,255,0.18);
   padding: 2.5rem 2.5rem 2rem 2.5rem;
   min-width: 340px;
   max-width: 95vw;
@@ -633,19 +781,38 @@ export default {
   font-weight: 500;
   text-align: center;
   border: 2px solid #4f9dff;
+  position: relative;
+  animation: modalFadeIn 0.3s;
+  display: flex;
+  flex-direction: column;
 }
+
+.modal h2 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 1.2rem;
+  background: linear-gradient(90deg, #4f9dff, #74ebd5);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
 .modal-form {
   display: flex;
   flex-direction: column;
   gap: 1rem;
   margin-top: 1rem;
 }
-.modal-form input, select {
-  padding: 0.7rem;
-  border-radius: 8px;
+
+.modal-form input,
+.modal-form select {
+  padding: 0.8rem;
+  border-radius: 10px;
   border: 1.5px solid #b3c2d6;
-  font-size: 1rem;
+  font-size: 1.08rem;
   background: #f6fafd;
+  margin-bottom: 0.5rem;
+  transition: border 0.2s;
 }
 .modal-form input::placeholder, select {
   color: #494949;
@@ -700,6 +867,23 @@ export default {
   border-radius: 10px;
   padding: 0.7rem 1.5rem;
   cursor: pointer;
+}
+.modal-exit {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: #4f9dff;
+    cursor: pointer;
+    font-weight: bold;
+    z-index: 10;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: translateY(30px) scale(0.98);}
+  to { opacity: 1; transform: translateY(0) scale(1);}
 }
 
 /* Responsive */
