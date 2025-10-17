@@ -245,17 +245,17 @@ export default {
     const profileId = profile?.id;
 
     const premadeHabitOptions = {
-      adultBath: { name: "Adult Bath", description: "Adult hygiene routine" },
-      babyBath: { name: "Baby Bath", description: "Baby bath time" },
-      cleaning: { name: "Cleaning", description: "Cleaning tasks" },
-      diaperChange: { name: "Diaper Change", description: "Baby diaper change" },
-      drinkWater: { name: "Drinking Water", description: "Track water intake" },
-      exercise: { name: "Exercise", description: "Physical activity" },
-      babyFeed: { name: "Baby Feeding", description: "Feed the baby" },
-      meals: { name: "Meals", description: "Meal tracking" },
-      meditation: { name: "Meditation", description: "Mindfulness practice" },
-      reading: { name: "Reading", description: "Reading habit" },
-      sleeping: { name: "Sleeping", description: "Sleep tracking" }
+      adultBath: { name: "Adult Bath", description: "Adult hygiene routine", category: "adultBath" },
+      babyBath: { name: "Baby Bath", description: "Baby bath time", category: "babyBath" },
+      cleaning: { name: "Cleaning", description: "Cleaning tasks", category: "cleaning" },
+      diaperChange: { name: "Diaper Change", description: "Baby diaper change", category: "diaperChange" },
+      drinkWater: { name: "Drinking Water", description: "Track water intake", category: "drinkingWater" },
+      exercise: { name: "Exercise", description: "Physical activity", category: "exercise" },
+      babyFeed: { name: "Baby Feeding", description: "Feed the baby", category: "babyFeed" },
+      meals: { name: "Meals", description: "Meal tracking", category: "meals" },
+      meditation: { name: "Meditation", description: "Mindfulness practice", category: "meditation" },
+      reading: { name: "Reading", description: "Reading habit", category: "reading" },
+      sleeping: { name: "Sleeping", description: "Sleep tracking", category: "sleeping" }
     };
 
     const submitPremadeHabit = async () => {
@@ -271,7 +271,8 @@ export default {
             habit: {
               profile_id: profileId,
               name: option.name,
-              description: option.description
+              description: option.description,
+              category: option.category
             }
           })
         });
@@ -327,7 +328,8 @@ export default {
             habit: {
               profile_id: profileId,
               name: newHabitName.value,
-              description: newHabitDescription.value
+              description: newHabitDescription.value,
+              category: 'generic'
             }
           })
         });
@@ -382,27 +384,27 @@ export default {
     // Open correct modal for logging
     const handleIncrement = (habit) => {
       selectedHabit.value = habit;
-      if (habit.name.includes('Diaper Change')) {
+      if (habit.category.includes('diaperChange')) {
         showDiaperModal.value = true;
-      } else if (habit.name.includes('Feeding')) {
+      } else if (habit.category.includes('babyFeeding')) {
         showFeedingModal.value = true;
-      } else if (habit.name.includes('Drink Water')) {
+      } else if (habit.category.includes('drinkingWater')) {
         showDrinkingWaterModal.value = true;
-      } else if (habit.name.includes('Exercise')) {
+      } else if (habit.category.includes('exercise')) {
           showExerciseModal.value = true;
-      } else if (habit.name.includes('Sleeping')) {
+      } else if (habit.category.includes('sleeping')) {
         showSleepingModal.value = true;
-      } else if (habit.name.includes('Meditation')) {
+      } else if (habit.category.includes('meditation')) {
         showMeditationModal.value = true;
-      } else if (habit.name.includes('Reading')) {
+      } else if (habit.category.includes('reading')) {
         showReadingModal.value = true;
-      } else if(habit.name.includes('Cleaning')) {
+      } else if(habit.category.includes('cleaning')) {
         showCleaningModal.value = true;
-      } else if(habit.name.includes('Meal')) {
+      } else if(habit.category.includes('meal')) {
         showMealModal.value = true;
-      } else if(habit.name.includes('Adult Bath')) {
+      } else if(habit.category.includes('adultBath')) {
         showAdultBathModal.value = true;
-      } else if(habit.name.includes('Baby Bath')) {
+      } else if(habit.category.includes('babyBath')) {
         showBabyBathModal.value = true;
       } else {
         showGenericModal.value = true;
