@@ -21,6 +21,9 @@
         <div v-for="habit in filteredHabits" :key="habit.id" class="dashboard-card">
           <div class="card-header">
             <span class="card-title">{{ habit.name }}</span>
+            <div v-if="habit.category != 'generic'" class="card-category">
+              ({{ habit.category || 'No category provided.' }})
+            </div>
           </div>
           <div class="card-progress">
             <div class="progress-label">
@@ -39,6 +42,12 @@
             >
               <span v-if="incrementing[habit.id]">Logging...</span>
               <span v-else>Log {{ habit.name }}</span>
+            </button>
+            <button
+              class="edit-habit-btn card-action-btn"
+              @click="editHabit(habit)"
+            >
+              Edit Habit
             </button>
             <button 
               class="delete-habit-btn"
@@ -66,6 +75,20 @@
         @cancel="cancelDelete"
       />
 
+      <!-- Premade or Custom Choice Modal -->
+      <div v-if="showAddNewHabit" class="modal-overlay">
+        <div class="modal">
+          <button class="modal-exit" type="button" @click="showAddNewHabit = false">&times;</button>
+          <h2>Premade or Custom Habit</h2>
+          <form class="modal-form">
+            <div class="modal-actions">
+              <button type="button" class="modal-add" @click="showAddPreMadeHabit = true; showAddNewHabit = false">Premade</button>
+              <button type="button" class="modal-add" style="background: linear-gradient(135deg, #a78bfa, #ffd166);" @click="showAddCustomHabit = true; showAddNewHabit = false">Custom</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
       <!-- Add Habit Modal (Custom) -->
       <div v-if="showAddCustomHabit" class="modal-overlay">
         <div class="modal">
@@ -80,20 +103,6 @@
                 {{ isAdding ? 'Adding...' : 'Add' }}
               </button>
               <button type="button" class="modal-cancel" @click="showAddCustomHabit = false">Cancel</button>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      <!-- Premade or Custom Choice Modal -->
-      <div v-if="showAddNewHabit" class="modal-overlay">
-        <div class="modal">
-          <button class="modal-exit" type="button" @click="showAddNewHabit = false">&times;</button>
-          <h2>Premade or Custom Habit</h2>
-          <form class="modal-form">
-            <div class="modal-actions">
-              <button type="button" class="modal-add" @click="showAddPreMadeHabit = true; showAddNewHabit = false">Premade</button>
-              <button type="button" class="modal-add" style="background: linear-gradient(135deg, #a78bfa, #ffd166);" @click="showAddCustomHabit = true; showAddNewHabit = false">Custom</button>
             </div>
           </form>
         </div>
@@ -119,6 +128,8 @@
               <option value="reading">Reading</option>
               <option value="sleeping">Sleeping</option>
             </select>
+            <input v-model="newHabitName" placeholder="New habit name" required />
+            <input v-model="newHabitDescription" placeholder="Description" />
             <div v-if="addError" class="modal-error">{{ addError }}</div>
             <div class="modal-actions">
               <button type="submit" class="modal-add" :disabled="isAdding">
@@ -245,17 +256,17 @@ export default {
     const profileId = profile?.id;
 
     const premadeHabitOptions = {
-      adultBath: { name: "Adult Bath", description: "Adult hygiene routine", category: "adultBath" },
-      babyBath: { name: "Baby Bath", description: "Baby bath time", category: "babyBath" },
-      cleaning: { name: "Cleaning", description: "Cleaning tasks", category: "cleaning" },
-      diaperChange: { name: "Diaper Change", description: "Baby diaper change", category: "diaperChange" },
-      drinkWater: { name: "Drinking Water", description: "Track water intake", category: "drinkingWater" },
-      exercise: { name: "Exercise", description: "Physical activity", category: "exercise" },
-      babyFeed: { name: "Baby Feeding", description: "Feed the baby", category: "babyFeed" },
-      meals: { name: "Meals", description: "Meal tracking", category: "meals" },
-      meditation: { name: "Meditation", description: "Mindfulness practice", category: "meditation" },
-      reading: { name: "Reading", description: "Reading habit", category: "reading" },
-      sleeping: { name: "Sleeping", description: "Sleep tracking", category: "sleeping" }
+      adultBath: { category: "adultBath" },
+      babyBath: { category: "babyBath" },
+      cleaning: { category: "cleaning" },
+      diaperChange: { category: "diaperChange" },
+      drinkWater: { category: "drinkingWater" },
+      exercise: { category: "exercise" },
+      babyFeed: { category: "babyFeed" },
+      meals: { category: "meals" },
+      meditation: { category: "meditation" },
+      reading: { category: "reading" },
+      sleeping: { category: "sleeping" }
     };
 
     const submitPremadeHabit = async () => {
@@ -270,8 +281,8 @@ export default {
           body: JSON.stringify({
             habit: {
               profile_id: profileId,
-              name: option.name,
-              description: option.description,
+              name: newHabitName.value,
+              description: newHabitDescription.value,
               category: option.category
             }
           })
@@ -282,6 +293,8 @@ export default {
           throw new Error(addError.value);
         }
         habitType.value = '';
+        newHabitName.value = '';
+        newHabitDescription.value = '';
         showAddPreMadeHabit.value = false;
         await fetchHabits();
       } catch (err) {
@@ -691,6 +704,10 @@ export default {
 }
 .card-progress {
   margin-top: 0.2rem;
+}
+.card-category {
+  font-size: 1.12rem;
+  color: #80b9ff;
 }
 .progress-label {
   font-size: 1.05rem;

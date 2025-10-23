@@ -3,22 +3,22 @@
 ✅ Completed Features
 User authentication: User creation and login endpoints.
 Profile management: Profiles linked to users, with life stage enum (Baby, Adult). *More to come after first deployment*
-Habit management: Create, view, update, and delete habits for profiles.
-Habit logging: Log habit activities (daily, weekly, etc.) with notes and amounts.
-Frontend UI: Vue components for habits, logs, modals, and dashboard.
+Habit management: Create, view and delete habits for profiles.
+Habit logging: Log habit activities with notes and amounts custom to the habit.
 Foreign key constraints: Enforced in the database for data integrity.
 Habit deletion: Deletes associated logs (and now completed habits).
+Habit Creation: Allow users to create new habits of their own or choose from a selcetion of prebuilt habits
 
 🟡 In Progress / Recently Fixed
-Habit Creation: Allow users to create new habits of their own or choose from a selcetion of prebuilt habits
+Frontend UI: Vue components for habits, logs, modals, and dashboard.
+Habit management: Update habits for profiles.
 Fixing habit deletion: Handling foreign key violations by deleting dependent completed habits.
 Filtering logs by period: Displaying only relevant logs for daily/weekly habits in the UI.
 Marking habits as completed: Posting to the correct nested endpoint and updating backend logic.
 Habit progress tracking: Progress bars and streak calculations in the frontend.
 Completed habits: Table and API for marking habits as completed.
-Mobile responsiveness: Improve UI for mobile devices.
 
-📝 To Implement / Next Steps
+🟥 To Implement / Next Steps
 *Analytics: Charts for habit streaks, completion rates, and trends.
 *Unit and integration tests: Add automated tests for backend and frontend. 
 Habit reminders/notifications: Send reminders for habits not logged in the current period.
@@ -31,6 +31,9 @@ Admin dashboard: Manage users, profiles, and habits centrally.
 Error handling: More robust error messages and handling in both backend and frontend.
 API documentation: Document all endpoints for future development/integration.
 Deployment: Prepare for production deployment (Heroku, AWS, etc.).
+Mobile responsiveness: Improve UI for mobile devices.
+
+📝 Considering After First Deployment
 
 
 
