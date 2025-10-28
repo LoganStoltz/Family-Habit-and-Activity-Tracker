@@ -2,9 +2,9 @@ import { createRouter, createWebHistory } from 'vue-router';
 import LoginPage from '@/components/LoginPage.vue';
 import RegistrationPage from '@/components/RegistrationPage.vue';
 import HomePage from '@/components/HomePage.vue';
-import ProfileSelect from '@/components/ProfileSelect.vue';
+import ProfileSelect from '@/components/ProfileSelectPage.vue';
 import ProfileMainPage from '@/components/ProfileMainPage.vue';
-import ProfileSettings from '@/components/ProfileSettings.vue';
+import ProfileSettings from '@/components/ProfileSettingsPage.vue';
 import HabitsPage from '@/components/HabitsPage.vue';
 
 const router = createRouter({

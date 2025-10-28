@@ -18,6 +18,20 @@
 
       <!-- Habits Cards -->
       <div class="dashboard-cards">
+        <HabitsCard
+          v-for="habit in filteredHabits"
+          :key="habit.id"
+          :habit="habit"
+          :logs="habitLogs[habit.id] || []"
+          :incrementing="incrementing"
+          :incrementError="incrementError"
+          :isDeleting="isDeleting"
+          @edit-habit="editHabit"
+          @delete-habit="confirmDeleteHabit"
+          @log-habit="handleIncrement"
+        />
+
+        <!--
         <div v-for="habit in filteredHabits" :key="habit.id" class="dashboard-card">
           <div class="card-header">
             <span class="card-title">{{ habit.name }}</span>
@@ -59,6 +73,7 @@
           </div>
           <div v-if="incrementError[habit.id]" class="card-error">{{ incrementError[habit.id] }}</div>
         </div>
+        -->
       </div>
 
       <!-- Reusable Confirmation Modal -->
@@ -184,6 +199,7 @@
 
 <script>
 import { ref, onMounted, computed } from 'vue';
+import HabitsCard from './HabitsCard.vue';
 import DiaperChangeLog from './logs/DiaperChangeLog.vue';
 import FeedingLog from './logs/FeedingLog.vue';
 import DrinkingWaterLogs from './logs/DrinkingWaterLogs.vue';
@@ -194,12 +210,13 @@ import MeditationLog from './logs/MeditationLog.vue';
 import ReadingLog from './logs/ReadingLog.vue';
 import SleepingLog from './logs/SleepingLog.vue';
 import MealLog from './logs/MealLog.vue';
-import AdultBathLog from './logs/AdultBathLog.vue';
+import AdultBathLog from './logs/AdultBathlog.vue';
 import BabyBathLog from './logs/BabyBathLog.vue';
 import CleaningLog from './logs/CleaningLog.vue';
 
 export default {
-  components: { 
+  components: {
+    HabitsCard,
     DiaperChangeLog, 
     FeedingLog, 
     DrinkingWaterLogs,

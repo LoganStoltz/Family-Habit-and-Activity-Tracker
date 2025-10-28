@@ -19,7 +19,7 @@
 <script>
 import { defineComponent, ref, onMounted } from "vue";
 import { useRouter } from 'vue-router';
-import ProfileRegistration from "./ProfileRegistration.vue";
+import ProfileRegistration from "./ProfileRegistrationPage.vue";
 
 export default defineComponent({
   name: "ProfileSelect",
