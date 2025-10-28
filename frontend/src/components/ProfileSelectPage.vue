@@ -15,87 +15,64 @@
   </div>
 </template>
 
-
-<script>
-import { defineComponent, ref, onMounted } from "vue";
+<script setup>
+import { ref, onMounted } from "vue";
 import { useRouter } from 'vue-router';
 import ProfileRegistration from "./ProfileRegistrationPage.vue";
 
-export default defineComponent({
-  name: "ProfileSelect",
-  components: { ProfileRegistration },
+const profiles = ref([]);
+const showProfileRegistration = ref(false);
+const router = useRouter();
 
-  setup() {
-    const profiles = ref([]);
-    const showProfileRegistration = ref(false);
-    const router = useRouter();
-
-    const fetchProfiles = async () => {
-        const user = JSON.parse(localStorage.getItem("user"));
-        console.log("User API response:", user);
-        const userId = user?.id;
-        if (!userId) {
-            console.warn("No logged in user found in localStorage");
-            return;
-        }
-        console.log("userId API response:", userId);
-
-        try {
-            const response = await fetch(`http://localhost:3000/users/${userId}/profiles`);
-            console.log("Response API response:", response);
-            if (!response.ok) throw new Error("Failed to fetch profiles");
-            const data = await response.json();
-            console.log("Profiles API response:", data);
-
-            
-            profiles.value = Array.isArray(data)
-            ? data.map(profile => ({
-                id: profile.id,
-                firstName: profile.first_name,
-                lastName: profile.last_name || '',
-                dob: profile.dob,
-                profile_type: profile.profile_type
-                }))
-            : [];
-
-        } catch (err) {
-            console.error("Error fetching profiles:", err);
-        }
-    };
-
-    const selectProfile = (profile) => {
-      // Store the complete profile data in localStorage
-      localStorage.setItem("profile", JSON.stringify(profile));
-      
-      // Notify other components of the change
-      window.dispatchEvent(new Event('storage'));
-      
-      // Redirect to profile main page
-      router.push('/profile-main');
-    };
-
-    const addProfile = (newProfile) => {
-      // Add the new profile to the profiles list for display
-      profiles.value.push(newProfile);
-      
-      // Hide the registration form
-      showProfileRegistration.value = false;
-      
-      // Note: Don't call selectProfile here since ProfileRegistration already handled
-      // storing the profile and redirecting to /profile-main
-    };
-
-    onMounted(fetchProfiles);
-
-    return {
-      profiles,
-      showProfileRegistration,
-      addProfile,
-      selectProfile,
-      toggleComponent: () => (showProfileRegistration.value = !showProfileRegistration.value)
-    };
+const fetchProfiles = async () => {
+  const user = JSON.parse(localStorage.getItem("user"));
+  const userId = user?.id;
+  if (!userId) {
+    console.warn("No logged in user found in localStorage");
+    return;
   }
-});
+
+  try {
+    const response = await fetch(`http://localhost:3000/users/${userId}/profiles`);
+    if (!response.ok) throw new Error("Failed to fetch profiles");
+    const data = await response.json();
+
+    profiles.value = Array.isArray(data)
+      ? data.map(profile => ({
+          id: profile.id,
+          firstName: profile.first_name,
+          lastName: profile.last_name || '',
+          dob: profile.dob,
+          profile_type: profile.profile_type
+        }))
+      : [];
+  } catch (err) {
+    console.error("Error fetching profiles:", err);
+  }
+};
+
+const selectProfile = (profile) => {
+  // Store the complete profile data in localStorage
+  localStorage.setItem("profile", JSON.stringify(profile));
+  // Notify other components of the change
+  window.dispatchEvent(new Event('storage'));
+  // Redirect to profile main page
+  router.push('/profile-main');
+};
+
+const addProfile = (newProfile) => {
+  // Add the new profile to the profiles list for display
+  profiles.value.push(newProfile);
+  // Hide the registration form
+  showProfileRegistration.value = false;
+  // Note: ProfileRegistration handles storing the profile and redirecting
+};
+
+const toggleComponent = () => {
+  showProfileRegistration.value = !showProfileRegistration.value;
+};
+
+onMounted(fetchProfiles);
 </script>
 
 <style scoped>

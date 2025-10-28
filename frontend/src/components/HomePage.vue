@@ -12,34 +12,28 @@
   </section>
 </template>
 
-<script>
+<script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 
-export default {
-  setup() {
-    const user = ref(null);
-    const router = useRouter();
+const user = ref(null);
+const router = useRouter();
 
-    onMounted(() => {
-      const storedUser = localStorage.getItem('user');
-      user.value = storedUser ? JSON.parse(storedUser) : null;
-    });
+onMounted(() => {
+  const storedUser = localStorage.getItem('user');
+  user.value = storedUser ? JSON.parse(storedUser) : null;
+});
 
-    const logout = () => {
-      localStorage.removeItem('user');
-      localStorage.removeItem('profile');
-      user.value = null;
-      
-      // Trigger storage event to update other components (like Header)
-      window.dispatchEvent(new Event('storage'));
-      
-      router.push('/login');
-    };
+const logout = () => {
+  localStorage.removeItem('user');
+  localStorage.removeItem('profile');
+  user.value = null;
 
-    return { user, logout };
-  }
-}
+  // Trigger storage event to update other components (like Header)
+  window.dispatchEvent(new Event('storage'));
+
+  router.push('/login');
+};
 </script>
 
 <style scoped>

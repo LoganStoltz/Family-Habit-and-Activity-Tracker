@@ -72,3 +72,6 @@ function onLog() { emit('log-habit', props.habit); }
 function onEdit() { emit('edit-habit', props.habit); }
 function onDelete() { emit('delete-habit', props.habit); }
 </script>
+
+<style scoped>
+</style>

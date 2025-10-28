@@ -30,50 +30,6 @@
           @delete-habit="confirmDeleteHabit"
           @log-habit="handleIncrement"
         />
-
-        <!--
-        <div v-for="habit in filteredHabits" :key="habit.id" class="dashboard-card">
-          <div class="card-header">
-            <span class="card-title">{{ habit.name }}</span>
-            <div v-if="habit.category != 'generic'" class="card-category">
-              ({{ habit.category || 'No category provided.' }})
-            </div>
-          </div>
-          <div class="card-progress">
-            <div class="progress-label">
-              {{ habitLogs[habit.id]?.length || 0 }} logged
-            </div>
-            <div class="progress-bar">
-              <div class="progress-fill" :style="progressStyle(habit)"></div>
-            </div>
-          </div>
-          <div class="card-action-row">
-            <button
-              class="card-action-btn"
-              :style="actionBtnStyle(habit)"
-              @click="handleIncrement(habit)"
-              :disabled="incrementing[habit.id]"
-            >
-              <span v-if="incrementing[habit.id]">Logging...</span>
-              <span v-else>Log {{ habit.name }}</span>
-            </button>
-            <button
-              class="edit-habit-btn card-action-btn"
-              @click="editHabit(habit)"
-            >
-              Edit Habit
-            </button>
-            <button 
-              class="delete-habit-btn"
-              @click="confirmDeleteHabit(habit)"
-              :disabled="isDeleting[habit.id]"
-            >
-              {{ isDeleting[habit.id] ? 'Deleting...' : 'Delete Habit' }}
-            </button>
-          </div>
-          <div v-if="incrementError[habit.id]" class="card-error">{{ incrementError[habit.id] }}</div>
-        </div>
-        -->
       </div>
 
       <!-- Reusable Confirmation Modal -->
@@ -157,452 +113,224 @@
       </div>
 
       <!-- Log Modals -->
-      <div v-if="showDiaperModal" class="modal-overlay">
-        <DiaperChangeLog @log-submitted="submitDiaperLog" @close="showDiaperModal = false" />
-      </div>
-      <div v-if="showFeedingModal" class="modal-overlay">
-        <FeedingLog @log-submitted="submitFeedingLog" @close="showFeedingModal = false" />
-      </div>
-      <div v-if="showDrinkingWaterModal" class="modal-overlay">
-        <DrinkingWaterLogs @log-submitted="submitDrinkingWaterLog" @close="showDrinkingWaterModal = false" />
-      </div>
-      <div v-if="showExerciseModal" class="modal-overlay">
-        <ExerciseLogs @log-submitted="submitExerciseLog" @close="showExerciseModal = false" />
-      </div>
-      <div v-if="showSleepingModal" class="modal-overlay">
-        <SleepingLog @log-submitted="submitSleepingLog" @close="showSleepingModal = false" />
-      </div>
-      <div v-if="showMeditationModal" class="modal-overlay">
-        <MeditationLog @log-submitted="submitMeditationLog" @close="showMeditationModal = false" />
-      </div>
-      <div v-if="showReadingModal" class="modal-overlay"> 
-        <ReadingLog @log-submitted="submitReadingLog" @close="showReadingModal = false" />
-      </div>
-      <div v-if="showCleaningModal" class="modal-overlay">
-        <CleaningLog @log-submitted="submitCleaningLog" @close="showCleaningModal = false" />
-      </div>
-      <div v-if="showMealModal" class="modal-overlay">
-        <MealLog @log-submitted="submitMealLog" @close="showMealModal = false" />
-      </div>
-      <div v-if="showAdultBathModal" class="modal-overlay">
-        <AdultBathLog @log-submitted="submitAdultBathLog" @close="showAdultBathModal = false" />
-      </div>
-      <div v-if="showBabyBathModal" class="modal-overlay">
-        <BabyBathLog @log-submitted="submitBabyBathLog" @close="showBabyBathModal = false" />
-      </div>
-      <div v-if="showGenericModal" class="modal-overlay">
-        <GenericHabitLog @log-submitted="submitGenericLog" @close="showGenericModal = false" />
-      </div>
+       <LogModalManager 
+         ref="logManager"
+         @close="handleLogModalClose"
+         @logged="onLogged"
+       />
     </div>
   </div>
 </template>
 
-<script>
+<script setup>
 import { ref, onMounted, computed } from 'vue';
 import HabitsCard from './HabitsCard.vue';
-import DiaperChangeLog from './logs/DiaperChangeLog.vue';
-import FeedingLog from './logs/FeedingLog.vue';
-import DrinkingWaterLogs from './logs/DrinkingWaterLogs.vue';
-import ExerciseLogs from './logs/ExerciseLogs.vue';
-import GenericHabitLog from './logs/GenericHabitLog.vue';
 import ConfirmDeleteModal from './ConfirmDeleteModal.vue';
-import MeditationLog from './logs/MeditationLog.vue';
-import ReadingLog from './logs/ReadingLog.vue';
-import SleepingLog from './logs/SleepingLog.vue';
-import MealLog from './logs/MealLog.vue';
-import AdultBathLog from './logs/AdultBathlog.vue';
-import BabyBathLog from './logs/BabyBathLog.vue';
-import CleaningLog from './logs/CleaningLog.vue';
+import LogModalManager from './LogModalManager.vue';
 
-export default {
-  components: {
-    HabitsCard,
-    DiaperChangeLog, 
-    FeedingLog, 
-    DrinkingWaterLogs,
-    GenericHabitLog, 
-    ExerciseLogs, 
-    ConfirmDeleteModal, 
-    MeditationLog,
-    ReadingLog,
-    SleepingLog,
-    MealLog,
-    AdultBathLog,
-    BabyBathLog,
-    CleaningLog
-  },
-  setup() {
-    // State
-    const habits = ref([]);
-    const habitLogs = ref({});
-    const newHabitName = ref('');
-    const newHabitDescription = ref('');
-    const showAddCustomHabit = ref(false);
-    const showAddPreMadeHabit = ref(false);
-    const showAddNewHabit = ref(false);
-    const isAdding = ref(false);
-    const isDeleting = ref({});
-    const habitToDelete = ref(null);
-    const addError = ref('');
-    const incrementing = ref({});
-    const incrementError = ref({});
-    
-    const showConfirmModal = ref(false);
+ // State
+const habits = ref([]);
+const habitLogs = ref({});
+const newHabitName = ref('');
+const newHabitDescription = ref('');
+const showAddCustomHabit = ref(false);
+const showAddPreMadeHabit = ref(false);
+const showAddNewHabit = ref(false);
+const isAdding = ref(false);
+const isDeleting = ref({});
+const habitToDelete = ref(null);
+const addError = ref('');
+const incrementing = ref({});
+const incrementError = ref({});
 
-    const habitType = ref('');
-    
-    const showDiaperModal = ref(false);
-    const showFeedingModal = ref(false);
-    const showDrinkingWaterModal = ref(false);
-    const showExerciseModal = ref(false);
-    const showSleepingModal = ref(false);
-    const showMeditationModal = ref(false);
-    const showReadingModal = ref(false);
-    const showCleaningModal = ref(false);
-    const showMealModal = ref(false);
-    const showAdultBathModal = ref(false);
-    const showBabyBathModal = ref(false);
-    const showGenericModal = ref(false);
+const showConfirmModal = ref(false);
 
-    const selectedHabit = ref(null);
-    
-    // User/Profile
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    const userId = user?.id;
-    const profile = JSON.parse(localStorage.getItem('profile') || '{}');
-    const profileId = profile?.id;
+const habitType = ref('');
 
-    const premadeHabitOptions = {
-      adultBath: { category: "adultBath" },
-      babyBath: { category: "babyBath" },
-      cleaning: { category: "cleaning" },
-      diaperChange: { category: "diaperChange" },
-      drinkWater: { category: "drinkingWater" },
-      exercise: { category: "exercise" },
-      babyFeed: { category: "babyFeed" },
-      meals: { category: "meals" },
-      meditation: { category: "meditation" },
-      reading: { category: "reading" },
-      sleeping: { category: "sleeping" }
-    };
+const logManager = ref(null); // ref to LogModalManager
 
-    const submitPremadeHabit = async () => {
-      if (!habitType.value) return;
-      isAdding.value = true;
-      addError.value = '';
-      const option = premadeHabitOptions[habitType.value];
-      try {
-        const response = await fetch(`http://localhost:3000/users/${userId}/profiles/${profileId}/habits`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            habit: {
-              profile_id: profileId,
-              name: newHabitName.value,
-              description: newHabitDescription.value,
-              category: option.category
-            }
-          })
-        });
-        if (!response.ok) {
-          const errorData = await response.json();
-          addError.value = errorData.error || 'Failed to add habit';
-          throw new Error(addError.value);
+// User/Profile
+const user = JSON.parse(localStorage.getItem('user') || '{}');
+const userId = user?.id;
+const profile = JSON.parse(localStorage.getItem('profile') || '{}'); // make profile a top-level const
+const profileId = profile?.id;
+
+const premadeHabitOptions = {
+  adultBath: { category: "adultBath" },
+  babyBath: { category: "babyBath" },
+  cleaning: { category: "cleaning" },
+  diaperChange: { category: "diaperChange" },
+  drinkWater: { category: "drinkingWater" },
+  exercise: { category: "exercise" },
+  babyFeed: { category: "babyFeed" },
+  meals: { category: "meals" },
+  meditation: { category: "meditation" },
+  reading: { category: "reading" },
+  sleeping: { category: "sleeping" }
+};
+
+const submitPremadeHabit = async () => {
+  if (!habitType.value) return;
+  isAdding.value = true;
+  addError.value = '';
+  const option = premadeHabitOptions[habitType.value];
+  try {
+    const response = await fetch(`http://localhost:3000/users/${userId}/profiles/${profileId}/habits`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        habit: {
+          profile_id: profileId,
+          name: newHabitName.value,
+          description: newHabitDescription.value,
+          category: option.category
         }
-        habitType.value = '';
-        newHabitName.value = '';
-        newHabitDescription.value = '';
-        showAddPreMadeHabit.value = false;
-        await fetchHabits();
-      } catch (err) {
-        addError.value = err.message || 'Failed to add habit.';
-      } finally {
-        isAdding.value = false;
-      }
-    };
-
-    // Fetch habits for current profile
-    const fetchHabits = async () => {
-      try {
-        const response = await fetch(`http://localhost:3000/users/${userId}/profiles/${profileId}/habits`);
-        const data = await response.json();
-        habits.value = data;
-        for (const habit of data) {
-          await fetchLogs(habit.id);
-        }
-      } catch (err) {
-        console.error('Failed to fetch habits:', err);
-      }
-    };
-
-    // Fetch logs for a habit
-    const fetchLogs = async (habitId) => {
-      try {
-        const response = await fetch(`http://localhost:3000/habits/${habitId}/habit_logs`);
-        const data = await response.json();
-        habitLogs.value[habitId] = data;
-      } catch (err) {
-        habitLogs.value[habitId] = [];
-      }
-    };
-
-    // Add a new habit
-    const addHabit = async () => {
-      isAdding.value = true;
-      addError.value = '';
-      try {
-        const response = await fetch(`http://localhost:3000/users/${userId}/profiles/${profileId}/habits`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            habit: {
-              profile_id: profileId,
-              name: newHabitName.value,
-              description: newHabitDescription.value,
-              category: 'generic'
-            }
-          })
-        });
-        if (!response.ok) {
-          const errorData = await response.json();
-          addError.value = errorData.error || 'Failed to add habit';
-          throw new Error(addError.value);
-        }
-        newHabitName.value = '';
-        newHabitDescription.value = '';
-        showAddCustomHabit.value = false;
-        await fetchHabits();
-      } catch (err) {
-        addError.value = err.message || 'Failed to add habit.';
-      } finally {
-        isAdding.value = false;
-      }
-    };
-
-    // Show confirmation modal
-    const confirmDeleteHabit = (habit) => {
-      habitToDelete.value = habit;
-      showConfirmModal.value = true;
-    };
-
-    // Cancel deletion
-    const cancelDelete = () => {
-      habitToDelete.value = null;
-      showConfirmModal.value = false;
-    };
-
-    // Remove a habit
-    const removeHabit = async (habitId) => {
-      isDeleting.value[habitId] = true;
-      try {
-        const response = await fetch(`http://localhost:3000/habits/${habitId}`, {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' }
-        });
-        if (!response.ok) {
-          throw new Error('Failed to delete habit');
-        }
-        await fetchHabits();
-      } catch (err) {
-        console.error('Error deleting habit:', err);
-      } finally {
-        isDeleting.value[habitId] = false;
-        cancelDelete();
-      }
-    };
-
-    // Open correct modal for logging
-    const handleIncrement = (habit) => {
-      selectedHabit.value = habit;
-      if (habit.category.includes('diaperChange')) {
-        showDiaperModal.value = true;
-      } else if (habit.category.includes('babyFeeding')) {
-        showFeedingModal.value = true;
-      } else if (habit.category.includes('drinkingWater')) {
-        showDrinkingWaterModal.value = true;
-      } else if (habit.category.includes('exercise')) {
-          showExerciseModal.value = true;
-      } else if (habit.category.includes('sleeping')) {
-        showSleepingModal.value = true;
-      } else if (habit.category.includes('meditation')) {
-        showMeditationModal.value = true;
-      } else if (habit.category.includes('reading')) {
-        showReadingModal.value = true;
-      } else if(habit.category.includes('cleaning')) {
-        showCleaningModal.value = true;
-      } else if(habit.category.includes('meal')) {
-        showMealModal.value = true;
-      } else if(habit.category.includes('adultBath')) {
-        showAdultBathModal.value = true;
-      } else if(habit.category.includes('babyBath')) {
-        showBabyBathModal.value = true;
-      } else {
-        showGenericModal.value = true;
-      }
-    };
-
-    // Log submission handlers
-    const submitDiaperLog = async (logData) => {
-      showDiaperModal.value = false;
-      await submitHabitLog(selectedHabit.value, logData);
-    };
-    const submitFeedingLog = async (logData) => {
-      showFeedingModal.value = false;
-      await submitHabitLog(selectedHabit.value, logData);
-    };
-    const submitDrinkingWaterLog = async (logData) => {
-      showDrinkingWaterModal.value = false;
-      await submitHabitLog(selectedHabit.value, logData);
-    };
-    const submitExerciseLog = async (logData) => {
-      showExerciseModal.value = false;
-      await submitHabitLog(selectedHabit.value, logData);
-    };
-    const submitSleepingLog = async (logData) => {
-      showSleepingModal.value = false;
-      await submitHabitLog(selectedHabit.value, logData);
-    };
-    const submitMeditationLog = async (logData) => {
-      showMeditationModal.value = false;
-      await submitHabitLog(selectedHabit.value, logData);
-    };
-    const submitReadingLog = async (logData) => {
-      showReadingModal.value = false;
-      await submitHabitLog(selectedHabit.value, logData);
-    };
-    const submitCleaningLog = async (logData) => {
-      showCleaningModal.value = false;
-      await submitHabitLog(selectedHabit.value, logData);
-    };
-    const submitMealLog = async (logData) => {
-      showMealModal.value = false;
-      await submitHabitLog(selectedHabit.value, logData);
-    };
-    const submitAdultBathLog = async (logData) => {
-      showAdultBathModal.value = false;
-      await submitHabitLog(selectedHabit.value, logData);
-    };
-    const submitBabyBathLog = async (logData) => {
-      showBabyBathModal.value = false;
-      await submitHabitLog(selectedHabit.value, logData);
-    };
-    const submitGenericLog = async (logData) => {
-      showGenericModal.value = false;
-      await submitHabitLog(selectedHabit.value, logData);
-    };
-
-    // Unified log submitter
-    const submitHabitLog = async (habit, logData) => {
-      incrementing.value[habit.id] = true;
-      incrementError.value[habit.id] = '';
-      try {
-        const today = new Date().toISOString().slice(0, 10);
-        const { notes, ...extraFields } = logData;
-        const payload = {
-          habit_log: {
-            habit_id: habit.id,
-            profile_id: profileId,
-            log_date: today,
-            notes: notes || '',
-            extra_data: { ...extraFields } // All custom fields go here
-          }
-        };
-        const response = await fetch(`http://localhost:3000/habits/${habit.id}/habit_logs`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        if (!response.ok) {
-          const errorData = await response.json();
-          incrementError.value[habit.id] = errorData.error || 'Failed to log.';
-          throw new Error(incrementError.value[habit.id]);
-        }
-        await fetchLogs(habit.id);
-        await fetchHabits();
-      } catch (err) {
-        incrementError.value[habit.id] = err.message || 'Failed to log.';
-      } finally {
-        incrementing.value[habit.id] = false;
-        selectedHabit.value = null;
-      }
-    };
-
-    // Progress bar style (just shows % of logs, always 100% if at least one log)
-    const progressStyle = (habit) => {
-      const logs = habitLogs.value[habit.id] || [];
-      const percent = logs.length > 0 ? 100 : 0;
-      return `width: ${percent}%; background: #4f9dff; height: 8px; border-radius: 8px;`;
-    };
-
-    // Action button style
-    const actionBtnStyle = (habit) => {
-      const colors = ['#4f9dff', '#74ebd5', '#a78bfa', '#ffd166', '#ff8fa3'];
-      const idx = habit.id % colors.length;
-      return `background: ${colors[idx]}; color: #fff; font-weight: 600; border-radius: 8px; padding: 0.7rem 1.2rem; font-size: 1rem; box-shadow: 0 2px 8px rgba(79,157,255,0.10);`;
-    };
-
-    // Computed habits
-    const filteredHabits = computed(() => habits.value);
-
-    onMounted(fetchHabits);
-
-    return {
-      habits,
-      profile,
-      filteredHabits,
-      habitLogs,
-      newHabitName,
-      newHabitDescription,
-      addHabit,
-      addError,
-      isAdding,
-      showAddCustomHabit,
-      showAddPreMadeHabit,
-      showAddNewHabit,
-      confirmDeleteHabit,
-      cancelDelete,
-      removeHabit,
-      habitToDelete,
-      showConfirmModal,
-      isDeleting,
-      handleIncrement,
-      incrementing,
-      incrementError,
-
-      submitPremadeHabit,
-      habitType,
-      submitDrinkingWaterLog,
-      submitDiaperLog,
-      submitFeedingLog,
-      submitExerciseLog,
-      submitSleepingLog,
-      submitMeditationLog,
-      submitReadingLog,
-      submitCleaningLog,
-      submitMealLog,
-      submitAdultBathLog,
-      submitBabyBathLog,
-      submitGenericLog,
-      submitHabitLog,
-
-      showDrinkingWaterModal,
-      showDiaperModal,
-      showFeedingModal,
-      showExerciseModal,
-      showSleepingModal,
-      showMeditationModal,
-      showReadingModal,
-      showCleaningModal,
-      showMealModal,
-      showAdultBathModal,
-      showBabyBathModal,
-      showGenericModal,
-
-      progressStyle,
-      actionBtnStyle
-    };
+      })
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      addError.value = errorData.error || 'Failed to add habit';
+      throw new Error(addError.value);
+    }
+    habitType.value = '';
+    newHabitName.value = '';
+    newHabitDescription.value = '';
+    showAddPreMadeHabit.value = false;
+    await fetchHabits();
+  } catch (err) {
+    addError.value = err.message || 'Failed to add habit.';
+  } finally {
+    isAdding.value = false;
   }
-}
+};
+
+// Open correct modal for logging — call LogModalManager.openModal
+const handleIncrement = (habit) => {
+  if (logManager.value && typeof logManager.value.openModal === 'function') {
+    logManager.value.openModal(habit);
+  } else {
+    console.warn('LogModalManager not available');
+  }
+};
+
+// Called after LogModalManager emits 'logged' with habitId
+const onLogged = async (habitId) => {
+  try {
+    await fetchLogs(habitId);
+    await fetchHabits();
+  } catch (err) {
+    console.error('Error refreshing logs after log saved', err);
+  }
+};
+
+
+// Fetch habits for current profile
+const fetchHabits = async () => {
+  try {
+    const response = await fetch(`http://localhost:3000/users/${userId}/profiles/${profileId}/habits`);
+    const data = await response.json();
+    habits.value = data;
+    for (const habit of data) {
+      await fetchLogs(habit.id);
+    }
+  } catch (err) {
+    console.error('Failed to fetch habits:', err);
+  }
+};
+
+// Fetch logs for a habit
+const fetchLogs = async (habitId) => {
+  try {
+    const response = await fetch(`http://localhost:3000/habits/${habitId}/habit_logs`);
+    const data = await response.json();
+    habitLogs.value[habitId] = data;
+  } catch (err) {
+    habitLogs.value[habitId] = [];
+  }
+};
+
+// Add a new habit
+const addHabit = async () => {
+  isAdding.value = true;
+  addError.value = '';
+  try {
+    const response = await fetch(`http://localhost:3000/users/${userId}/profiles/${profileId}/habits`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        habit: {
+          profile_id: profileId,
+          name: newHabitName.value,
+          description: newHabitDescription.value,
+          category: 'generic'
+        }
+      })
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      addError.value = errorData.error || 'Failed to add habit';
+      throw new Error(addError.value);
+    }
+    newHabitName.value = '';
+    newHabitDescription.value = '';
+    showAddCustomHabit.value = false;
+    await fetchHabits();
+  } catch (err) {
+    addError.value = err.message || 'Failed to add habit.';
+  } finally {
+    isAdding.value = false;
+  }
+};
+
+// Show confirmation modal
+const confirmDeleteHabit = (habit) => {
+  habitToDelete.value = habit;
+  showConfirmModal.value = true;
+};
+
+// Cancel deletion
+const cancelDelete = () => {
+  habitToDelete.value = null;
+  showConfirmModal.value = false;
+};
+
+// Remove a habit
+const removeHabit = async (habitId) => {
+  isDeleting.value[habitId] = true;
+  try {
+    const response = await fetch(`http://localhost:3000/habits/${habitId}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    if (!response.ok) {
+      throw new Error('Failed to delete habit');
+    }
+    await fetchHabits();
+  } catch (err) {
+    console.error('Error deleting habit:', err);
+  } finally {
+    isDeleting.value[habitId] = false;
+    cancelDelete();
+  }
+};
+
+// Computed habits
+const filteredHabits = computed(() => habits.value);
+
+onMounted(fetchHabits);
+
+// handler used by the template when a habit is edited.
+// Minimal implementation to silence warnings; implement edit UI later as needed.
+const editHabit = (habit) => {
+  // placeholder: open an edit modal or navigate to an edit screen
+  console.info('editHabit called for', habit);
+};
+
+// close handler used in the template for LogModalManager
+const handleLogModalClose = (type) => {
+  // placeholder: handle modal close events if you need side-effects
+  console.info('Log modal closed:', type);
+};
 </script>
 
 <style>

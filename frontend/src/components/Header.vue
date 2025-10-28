@@ -12,47 +12,37 @@
   </header>
 </template>
 
-<script lang="js">
-
-import { defineComponent, ref, onMounted } from 'vue';
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 
-export default defineComponent({
-  name: 'Header'
-  ,
-  setup() {
-    const user = ref(null);
-    const profile = ref(null);
-    const router = useRouter();
+const user = ref(null);
+const profile = ref(null);
+const router = useRouter();
 
-    // Load user info from localStorage on mount
-    onMounted(() => {
-      const storedUser = localStorage.getItem('user');
-      user.value = storedUser ? JSON.parse(storedUser) : null;
-      const storedProfile = localStorage.getItem('profile');
-      profile.value = storedProfile ? JSON.parse(storedProfile) : null;
+const updateFromStorage = () => {
+  const storedUser = localStorage.getItem('user');
+  user.value = storedUser ? JSON.parse(storedUser) : null;
+  const storedProfile = localStorage.getItem('profile');
+  profile.value = storedProfile ? JSON.parse(storedProfile) : null;
+};
 
-      // Listen for localStorage changes to update header and other components
-      window.addEventListener('storage', () => {
-        const updatedUser = localStorage.getItem('user');
-        user.value = updatedUser ? JSON.parse(updatedUser) : null;
-        const updatedProfile = localStorage.getItem('profile');
-        profile.value = updatedProfile ? JSON.parse(updatedProfile) : null;
-      });
-    });
-
-    // Logout function
-    const logout = () => {
-      localStorage.removeItem('user');
-      localStorage.removeItem('profile');
-      user.value = null;
-      profile.value = null;
-      router.push('/login');
-    };
-
-    return { user, profile, logout };
-  }
+onMounted(() => {
+  updateFromStorage();
+  window.addEventListener('storage', updateFromStorage);
 });
+
+onUnmounted(() => {
+  window.removeEventListener('storage', updateFromStorage);
+});
+
+const logout = () => {
+  localStorage.removeItem('user');
+  localStorage.removeItem('profile');
+  user.value = null;
+  profile.value = null;
+  router.push('/login');
+};
 </script>
 
 <style scoped>
