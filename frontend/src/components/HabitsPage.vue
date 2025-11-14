@@ -60,57 +60,33 @@
         </div>
       </div>
 
-      <!-- Add Habit Modal (Custom) -->
-      <div v-if="showAddCustomHabit" class="modal-overlay">
-        <div class="modal">
-          <button class="modal-exit" type="button" @click="showAddCustomHabit = false">&times;</button>
-          <h2>Add New Habit</h2>
-          <form @submit.prevent="addHabit" class="modal-form">
-            <input v-model="newHabitName" placeholder="New habit name" required />
-            <input v-model="newHabitDescription" placeholder="Description" />
-            <div v-if="addError" class="modal-error">{{ addError }}</div>
-            <div class="modal-actions">
-              <button type="submit" class="modal-add" :disabled="isAdding">
-                {{ isAdding ? 'Adding...' : 'Add' }}
-              </button>
-              <button type="button" class="modal-cancel" @click="showAddCustomHabit = false">Cancel</button>
-            </div>
-          </form>
-        </div>
-      </div>
+      <!-- Add Habit Modal (Custom) replaced by component -->
+      <AddHabitModal
+        v-if="showAddCustomHabit"
+        :isPremade="false"
+        :userId="userId"
+        :profileId="profileId"
+        @added="handleHabitAdded"
+        @close="() => { showAddCustomHabit = false }"
+      />
 
-      <!-- Add Habit Modal (Premade) -->
-      <div v-if="showAddPreMadeHabit" class="modal-overlay">
-        <div class="modal">
-          <button class="modal-exit" type="button" @click="showAddPreMadeHabit = false">&times;</button>
-          <h2>Choose from a Selection of Habits</h2>
-          <form class="modal-form" @submit.prevent="submitPremadeHabit">
-            <select v-model="habitType" required>
-              <option value="" disabled>Select type</option>
-              <option value="adultBath">Adult Hygine</option>
-              <option value="babyBath">Baby Bath</option>
-              <option value="cleaning">Cleaning</option>
-              <option value="diaperChange">Diaper Change</option>
-              <option value="drinkWater">Drinking Water</option>
-              <option value="exercise">Exercise</option>
-              <option value="babyFeed">Baby Feeding</option>
-              <option value="meals">Meals</option>
-              <option value="meditation">Meditation</option>
-              <option value="reading">Reading</option>
-              <option value="sleeping">Sleeping</option>
-            </select>
-            <input v-model="newHabitName" placeholder="New habit name" required />
-            <input v-model="newHabitDescription" placeholder="Description" />
-            <div v-if="addError" class="modal-error">{{ addError }}</div>
-            <div class="modal-actions">
-              <button type="submit" class="modal-add" :disabled="isAdding">
-                {{ isAdding ? 'Adding...' : 'Submit' }}
-              </button>
-              <button type="button" class="modal-cancel" @click="showAddPreMadeHabit = false">Cancel</button>
-            </div>
-          </form>
-        </div>
-      </div>
+      <!-- Add Habit Modal (Premade) replaced by component -->
+      <AddHabitModal
+        v-if="showAddPreMadeHabit"
+        :isPremade="true"
+        :userId="userId"
+        :profileId="profileId"
+        @added="handleHabitAdded"
+        @close="() => { showAddPreMadeHabit = false }"
+      />
+
+      <!-- Edit Habit Modal -->
+      <EditHabitModal
+        v-if="showEditModal"
+        :habit="editTarget"
+        @updated="handleHabitUpdated"
+        @close="() => { showEditModal = false; editTarget = null }"
+      />
 
       <!-- Log Modals -->
        <LogModalManager 
@@ -127,26 +103,23 @@ import { ref, onMounted, computed } from 'vue';
 import HabitsCard from './HabitsCard.vue';
 import ConfirmDeleteModal from './ConfirmDeleteModal.vue';
 import LogModalManager from './LogModalManager.vue';
+import AddHabitModal from './AddHabitModal.vue';
+import EditHabitModal from './EditHabitModal.vue'; // <-- new import
 
- // State
+// State
 const habits = ref([]);
 const habitLogs = ref({});
-const newHabitName = ref('');
-const newHabitDescription = ref('');
 const showAddCustomHabit = ref(false);
 const showAddPreMadeHabit = ref(false);
 const showAddNewHabit = ref(false);
-const isAdding = ref(false);
 const isDeleting = ref({});
 const habitToDelete = ref(null);
-const addError = ref('');
 const incrementing = ref({});
 const incrementError = ref({});
-
-
 const showConfirmModal = ref(false);
 
-const habitType = ref('');
+const showEditModal = ref(false);
+const editTarget = ref(null);
 
 const logManager = ref(null); // ref to LogModalManager
 
@@ -155,55 +128,6 @@ const user = JSON.parse(localStorage.getItem('user') || '{}');
 const userId = user?.id;
 const profile = JSON.parse(localStorage.getItem('profile') || '{}'); // make profile a top-level const
 const profileId = profile?.id;
-
-const premadeHabitOptions = {
-  adultBath: { category: "adultBath" },
-  babyBath: { category: "babyBath" },
-  cleaning: { category: "cleaning" },
-  diaperChange: { category: "diaperChange" },
-  drinkWater: { category: "drinkingWater" },
-  exercise: { category: "exercise" },
-  babyFeed: { category: "feeding" },
-  meals: { category: "meals" },
-  meditation: { category: "meditation" },
-  reading: { category: "reading" },
-  sleeping: { category: "sleeping" }
-};
-
-const submitPremadeHabit = async () => {
-  if (!habitType.value) return;
-  isAdding.value = true;
-  addError.value = '';
-  const option = premadeHabitOptions[habitType.value];
-  try {
-    const response = await fetch(`http://localhost:3000/users/${userId}/profiles/${profileId}/habits`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        habit: {
-          profile_id: profileId,
-          name: newHabitName.value,
-          description: newHabitDescription.value,
-          category: option.category
-        }
-      })
-    });
-    if (!response.ok) {
-      const errorData = await response.json();
-      addError.value = errorData.error || 'Failed to add habit';
-      throw new Error(addError.value);
-    }
-    habitType.value = '';
-    newHabitName.value = '';
-    newHabitDescription.value = '';
-    showAddPreMadeHabit.value = false;
-    await fetchHabits();
-  } catch (err) {
-    addError.value = err.message || 'Failed to add habit.';
-  } finally {
-    isAdding.value = false;
-  }
-};
 
 // Open correct modal for logging — call LogModalManager.openModal
 const handleIncrement = (habit) => {
@@ -250,36 +174,17 @@ const fetchLogs = async (habitId) => {
   }
 };
 
-// Add a new habit
-const addHabit = async () => {
-  isAdding.value = true;
-  addError.value = '';
+// Handler when AddHabitModal emits 'added'
+const handleHabitAdded = async (created) => {
+  // refresh habits and close modals (modal also emits close)
   try {
-    const response = await fetch(`http://localhost:3000/users/${userId}/profiles/${profileId}/habits`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        habit: {
-          profile_id: profileId,
-          name: newHabitName.value,
-          description: newHabitDescription.value,
-          category: 'generic'
-        }
-      })
-    });
-    if (!response.ok) {
-      const errorData = await response.json();
-      addError.value = errorData.error || 'Failed to add habit';
-      throw new Error(addError.value);
-    }
-    newHabitName.value = '';
-    newHabitDescription.value = '';
-    showAddCustomHabit.value = false;
     await fetchHabits();
   } catch (err) {
-    addError.value = err.message || 'Failed to add habit.';
+    console.error('Failed to refresh habits after add:', err);
   } finally {
-    isAdding.value = false;
+    showAddCustomHabit.value = false;
+    showAddPreMadeHabit.value = false;
+    showAddNewHabit.value = false;
   }
 };
 
@@ -320,13 +225,23 @@ const filteredHabits = computed(() => habits.value);
 
 onMounted(fetchHabits);
 
-// handler used by the template when a habit is edited.
-// Minimal implementation to silence warnings; implement edit UI later as needed.
+// update editHabit to open the edit modal
 const editHabit = (habit) => {
-  // placeholder: open an edit modal or navigate to an edit screen
-  showEditModel.value = true;
+  editTarget.value = habit;
+  showEditModal.value = true;
   console.info('editHabit called for', habit);
+};
 
+// handler when EditHabitModal emits 'updated'
+const handleHabitUpdated = async () => {
+  try {
+    await fetchHabits();
+  } catch (err) {
+    console.error('Failed to refresh habits after edit:', err);
+  } finally {
+    showEditModal.value = false;
+    editTarget.value = null;
+  }
 };
 
 // close handler used in the template for LogModalManager

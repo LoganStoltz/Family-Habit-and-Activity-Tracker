@@ -30,29 +30,92 @@
 
 <script setup>
 import { ref } from 'vue'
-const props = defineProps({ isPremade: Boolean, error: String, loading: Boolean })
-const emits = defineEmits(['submit', 'close'])
+const props = defineProps({
+  isPremade: Boolean,
+  userId: [String, Number],
+  profileId: [String, Number],
+  apiBase: { type: String, default: 'http://localhost:3000' }
+})
+const emits = defineEmits(['added', 'close'])
 
 const habitType = ref('')
 const habit = ref({ name: '', description: '' })
+const loading = ref(false)
+const error = ref('')
 
 const premadeHabitOptions = {
   adultBath: { label: 'Adult Hygiene', category: 'adultBath' },
   babyBath: { label: 'Baby Bath', category: 'babyBath' },
   cleaning: { label: 'Cleaning', category: 'cleaning' },
   exercise: { label: 'Exercise', category: 'exercise' },
-  diaper: { label: 'Diaper Change', category: 'diaper' }
+  diaper: { label: 'Diaper Change', category: 'diaper' },
+  drinkWater: { label: 'Drinking Water', category: 'drinkingWater' },
+  babyFeed: { label: 'Baby Feeding', category: 'babyFeed' },
+  meals: { label: 'Meals', category: 'meals' },
+  meditation: { label: 'Meditation', category: 'meditation' },
+  reading: { label: 'Reading', category: 'reading' },
+  sleeping: { label: 'Sleeping', category: 'sleeping' }
 }
 
-const handleSubmit = () => {
-  emits('submit', {
-    name: habit.value.name,
-    description: habit.value.description,
-    category: props.isPremade
-      ? premadeHabitOptions[habitType.value].category
-      : 'custom'
-  })
-  habitType.value = ''
-  habit.value = { name: '', description: '' }
+const handleSubmit = async () => {
+  error.value = ''
+  // validate premade selection
+  if (props.isPremade && !habitType.value) {
+    error.value = 'Please select a premade habit type.'
+    return
+  }
+  const category = props.isPremade ? premadeHabitOptions[habitType.value].category : 'custom'
+  const payload = {
+    habit: {
+      profile_id: props.profileId,
+      name: habit.value.name,
+      description: habit.value.description,
+      category
+    }
+  }
+
+  loading.value = true
+  try {
+    const res = await fetch(`${props.apiBase}/users/${props.userId}/profiles/${props.profileId}/habits`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+
+    if (!res.ok) {
+      let msg = `Request failed: ${res.status}`
+      try {
+        const data = await res.json()
+        if (data?.error) msg = data.error
+        else if (data?.errors && Array.isArray(data.errors)) msg = data.errors.join(', ')
+        else msg = JSON.stringify(data)
+      } catch (e) {
+        const text = await res.text().catch(() => '')
+        if (text) msg = text
+      }
+      error.value = msg
+      return
+    }
+
+    // parse created habit (if JSON)
+    let created = null
+    const ct = res.headers.get('content-type') || ''
+    if (ct.includes('application/json')) {
+      created = await res.json()
+    } else {
+      created = await res.text()
+    }
+
+    // reset form and notify parent
+    habitType.value = ''
+    habit.value = { name: '', description: '' }
+    emits('added', created)
+    emits('close')
+  } catch (err) {
+    console.error('AddHabitModal error:', err)
+    error.value = err.message || 'Failed to add habit.'
+  } finally {
+    loading.value = false
+  }
 }
 </script>
