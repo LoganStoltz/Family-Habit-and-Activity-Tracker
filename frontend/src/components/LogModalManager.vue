@@ -111,7 +111,7 @@ const error = ref('');
 // map habit.category to modal key
 const categoryToModal = (category = '') => {
   if (category.includes('diaperChange')) return 'diaper';
-  if (category.includes('babyFeeding')) return 'feeding';
+  if (category.includes('feeding')) return 'feeding';
   if (category.includes('drinkingWater')) return 'drinkingWater';
   if (category.includes('exercise')) return 'exercise';
   if (category.includes('sleeping')) return 'sleeping';

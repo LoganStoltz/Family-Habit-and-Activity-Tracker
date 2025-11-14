@@ -27,8 +27,12 @@
         <span v-else>Log {{ habit.name }}</span>
       </button>
 
-      <button class="edit-habit-btn card-action-btn" @click="onEdit">
-        Edit Habit
+      <button 
+        class="edit-habit-btn card-action-btn" 
+        @click="onEdit"
+        :disabled="Boolean(isEditing[habit.id])"
+      >
+        {{ isEditing[habit.id] ? 'Editing...' : 'Edit Habit' }}
       </button>
 
       <button
@@ -52,7 +56,8 @@ const props = defineProps({
   logs: { type: Array, default: () => [] },
   incrementing: { type: Object, default: () => ({}) },
   incrementError: { type: Object, default: () => ({}) },
-  isDeleting: { type: Object, default: () => ({}) }
+  isDeleting: { type: Object, default: () => ({}) },
+  isEditing: { type: Object, default: () => ({}) }
 });
 
 const emit = defineEmits(['log-habit', 'edit-habit', 'delete-habit']);

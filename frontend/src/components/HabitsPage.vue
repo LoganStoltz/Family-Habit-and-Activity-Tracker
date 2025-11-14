@@ -143,6 +143,7 @@ const addError = ref('');
 const incrementing = ref({});
 const incrementError = ref({});
 
+
 const showConfirmModal = ref(false);
 
 const habitType = ref('');
@@ -162,7 +163,7 @@ const premadeHabitOptions = {
   diaperChange: { category: "diaperChange" },
   drinkWater: { category: "drinkingWater" },
   exercise: { category: "exercise" },
-  babyFeed: { category: "babyFeed" },
+  babyFeed: { category: "feeding" },
   meals: { category: "meals" },
   meditation: { category: "meditation" },
   reading: { category: "reading" },
@@ -323,7 +324,9 @@ onMounted(fetchHabits);
 // Minimal implementation to silence warnings; implement edit UI later as needed.
 const editHabit = (habit) => {
   // placeholder: open an edit modal or navigate to an edit screen
+  showEditModel.value = true;
   console.info('editHabit called for', habit);
+
 };
 
 // close handler used in the template for LogModalManager
