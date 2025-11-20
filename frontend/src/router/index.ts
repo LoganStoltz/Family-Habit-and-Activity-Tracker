@@ -6,6 +6,7 @@ import ProfileSelect from '@/components/ProfileSelectPage.vue';
 import ProfileMainPage from '@/components/ProfileMainPage.vue';
 import ProfileSettings from '@/components/ProfileSettingsPage.vue';
 import HabitsPage from '@/components/HabitsPage.vue';
+import ActivityMainPage from '@/components/ActivityMainPage.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -16,7 +17,8 @@ const router = createRouter({
     { path: '/profile-select', name: 'ProfileSelect', component: ProfileSelect },
     { path: '/profile-main', name: 'ProfileMain', component: ProfileMainPage },
     { path: '/profile-settings', name: 'ProfileSettings', component: ProfileSettings },
-    { path: '/habits', name: 'HabitPage', component: HabitsPage }
+    { path: '/habits', name: 'HabitPage', component: HabitsPage },
+    { path: '/activity-main', name: 'ActivityMainPage', component: ActivityMainPage }
   ]
 });
 export default router

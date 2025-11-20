@@ -10,6 +10,7 @@
         <h1>Habits & Care</h1>
         <div class="dashboard-actions">
           <button class="dashboard-btn add-habit" @click="showAddNewHabit = true">+ Add Habit</button>
+          <router-link class="dashboard-btn view-logs" to="/activity-main">View Logs</router-link>
           <button v-if="profile.profile_type === 'Baby'" class="dashboard-btn log-baby">
             🍼 Log Baby Milestones
           </button>
@@ -104,7 +105,7 @@ import HabitsCard from './HabitsCard.vue';
 import ConfirmDeleteModal from './ConfirmDeleteModal.vue';
 import LogModalManager from './LogModalManager.vue';
 import AddHabitModal from './AddHabitModal.vue';
-import EditHabitModal from './EditHabitModal.vue'; // <-- new import
+import EditHabitModal from './EditHabitModal.vue';
 
 // State
 const habits = ref([]);
@@ -317,6 +318,14 @@ const handleLogModalClose = (type) => {
   color: #fff;
   border: none;
   box-shadow: 0 4px 16px rgba(79,157,255,0.15);
+}
+
+.dashboard-btn.view-logs {
+  background: linear-gradient(135deg, #4f9dff, #74ebd5);
+  color: #fff;
+  border: none;
+  box-shadow: 0 4px 16px rgba(79,157,255,0.15);
+  text-decoration: none;
 }
 
 .dashboard-btn.log-baby {

@@ -13,7 +13,7 @@
       
       <div class="profile-actions">
         <router-link to="/habits" class="action-button">View Habits</router-link>
-        <button class="action-button">Track Activity</button>
+        <router-link to="/activity-main" class="action-button">Track Activity</router-link>
         <router-link to="/profile-settings" class="action-button secondary">Settings</router-link>
       </div>
     </div>
