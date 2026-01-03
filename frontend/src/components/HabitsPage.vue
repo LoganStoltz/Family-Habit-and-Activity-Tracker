@@ -11,9 +11,9 @@
         <div class="dashboard-actions">
           <button class="dashboard-btn add-habit" @click="showAddNewHabit = true">+ Add Habit</button>
           <router-link class="dashboard-btn view-logs" to="/activity-main">View Logs</router-link>
-          <button v-if="profile.profile_type === 'Baby'" class="dashboard-btn log-baby">
+          <router-link v-if="profile.profile_type === 'Baby'" class="dashboard-btn log-baby" to="/baby-milestones">
             🍼 Log Baby Milestones
-          </button>
+          </router-link>
         </div>
       </div>
 

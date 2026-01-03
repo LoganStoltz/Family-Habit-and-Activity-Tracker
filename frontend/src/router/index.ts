@@ -7,6 +7,7 @@ import ProfileMainPage from '@/components/ProfileMainPage.vue';
 import ProfileSettings from '@/components/ProfileSettingsPage.vue';
 import HabitsPage from '@/components/HabitsPage.vue';
 import ActivityMainPage from '@/components/ActivityMainPage.vue';
+import BabyMilestonesPage from '@/components/BabyMilestonesPage.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -18,7 +19,8 @@ const router = createRouter({
     { path: '/profile-main', name: 'ProfileMain', component: ProfileMainPage },
     { path: '/profile-settings', name: 'ProfileSettings', component: ProfileSettings },
     { path: '/habits', name: 'HabitPage', component: HabitsPage },
-    { path: '/activity-main', name: 'ActivityMainPage', component: ActivityMainPage }
+    { path: '/activity-main', name: 'ActivityMainPage', component: ActivityMainPage },
+    { path: '/baby-milestones', name: 'BabyMilestonesPage', component: BabyMilestonesPage }
   ]
 });
 export default router
