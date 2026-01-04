@@ -1,95 +1,95 @@
 <template>
-    <div class="activityMainPage">
-        <h1>Activity Main Page</h1>
-        <!-- Content for the Activity Main Page goes here -->
-        <div class="activityContent">
-            <div class="activityButtonsPanel">
-                <button class="activityButton" @click="fetchData">Refresh Activity History</button>
-                <router-link to="/habits" class="activityButton">Your Habits</router-link>
-            </div>
+  <div class="activityMainPage">
+    <h1>Activity Main Page</h1>
+    <!-- Content for the Activity Main Page goes here -->
+    <div class="activityContent">
+      <div class="activityButtonsPanel">
+        <button class="activityButton" @click="fetchData">Refresh Activity History</button>
+        <router-link to="/habits" class="activityButton">View Habits</router-link>
+      </div>
 
-            <!-- Search/Filter Section -->
-            <div class="filterSection">
-                <div class="filterInputs">
-                    <div class="filterGroup">
-                        <label for="searchName">Search Habit Name:</label>
-                        <input 
-                            id="searchName"
-                            v-model="searchName" 
-                            type="text" 
-                            placeholder="Enter habit name..."
-                            class="filterInput"
-                        />
-                    </div>
-                    
-                    <div class="filterGroup">
-                        <label for="filterCategory">Filter by Category:</label>
-                        <select 
-                            id="filterCategory"
-                            v-model="selectedCategory" 
-                            class="filterSelect"
-                        >
-                            <option value="">All Categories</option>
-                            <option v-for="category in availableCategories" :key="category" :value="category">
-                                {{ category }}
-                            </option>
-                        </select>
-                    </div>
-                    
-                    <button @click="clearFilters" class="clearButton">Clear Filters</button>
-                </div>
-                <p class="resultsCount">Showing {{ filteredAndSortedLogs.length }} of {{ enrichedLogs.length }} logs</p>
-            </div>
+        <!-- Search/Filter Section -->
+      <div class="filterSection">
+          <div class="filterInputs">
+              <div class="filterGroup">
+                  <label for="searchName">Search Habit Name:</label>
+                  <input 
+                      id="searchName"
+                      v-model="searchName" 
+                      type="text" 
+                      placeholder="Enter habit name..."
+                      class="filterInput"
+                  />
+              </div>
+              
+              <div class="filterGroup">
+                  <label for="filterCategory">Filter by Category:</label>
+                  <select 
+                      id="filterCategory"
+                      v-model="selectedCategory" 
+                      class="filterSelect"
+                  >
+                      <option value="">All Categories</option>
+                      <option v-for="category in availableCategories" :key="category" :value="category">
+                          {{ category }}
+                      </option>
+                  </select>
+              </div>
+              
+              <button @click="clearFilters" class="clearButton">Clear Filters</button>
+          </div>
+          <p class="resultsCount">Showing {{ filteredAndSortedLogs.length }} of {{ enrichedLogs.length }} logs</p>
+      </div>
 
-            <div class="activitySummary">
-                <h2>Habit Logs Table</h2>
-                
-                
-                <!-- Loading state -->
-                <p v-if="loading">Loading habit logs...</p>
-                
-                <!-- Error state -->
-                <p v-else-if="error" class="error">{{ error }}</p>
-                
-                <!-- Empty state -->
-                <p v-else-if="enrichedLogs.length === 0">No habit logs found.</p>
-                
-                <!-- Table -->
-                <table v-else class="habits-table">
-                    <thead>
-                        <tr>
-                            <th @click="sortBy('id')" class="sortable">
-                              Log ID
-                              <span class="sort-icon">{{ getSortIcon('id') }}</span>
-                            </th>
-                            <th @click="sortBy('habitName')" class="sortable">
-                              Habit Name
-                              <span class="sort-icon">{{ getSortIcon('habitName') }}</span>
-                            </th>
-                            <th @click="sortBy('category')" class="sortable">
-                              Category
-                              <span class="sort-icon">{{ getSortIcon('category') }}</span>
-                            </th>
-                            <th @click="sortBy('created_at')" class="sortable">
-                              Logged At
-                              <span class="sort-icon">{{ getSortIcon('created_at') }}</span>
-                            </th>
-                            <th>Notes</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="log in filteredAndSortedLogs" :key="log.id">
-                            <td>{{ log.id }}</td>
-                            <td>{{ log.habitName }}</td>
-                            <td>{{ log.category || 'N/A' }}</td>
-                            <td>{{ formatDate(log.created_at) }}</td>
-                            <td>{{ log.notes || 'N/A' }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+      <div class="activitySummary">
+            <h2>Habit Logs Table</h2>
+            
+            
+            <!-- Loading state -->
+            <p v-if="loading">Loading habit logs...</p>
+            
+            <!-- Error state -->
+            <p v-else-if="error" class="error">{{ error }}</p>
+            
+            <!-- Empty state -->
+            <p v-else-if="enrichedLogs.length === 0">No habit logs found.</p>
+            
+            <!-- Table -->
+            <table v-else class="habits-table">
+                <thead>
+                    <tr>
+                        <th @click="sortBy('id')" class="sortable">
+                          Log ID
+                          <span class="sort-icon">{{ getSortIcon('id') }}</span>
+                        </th>
+                        <th @click="sortBy('habitName')" class="sortable">
+                          Habit Name
+                          <span class="sort-icon">{{ getSortIcon('habitName') }}</span>
+                        </th>
+                        <th @click="sortBy('category')" class="sortable">
+                          Category
+                          <span class="sort-icon">{{ getSortIcon('category') }}</span>
+                        </th>
+                        <th @click="sortBy('created_at')" class="sortable">
+                          Logged At
+                          <span class="sort-icon">{{ getSortIcon('created_at') }}</span>
+                        </th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="log in filteredAndSortedLogs" :key="log.id">
+                        <td>{{ log.id }}</td>
+                        <td>{{ log.habitName }}</td>
+                        <td>{{ log.category || 'N/A' }}</td>
+                        <td>{{ formatDate(log.created_at) }}</td>
+                        <td>{{ log.notes || 'N/A' }}</td>
+                    </tr>
+                </tbody>
+            </table>
+      </div>
     </div>
+  </div>
     
 </template>
 

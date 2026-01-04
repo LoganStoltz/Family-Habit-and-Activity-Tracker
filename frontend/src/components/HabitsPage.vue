@@ -1,36 +1,32 @@
 <template>
-  <div class="habits-page">
-    <div class="page-header">
-      <h2>{{ profile.firstName }}'s Habits & Care</h2>
-    </div>
+  <div class="habitsPage">
+    <h1>Habits & Care Page</h1>
 
-    <div class="habits-dashboard">
-      <!-- Header -->
-      <div class="dashboard-header">
-        <h1>Habits & Care</h1>
-        <div class="dashboard-actions">
-          <button class="dashboard-btn add-habit" @click="showAddNewHabit = true">+ Add Habit</button>
-          <router-link class="dashboard-btn view-logs" to="/activity-main">View Logs</router-link>
-          <router-link v-if="profile.profile_type === 'Baby'" class="dashboard-btn log-baby" to="/baby-milestones">
-            🍼 Log Baby Milestones
-          </router-link>
-        </div>
+    <div class="habitsContent">
+      <div class="habitsButtonsPanel">
+        <button class="dashboardButton addHabit" @click="showAddNewHabit = true">Add Habit</button>
+        <router-link class="dashboardButton viewLogs" to="/activity-main">View Logs</router-link>
+        <router-link v-if="profile.profile_type === 'Baby'" class="dashboardButton logBaby" to="/baby-milestones">
+          Log Baby Milestones
+        </router-link>
       </div>
-
-      <!-- Habits Cards -->
-      <div class="dashboard-cards">
-        <HabitsCard
-          v-for="habit in filteredHabits"
-          :key="habit.id"
-          :habit="habit"
-          :logs="habitLogs[habit.id] || []"
-          :incrementing="incrementing"
-          :incrementError="incrementError"
-          :isDeleting="isDeleting"
-          @edit-habit="editHabit"
-          @delete-habit="confirmDeleteHabit"
-          @log-habit="handleIncrement"
-        />
+        
+      <div class="habitPanels">
+        <!-- Habits Cards -->
+        <div class="dashboard-cards">
+          <HabitsCard
+            v-for="habit in filteredHabits"
+            :key="habit.id"
+            :habit="habit"
+            :logs="habitLogs[habit.id] || []"
+            :incrementing="incrementing"
+            :incrementError="incrementError"
+            :isDeleting="isDeleting"
+            @edit-habit="editHabit"
+            @delete-habit="confirmDeleteHabit"
+            @log-habit="handleIncrement"
+          />
+        </div>
       </div>
 
       <!-- Reusable Confirmation Modal -->
@@ -90,11 +86,11 @@
       />
 
       <!-- Log Modals -->
-       <LogModalManager 
-         ref="logManager"
-         @close="handleLogModalClose"
-         @logged="onLogged"
-       />
+      <LogModalManager 
+        ref="logManager"
+        @close="handleLogModalClose"
+        @logged="onLogged"
+      />
     </div>
   </div>
 </template>
@@ -253,89 +249,50 @@ const handleLogModalClose = (type) => {
 </script>
 
 <style>
-.page-header {
-  text-align: center;
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: linear-gradient(90deg, #4f9dff, #74ebd5);
-  margin: 2rem 0 1rem 0;
+
+/* Habits Page Styling */
+.habitsPage {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 /* Habits & Care Section Styling */
-.habits-dashboard {
-  max-width: 1800px;
-  margin: 2.5rem auto;
-  padding: 2.5rem 2rem;
-  background: linear-gradient(120deg, #f8fafc 70%, #e0f7fa 100%);
-  border-radius: 36px;
-  box-shadow: 0 8px 32px rgba(79,157,255,0.12);
-  border: 1.5px solid #e0e7ef;
-  position: relative;
-  transition: box-shadow 0.2s;
-}
-
-.dashboard-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2.5rem;
-  padding-bottom: 1.2rem;
-  border-bottom: 2px solid #e0e7ef;
-}
-
-.dashboard-header h1 {
-  font-size: 2.7rem;
-  font-weight: 900;
-  background: linear-gradient(90deg, #4f9dff, #74ebd5, #a78bfa);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin: 0;
-  letter-spacing: 1px;
-  text-shadow: 0 2px 8px rgba(79,157,255,0.08);
-}
-
-.dashboard-actions {
-  display: flex;
-  gap: 1.5rem;
-}
-
-.dashboard-btn {
-  font-size: 1.12rem;
-  font-weight: 700;
+.habitPanels {
+  padding: 20px;
+  margin: 20px auto;
+  background-color: #f9f9f9;
   border-radius: 12px;
-  padding: 0.8rem 1.7rem;
-  background: #fff;
-  color: #4f9dff;
-  border: 2px solid #e0e7ef;
-  box-shadow: 0 2px 8px rgba(79,157,255,0.09);
+}
+
+.dashboardButton {
+  margin-right: 10px;
+  padding: 10px 15px;
+  font-size: 16px;
   cursor: pointer;
-  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
-}
-
-.dashboard-btn.add-habit {
-  background: linear-gradient(135deg, #4f9dff, #74ebd5);
-  color: #fff;
   border: none;
-  box-shadow: 0 4px 16px rgba(79,157,255,0.15);
-}
-
-.dashboard-btn.view-logs {
-  background: linear-gradient(135deg, #4f9dff, #74ebd5);
-  color: #fff;
-  border: none;
-  box-shadow: 0 4px 16px rgba(79,157,255,0.15);
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.2s;
   text-decoration: none;
 }
 
-.dashboard-btn.log-baby {
-  background: linear-gradient(135deg, #ffd166, #fff3cd);
-  color: #a78bfa;
-  border: none;
-  box-shadow: 0 4px 16px rgba(167,139,250,0.10);
+.dashboardButton.addHabit {
+  background: linear-gradient(135deg, #4f9dff, #74ebd5);
+  color: #fff;
 }
 
-.dashboard-btn:hover {
+.dashboardButton.viewLogs {
+  background: linear-gradient(135deg, #4f9dff, #74ebd5);
+  color: #fff;
+}
+
+.dashboardButton.logBaby {
+  background: linear-gradient(135deg, #ffd166, #fff3cd);
+  color: #a78bfa;
+}
+
+.dashboardButton:hover {
   filter: brightness(1.12);
   box-shadow: 0 6px 24px rgba(79,157,255,0.18);
 }
@@ -343,31 +300,26 @@ const handleLogModalClose = (type) => {
 .dashboard-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 2.5rem;
-  margin-top: 1rem;
+  gap: 20px;
+  margin: 15px;
 }
 .dashboard-card {
-  background: #fff;
-  border-radius: 22px;
-  box-shadow: 0 4px 24px rgba(79,157,255,0.11);
-  padding: 2rem 1.5rem 1.5rem 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.2rem;
-  min-height: 220px;
-  position: relative;
-  transition: box-shadow 0.2s;
+  background: #ffc5c5;
+  border-radius: 8px;
+  padding: 15px;
+  gap: 10px;
 }
 .dashboard-card:hover {
   box-shadow: 0 8px 32px rgba(79,157,255,0.18);
 }
 .card-header {
   display: flex;
-  align-items: center;
   gap: 0.7rem;
   font-size: 1.35rem;
   font-weight: 700;
-  color: #4f9dff;
+  background: linear-gradient(135deg, #4f9dff, #74ebd5);
+  color: white;
+
   margin-bottom: 0.5rem;
 }
 .card-title {
@@ -579,7 +531,7 @@ const handleLogModalClose = (type) => {
 
 /* Responsive */
 @media (max-width: 1200px) {
-  .habits-dashboard {
+  .habitPanels {
     padding: 1.5rem 0.5rem;
     max-width: 100%;
   }
