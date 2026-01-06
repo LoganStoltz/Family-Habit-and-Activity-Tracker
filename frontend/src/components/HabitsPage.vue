@@ -1,7 +1,5 @@
 <template>
   <div class="habitsPage">
-    <h1>Habits & Care Page</h1>
-
     <div class="habitsContent">
       <div class="habitsButtonsPanel">
         <button class="dashboardButton addHabit" @click="showAddNewHabit = true">Add Habit</button>
@@ -12,6 +10,10 @@
       </div>
         
       <div class="habitPanels">
+        <div class="dashboardHeader">
+          <h1>Habits & Care Page</h1>
+        </div>
+
         <!-- Habits Cards -->
         <div class="dashboard-cards">
           <HabitsCard
@@ -295,6 +297,15 @@ const handleLogModalClose = (type) => {
 .dashboardButton:hover {
   filter: brightness(1.12);
   box-shadow: 0 6px 24px rgba(79,157,255,0.18);
+}
+
+.dashboardHeader {
+  text-align: center;
+  margin: -20px -20px 20px -20px;
+  background: linear-gradient(135deg, #4f9dff, #74ebd5);
+  color: white;
+  padding: 2px;
+  border-radius: 12px 12px 0px 0px;
 }
 
 .dashboard-cards {

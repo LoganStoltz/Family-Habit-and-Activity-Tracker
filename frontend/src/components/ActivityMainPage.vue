@@ -3,13 +3,16 @@
     <h1>Activity Main Page</h1>
     <!-- Content for the Activity Main Page goes here -->
     <div class="activityContent">
-      <div class="activityButtonsPanel">
+      <section class="activityButtonsPanel">
         <button class="activityButton" @click="fetchData">Refresh Activity History</button>
         <router-link to="/habits" class="activityButton">View Habits</router-link>
-      </div>
+        <router-link v-if="profile.profile_type === 'Baby'" class="dashboardButton logBaby" to="/baby-milestones">
+          Log Baby Milestones
+        </router-link>
+      </section>
 
         <!-- Search/Filter Section -->
-      <div class="filterSection">
+      <section class="filterSection">
           <div class="filterInputs">
               <div class="filterGroup">
                   <label for="searchName">Search Habit Name:</label>
@@ -39,9 +42,9 @@
               <button @click="clearFilters" class="clearButton">Clear Filters</button>
           </div>
           <p class="resultsCount">Showing {{ filteredAndSortedLogs.length }} of {{ enrichedLogs.length }} logs</p>
-      </div>
+      </section>
 
-      <div class="activitySummary">
+      <section class="activitySummary">
             <h2>Habit Logs Table</h2>
             
             
@@ -87,7 +90,7 @@
                     </tr>
                 </tbody>
             </table>
-      </div>
+      </section>
     </div>
   </div>
     
@@ -436,7 +439,7 @@ onMounted(fetchData)
 .filterSelect {
     padding: 10px 12px;
     border: 2px solid #e0e7ef;
-    border-radius: 8px;
+    border-radius: 12px;
     font-size: 1rem;
     transition: border-color 0.2s;
 }
@@ -448,20 +451,22 @@ onMounted(fetchData)
 }
 
 .clearButton {
-    padding: 10px 20px;
-    background: #f44336;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.2s;
-    align-self: flex-end;
+  padding: 10px 20px;
+  background: white;
+  color: #ff0000;
+  border: 1.4px solid #c90d0080;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 1000;
+  transition: all 0.2s;
+  align-self: flex-end;
+  transform: translate(0px, -1px);
 }
 
 .clearButton:hover {
-    background: #d32f2f;
-    box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+    background: #ff004017;
+    border: 1.4px solid #49070279;
+    box-shadow: 0 2px 6px rgba(244, 67, 54, 0.39);
 }
 
 .resultsCount {

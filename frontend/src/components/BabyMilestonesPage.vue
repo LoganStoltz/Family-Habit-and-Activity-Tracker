@@ -1,120 +1,135 @@
 <template>
-  <div class="milestones-page">
-    <section class="milestone-hero">
-      <div class="hero-copy">
-        <p class="eyebrow">Baby milestones</p>
-        <h1>Celebrate {{ profileName }}'s big little wins</h1>
-        <p class="lede">
-          Capture first giggles, tiny steps, and the everyday wonders so you never lose a moment.
-        </p>
-        <div class="hero-stats">
-          <div class="hero-stat-card">
-            <span class="stat-label">Total milestones</span>
-            <span class="stat-value">{{ milestones.length }}</span>
-            <span class="stat-sub">Saved locally for this profile</span>
-          </div>
-          <div class="hero-stat-card">
-            <span class="stat-label">Starred favorites</span>
-            <span class="stat-value">{{ favoriteCount }}</span>
-            <span class="stat-sub">Moments to cherish</span>
-          </div>
-          <div class="hero-stat-card">
-            <span class="stat-label">Last updated</span>
-            <span class="stat-value">{{ lastUpdated }}</span>
-            <span class="stat-sub">Auto-saves as you go</span>
+  <div class="milestonesPage">
+    <h1>Baby Milestones Page</h1>
+
+    <div class="milestonesContent">
+      <section class="milestonesButtonSection">
+        <router-link class="activityButton" to="/activity-main">View Logs</router-link>
+        <router-link class="activityButton" to="/habits">View Habits</router-link>
+      </section>
+      
+      <section class="milestonesHeroSection">
+        <div class="milestoneInfo">
+          <p class="eyebrow">Baby milestones</p>
+          <h1>Celebrate {{ profileName }}'s Milestones</h1>
+          <p class="lede">
+            Capture first giggles, tiny steps, and the everyday wonders so you never lose a moment.
+          </p>
+          <div class="milestoneStats">
+            <div class="milestoneStatCard">
+              <span class="stat-label">Total milestones</span>
+              <span class="stat-value">{{ milestones.length }}</span>
+              <span class="stat-sub">Saved locally for this profile</span>
+            </div>
+            <div class="milestoneStatCard">
+              <span class="stat-label">This Month</span>
+              <span class="stat-value">{{ thisMonthCount }}</span>
+              <span class="stat-sub">Milestones added this month</span>
+            </div>
+            <div class="milestoneStatCard">
+              <span class="stat-label">Starred favorites</span>
+              <span class="stat-value">{{ favoriteCount }}</span>
+              <span class="stat-sub">Moments to cherish</span>
+            </div>
+            <div class="milestoneStatCard">
+              <span class="stat-label">Last updated</span>
+              <span class="stat-value">{{ lastUpdated }}</span>
+              <span class="stat-sub">Auto-saves as you go</span>
+            </div>
+            <div class="milestoneStatCard">
+              <span class="stat-label">Most active category</span>
+              <span class="stat-value">{{ topCategory || 'N/A' }}</span>
+              <span class="stat-sub">Category with the most milestones</span>
+            </div>
+            
           </div>
         </div>
-      </div>
 
-      <div class="hero-card">
-        <div class="card-header">
-          <div>
-            <p class="eyebrow">Quick add</p>
-            <h3>Add a milestone</h3>
+        <div class="addMilestoneCard">
+          <div class="card-header">
+            <div>
+              <p class="eyebrow">Quick add</p>
+              <h3>Add a milestone</h3>
+            </div>
+            <span class="pill">Private</span>
           </div>
-          <span class="pill">Private</span>
+          <form class="quick-form" @submit.prevent="addMilestone">
+            <label class="field">
+              <span>Title</span>
+              <input v-model.trim="form.title" type="text" placeholder="First steps, new word, big smile" required />
+            </label>
+            <div class="row">
+              <label class="field">
+                <span>Date</span>
+                <input v-model="form.date" type="date" required />
+              </label>
+              <label class="field">
+                <span>Time</span>
+                <input v-model="form.time" type="time" />
+              </label>
+            </div>
+            <div class="row">
+              <label class="field">
+                <span>Category</span>
+                <select v-model="form.category">
+                  <option v-for="category in categories" :key="category" :value="category">{{ category }}</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>Mood</span>
+                <select v-model="form.mood">
+                  <option v-for="mood in moods" :key="mood" :value="mood">{{ mood }}</option>
+                </select>
+              </label>
+            </div>
+            <label class="field">
+              <span>Notes</span>
+              <textarea v-model.trim="form.notes" rows="3" placeholder="What happened, who was there, tiny details..."></textarea>
+            </label>
+            <label class="field">
+              <span>Tags (comma separated)</span>
+              <input v-model.trim="form.tags" type="text" placeholder="family, first-word, video" />
+            </label>
+            <button class="primary" type="submit">Save milestone</button>
+          </form>
         </div>
-        <form class="quick-form" @submit.prevent="addMilestone">
-          <label class="field">
-            <span>Title</span>
-            <input v-model.trim="form.title" type="text" placeholder="First steps, new word, big smile" required />
-          </label>
-          <div class="row">
-            <label class="field">
-              <span>Date</span>
-              <input v-model="form.date" type="date" required />
-            </label>
-            <label class="field">
-              <span>Time</span>
-              <input v-model="form.time" type="time" />
-            </label>
-          </div>
-          <div class="row">
-            <label class="field">
-              <span>Category</span>
-              <select v-model="form.category">
-                <option v-for="category in categories" :key="category" :value="category">{{ category }}</option>
-              </select>
-            </label>
-            <label class="field">
-              <span>Mood</span>
-              <select v-model="form.mood">
-                <option v-for="mood in moods" :key="mood" :value="mood">{{ mood }}</option>
-              </select>
-            </label>
-          </div>
-          <label class="field">
-            <span>Notes</span>
-            <textarea v-model.trim="form.notes" rows="3" placeholder="What happened, who was there, tiny details..."></textarea>
-          </label>
-          <label class="field">
-            <span>Tags (comma separated)</span>
-            <input v-model.trim="form.tags" type="text" placeholder="family, first-word, video" />
-          </label>
-          <button class="primary" type="submit">Save milestone</button>
-        </form>
-      </div>
-    </section>
+      </section>
 
-    <section class="filters">
-      <div class="filter-controls">
-        <label class="field">
-          <span>Search</span>
-          <input v-model.trim="filters.search" type="text" placeholder="Find a milestone" />
-        </label>
-        <label class="field">
-          <span>Category</span>
-          <select v-model="filters.category">
-            <option value="">All</option>
-            <option v-for="category in categories" :key="category" :value="category">{{ category }}</option>
-          </select>
-        </label>
-        <label class="field">
-          <span>Time range</span>
-          <select v-model="filters.range">
-            <option value="all">All time</option>
-            <option value="30">Last 30 days</option>
-            <option value="90">Last 90 days</option>
-            <option value="365">Last year</option>
-          </select>
-        </label>
-        <label class="field">
-          <span>Sort</span>
-          <select v-model="filters.sort">
-            <option value="desc">Newest first</option>
-            <option value="asc">Oldest first</option>
-            <option value="favorite">Starred first</option>
-          </select>
-        </label>
-        <button class="ghost" type="button" @click="resetFilters">Clear</button>
-      </div>
-      <div class="tag-cloud" v-if="recentTags.length">
-        <span class="chip" v-for="tag in recentTags" :key="tag">#{{ tag }}</span>
-      </div>
-    </section>
+      <section class="filtersSection">
+        <div class="filter-controls">
+          <label class="field">
+            <span>Search</span>
+            <input v-model.trim="filtersSection.search" type="text" placeholder="Find a milestone" />
+          </label>
+          <label class="field">
+            <span>Category</span>
+            <select v-model="filtersSection.category">
+              <option value="">All</option>
+              <option v-for="category in categories" :key="category" :value="category">{{ category }}</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>Time range</span>
+            <select v-model="filtersSection.range">
+              <option value="all">All time</option>
+              <option value="30">Last 30 days</option>
+              <option value="90">Last 90 days</option>
+              <option value="365">Last year</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>Sort</span>
+            <select v-model="filtersSection.sort">
+              <option value="desc">Newest first</option>
+              <option value="asc">Oldest first</option>
+              <option value="favorite">Starred first</option>
+            </select>
+          </label>
+          <button class="clearButton" type="button" @click="resetfiltersSection">Clear</button>
+        </div>
+      </section>
 
-    <section class="content-grid">
-      <div class="timeline">
+      <section class="timelineSection">
         <div v-if="loading" class="empty">
           <p>Loading milestones...</p>
         </div>
@@ -124,14 +139,14 @@
         <div v-else-if="!filteredMilestones.length" class="empty">
           <p>No milestones yet. Add one to start the story.</p>
         </div>
-        <div v-else class="timeline-list">
-          <div v-for="group in groupedMilestones" :key="group.label" class="timeline-group">
+        <div v-else class="timelineSection-list">
+          <div v-for="group in groupedMilestones" :key="group.label" class="timelineSection-group">
             <div class="group-label">
               <h4>{{ group.label }}</h4>
               <span>{{ group.items.length }} saved</span>
             </div>
-            <div class="timeline-items">
-              <article v-for="item in group.items" :key="item.id" class="timeline-card">
+            <div class="timelineSection-items">
+              <article v-for="item in group.items" :key="item.id" class="timelineSection-card">
                 <div class="card-top">
                   <div class="card-meta">
                     <span class="pill pill-soft">{{ item.category }}</span>
@@ -143,9 +158,6 @@
                 </div>
                 <h3>{{ item.title }}</h3>
                 <p class="note" v-if="item.notes">{{ item.notes }}</p>
-                <div class="tags" v-if="item.tags.length">
-                  <span class="chip" v-for="tag in item.tags" :key="tag">#{{ tag }}</span>
-                </div>
                 <div class="card-actions">
                   <span class="pill muted">Mood: {{ item.mood }}</span>
                   <div class="action-buttons">
@@ -157,53 +169,8 @@
             </div>
           </div>
         </div>
-      </div>
-
-      <aside class="insights">
-        <div class="panel">
-          <div class="panel-head">
-            <h3>Highlights</h3>
-            <span class="pill">Live</span>
-          </div>
-          <ul class="stats-list">
-            <li>
-              <div>
-                <p class="muted">Most active category</p>
-                <p class="stat-large">{{ topCategory || 'N/A' }}</p>
-              </div>
-              <span class="muted">{{ categoryCount(topCategory) }}</span>
-            </li>
-            <li>
-              <div>
-                <p class="muted">This month</p>
-                <p class="stat-large">{{ thisMonthCount }}</p>
-              </div>
-              <span class="muted">captured</span>
-            </li>
-            <li>
-              <div>
-                <p class="muted">Starred</p>
-                <p class="stat-large">{{ favoriteCount }}</p>
-              </div>
-              <span class="muted">favorites</span>
-            </li>
-          </ul>
-        </div>
-
-        <div class="panel checklist">
-          <div class="panel-head">
-            <h3>Milestone ideas</h3>
-            <span class="pill pill-soft">Prompt</span>
-          </div>
-          <ul>
-            <li v-for="idea in ideaList" :key="idea">
-              <span>•</span>
-              <p>{{ idea }}</p>
-            </li>
-          </ul>
-        </div>
-      </aside>
-    </section>
+      </section>
+    </div>
   </div>
 </template>
 
@@ -230,7 +197,7 @@ const form = ref({
   tags: ''
 })
 
-const filters = ref({
+const filtersSection = ref({
   search: '',
   category: '',
   range: '90',
@@ -393,31 +360,31 @@ const toggleFavorite = async (id) => {
   }
 }
 
-const resetFilters = () => {
-  filters.value = { search: '', category: '', range: '90', sort: 'desc' }
+const resetfiltersSection = () => {
+  filtersSection.value = { search: '', category: '', range: '90', sort: 'desc' }
 }
 
 const filteredMilestones = computed(() => {
-  const search = filters.value.search.toLowerCase()
+  const search = filtersSection.value.search.toLowerCase()
   const now = Date.now()
-  const rangeDays = filters.value.range === 'all' ? null : Number(filters.value.range)
+  const rangeDays = filtersSection.value.range === 'all' ? null : Number(filtersSection.value.range)
   const threshold = rangeDays ? now - rangeDays * 24 * 60 * 60 * 1000 : null
 
   let result = milestones.value.filter(item => {
     const titleMatch = item.title?.toLowerCase().includes(search)
     const noteMatch = item.notes?.toLowerCase().includes(search)
     const matchesSearch = search ? (titleMatch || noteMatch) : true
-    const matchesCategory = filters.value.category ? item.category === filters.value.category : true
+    const matchesCategory = filtersSection.value.category ? item.category === filtersSection.value.category : true
     const withinRange = threshold ? new Date(item.occurredAt).getTime() >= threshold : true
     return matchesSearch && matchesCategory && withinRange
   })
 
-  if (filters.value.sort === 'favorite') {
+  if (filtersSection.value.sort === 'favorite') {
     result = result.sort((a, b) => Number(b.favorite) - Number(a.favorite))
   } else {
     result = result.sort((a, b) => {
       const diff = new Date(a.occurredAt).getTime() - new Date(b.occurredAt).getTime()
-      return filters.value.sort === 'asc' ? diff : -diff
+      return filtersSection.value.sort === 'asc' ? diff : -diff
     })
   }
 
@@ -501,27 +468,48 @@ onMounted(fetchMilestones)
 </script>
 
 <style scoped>
-.milestones-page {
-  padding: 2rem;
+.milestonesPage {
+  padding: 20px;
   max-width: 1400px;
   margin: 0 auto 3rem auto;
-  font-family: "Sora", "Segoe UI", system-ui, sans-serif;
-  color: #1f2a3d;
 }
 
-.milestone-hero {
+.milestonesButtonSection {
+    margin-bottom: 20px;
+}
+
+.activityButton {
+    margin-right: 10px;
+    padding: 10px 15px;
+    font-size: 16px;
+    cursor: pointer;
+    background: linear-gradient(135deg, #4f9dff, #74ebd5);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.2s;
+    text-decoration: none;
+}
+
+.activityButton:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 4px 12px rgba(79, 157, 255, 0.3);
+}
+
+.milestonesHeroSection {
   display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
+  grid-template-columns: 1.1fr 1fr;
   gap: 1.8rem;
   align-items: start;
   background: linear-gradient(120deg, #f6f9ff 70%, #e5f7ff);
   border: 1.5px solid #dbe7ff;
-  border-radius: 28px;
+  border-radius: 12px;
   padding: 2rem;
   box-shadow: 0 16px 60px rgba(79, 157, 255, 0.12);
 }
 
-.hero-copy h1 {
+.milestoneInfo h1 {
   font-size: 2.6rem;
   margin: 0.25rem 0 0.75rem;
   background: linear-gradient(90deg, #4f9dff, #74ebd5, #ffb347);
@@ -545,13 +533,13 @@ onMounted(fetchMilestones)
   font-size: 0.82rem;
 }
 
-.hero-stats {
+.milestoneStats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 0.9rem;
 }
 
-.hero-stat-card {
+.milestoneStatCard {
   background: #fff;
   border: 1px solid #e0e7ef;
   border-radius: 16px;
@@ -576,10 +564,10 @@ onMounted(fetchMilestones)
   font-size: 0.9rem;
 }
 
-.hero-card {
+.addMilestoneCard {
   background: #ffffff;
-  border-radius: 20px;
-  padding: 1.6rem;
+  border-radius: 12px;
+  padding: 20px;
   border: 1px solid #e1e8f5;
   box-shadow: 0 12px 36px rgba(79, 157, 255, 0.12);
 }
@@ -588,7 +576,10 @@ onMounted(fetchMilestones)
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1rem;
+  border-radius: 12px 12px 0 0;
+  margin: -20px -20px 15px -20px;
+  padding: 0.8rem 1.2rem;
+  
 }
 
 .card-header h3 {
@@ -661,11 +652,11 @@ onMounted(fetchMilestones)
   box-shadow: 0 10px 24px rgba(79, 157, 255, 0.22);
 }
 
-.filters {
-  margin: 1.6rem 0 1rem;
+.filtersSection {
+  margin: 20px 0px;
   background: #fff;
   border: 1px solid #e3eaf5;
-  border-radius: 18px;
+  border-radius: 12px;
   padding: 1rem 1.2rem;
   box-shadow: 0 10px 30px rgba(79, 157, 255, 0.08);
 }
@@ -675,6 +666,25 @@ onMounted(fetchMilestones)
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 0.9rem;
   align-items: end;
+}
+
+.clearButton {
+  padding: 12px 20px;
+  background: white;
+  color: #f44336;
+  border: 1.4px solid #f4433680;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 1000;
+  transition: all 0.2s;
+  align-self: flex-end;
+  transform: translate(0px, -5px);
+}
+
+.clearButton:hover {
+    background: #ff004017;
+    border: 1.4px solid #49070279;
+    box-shadow: 0 2px 6px rgba(244, 67, 54, 0.39);
 }
 
 .ghost {
@@ -687,33 +697,10 @@ onMounted(fetchMilestones)
   cursor: pointer;
 }
 
-.tag-cloud {
-  margin-top: 0.75rem;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.chip {
-  padding: 0.3rem 0.65rem;
-  border-radius: 999px;
-  background: #eef2ff;
-  color: #3d4a63;
-  font-weight: 700;
-  font-size: 0.9rem;
-}
-
-.content-grid {
-  display: grid;
-  grid-template-columns: 1.4fr 0.85fr;
-  gap: 1.4rem;
-  margin-top: 1rem;
-}
-
-.timeline {
+.timelineSection {
   background: #fff;
   border: 1px solid #e2eaf5;
-  border-radius: 18px;
+  border-radius: 12px;
   padding: 1.2rem;
   box-shadow: 0 12px 36px rgba(79, 157, 255, 0.1);
 }
@@ -728,7 +715,7 @@ onMounted(fetchMilestones)
   color: #d14343;
 }
 
-.timeline-group + .timeline-group {
+.timelineSection-group + .timelineSection-group {
   margin-top: 1rem;
 }
 
@@ -741,12 +728,12 @@ onMounted(fetchMilestones)
   font-weight: 700;
 }
 
-.timeline-items {
+.timelineSection-items {
   display: grid;
   gap: 0.8rem;
 }
 
-.timeline-card {
+.timelineSection-card {
   border: 1px solid #e5ecf8;
   border-radius: 14px;
   padding: 1rem 1.1rem;
@@ -788,7 +775,7 @@ onMounted(fetchMilestones)
   color: #f5a524;
 }
 
-.timeline-card h3 {
+.timelineSection-card h3 {
   margin: 0.35rem 0 0.35rem;
   color: #1f2a3d;
 }
@@ -837,7 +824,7 @@ onMounted(fetchMilestones)
 .panel {
   background: #fff;
   border: 1px solid #e2eaf5;
-  border-radius: 16px;
+  border-radius: 12px;
   padding: 1rem 1.1rem;
   box-shadow: 0 10px 28px rgba(79, 157, 255, 0.09);
 }
@@ -873,25 +860,8 @@ onMounted(fetchMilestones)
   color: #1f2a3d;
 }
 
-.checklist ul {
-  list-style: none;
-  padding: 0;
-  margin: 0.4rem 0 0;
-  display: grid;
-  gap: 0.4rem;
-}
-
-.checklist li {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 0.5rem;
-  align-items: start;
-  color: #4a566f;
-  font-weight: 600;
-}
-
 @media (max-width: 1080px) {
-  .milestone-hero {
+  .milestonesHeroSection {
     grid-template-columns: 1fr;
   }
 
@@ -901,11 +871,11 @@ onMounted(fetchMilestones)
 }
 
 @media (max-width: 640px) {
-  .milestones-page {
+  .milestonesPage {
     padding: 1.25rem;
   }
 
-  .hero-stats {
+  .milestoneStats {
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   }
 
