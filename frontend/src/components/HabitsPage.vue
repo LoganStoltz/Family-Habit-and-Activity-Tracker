@@ -1,17 +1,9 @@
 <template>
   <div class="habitsPage">
     <div class="habitsContent">
-      <div class="habitsButtonsPanel">
-        <button class="dashboardButton addHabit" @click="showAddNewHabit = true">Add Habit</button>
-        <router-link class="dashboardButton viewLogs" to="/activity-main">View Logs</router-link>
-        <router-link v-if="profile.profile_type === 'Baby'" class="dashboardButton logBaby" to="/baby-milestones">
-          Log Baby Milestones
-        </router-link>
-      </div>
-        
       <div class="habitPanels">
         <div class="dashboardHeader">
-          <h1>Habits & Care Page</h1>
+          <h1>Habits & Care</h1>
         </div>
 
         <!-- Habits Cards -->
@@ -98,7 +90,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, defineExpose } from 'vue';
 import HabitsCard from './HabitsCard.vue';
 import ConfirmDeleteModal from './ConfirmDeleteModal.vue';
 import LogModalManager from './LogModalManager.vue';
@@ -187,6 +179,13 @@ const handleHabitAdded = async (created) => {
   }
 };
 
+// Expose a method so parents can open the add-habit modal
+const openAddHabit = () => {
+  showAddNewHabit.value = true;
+};
+
+defineExpose({ openAddHabit });
+
 // Show confirmation modal
 const confirmDeleteHabit = (habit) => {
   habitToDelete.value = habit;
@@ -254,7 +253,6 @@ const handleLogModalClose = (type) => {
 
 /* Habits Page Styling */
 .habitsPage {
-  padding: 20px;
   max-width: 1400px;
   margin: 0 auto;
 }

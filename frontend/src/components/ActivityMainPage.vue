@@ -5,10 +5,14 @@
     <div class="activityContent">
       <section class="activityButtonsPanel">
         <button class="activityButton" @click="fetchData">Refresh Activity History</button>
-        <router-link to="/habits" class="activityButton">View Habits</router-link>
+        <button class="dashboardButton addHabit" @click="openAddHabitFromChild">Add Habit</button>
         <router-link v-if="profile.profile_type === 'Baby'" class="dashboardButton logBaby" to="/baby-milestones">
           Log Baby Milestones
         </router-link>
+      </section>
+
+      <section>
+        <habits-page ref="habitsPageRef"></habits-page>
       </section>
 
         <!-- Search/Filter Section -->
@@ -99,6 +103,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { apiRequest } from '@/config/api'
+import HabitsPage from './HabitsPage.vue';
 
 // Get user and profile from LocalStorage
 const user = JSON.parse(localStorage.getItem('user') || '{}')
@@ -115,6 +120,7 @@ const sortColumn = ref('created_at')
 const sortDirection = ref('desc')
 const searchName = ref('')
 const selectedCategory = ref('')
+const habitsPageRef = ref(null)
 
 // Fetch all habits for the profile
 const fetchHabits = async () => {
@@ -253,6 +259,13 @@ const sortBy = (column) => {
 const getSortIcon = (column) => {
   if (sortColumn.value !== column) return '⇅'
   return sortDirection.value === 'asc' ? '↑' : '↓'
+}
+
+// Open the child HabitsPage modal from the parent button
+const openAddHabitFromChild = () => {
+  if (habitsPageRef.value?.openAddHabit) {
+    habitsPageRef.value.openAddHabit()
+  }
 }
 
 // Fetch all data

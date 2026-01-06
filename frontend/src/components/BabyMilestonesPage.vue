@@ -5,7 +5,6 @@
     <div class="milestonesContent">
       <section class="milestonesButtonSection">
         <router-link class="activityButton" to="/activity-main">View Logs</router-link>
-        <router-link class="activityButton" to="/habits">View Habits</router-link>
       </section>
       
       <section class="milestonesHeroSection">
@@ -579,7 +578,6 @@ onMounted(fetchMilestones)
   border-radius: 12px 12px 0 0;
   margin: -20px -20px 15px -20px;
   padding: 0.8rem 1.2rem;
-  
 }
 
 .card-header h3 {
