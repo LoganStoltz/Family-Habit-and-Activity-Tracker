@@ -541,12 +541,15 @@ const handleLogModalClose = (type) => {
 /* Responsive */
 @media (max-width: 1200px) {
   .habitPanels {
-    padding: 1.5rem 0.5rem;
     max-width: 100%;
   }
   .dashboard-cards {
     grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
+    gap: 18px;
+  }
+  .dashboardHeader {
+    margin: -24px -20px 20px -20px;
+    padding: 2px;
   }
 }
 @media (max-width: 800px) {

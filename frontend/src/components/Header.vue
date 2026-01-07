@@ -1,14 +1,17 @@
 <template>
   <header class="header">
   <!-- Desktop Navigation -->
-  <nav class="nav">
-    <router-link to="/" class="btn-home">Home</router-link>
-    <router-link to="/profile-select" class="btn-profile-select" v-if="user">Profile Select</router-link>
-    <router-link to="/profile-main" class="btn-profile-main" v-if="profile">Profile Main</router-link>
-    <router-link to="/registration" class="btn-registration" v-if="!user">Registration</router-link>
-    <router-link to="/login" class="btn-login" v-if="!user">Login</router-link>
-    <button v-if="user" class="btn-logout" @click="logout">Logout</button>
-  </nav>
+    <nav class="nav">
+      <router-link to="/" class="btn-home">Home</router-link>
+      <router-link to="/profile-select" class="btn-profile-select" v-if="user">Profile Select</router-link>
+      <router-link to="/profile-main" class="btn-profile-main" v-if="profile">Profile Main</router-link>
+      <router-link to="/registration" class="btn-registration" v-if="!user">Registration</router-link>
+      <router-link to="/login" class="btn-login" v-if="!user">Login</router-link>
+      <button v-if="user" class="btn-logout" @click="logout">Logout</button>
+    </nav>
+    <div class="user-section" v-if="user">
+      <span class="user-icon">👤</span>
+    </div>
   </header>
 </template>
 
@@ -59,7 +62,7 @@ const logout = () => {
   backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
   padding: 0 2rem;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
@@ -136,6 +139,23 @@ const logout = () => {
   color: #1e3a5f;
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(255, 209, 102, 0.4);
+}
+
+.user-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.user-icon {
+  font-size: 1.5rem;
+  opacity: 0.9;
+  transition: var(--transition-normal);
+}
+
+.user-icon:hover {
+  opacity: 1;
+  transform: scale(1.1);
 }
 
 /* Mobile responsiveness */
