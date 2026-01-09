@@ -310,13 +310,12 @@ const handleLogModalClose = (type) => {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 20px;
-  margin: 15px;
+  margin: 20px;
 }
+
 .dashboard-card {
   background: #ffc5c5;
   border-radius: 8px;
-  padding: 15px;
-  gap: 10px;
 }
 .dashboard-card:hover {
   box-shadow: 0 8px 32px rgba(79,157,255,0.18);
@@ -328,7 +327,6 @@ const handleLogModalClose = (type) => {
   font-weight: 700;
   background: linear-gradient(135deg, #4f9dff, #74ebd5);
   color: white;
-
   margin-bottom: 0.5rem;
 }
 .card-title {

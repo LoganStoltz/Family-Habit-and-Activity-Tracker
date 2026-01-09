@@ -12,7 +12,7 @@
       </section>
 
       <section>
-        <habits-page ref="habitsPageRef"></habits-page>
+        <habits-page></habits-page>
       </section>
 
         <!-- Search/Filter Section -->
@@ -47,7 +47,7 @@
           </div>
           <p class="resultsCount">Showing {{ filteredAndSortedLogs.length }} of {{ enrichedLogs.length }} logs</p>
       </section>
-
+      <!-- Habit Logs Table Section -->
       <section class="activitySummary">
             <h2>Habit Logs Table</h2>
             
