@@ -7,7 +7,6 @@
         <h2 v-else class="welcome-heading">Hello, Guest!</h2>
         <p class="welcome-subtitle">Welcome back to your Family Habit and Activity Tracker</p>
       </div>
-      <button v-if="user" class="btn-logout" @click="logout">Logout</button>
     </div>
 
     <!-- Main Content -->

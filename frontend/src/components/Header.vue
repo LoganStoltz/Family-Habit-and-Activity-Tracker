@@ -7,7 +7,6 @@
       <router-link to="/profile-main" class="btn-profile-main" v-if="profile">Profile Main</router-link>
       <router-link to="/registration" class="btn-registration" v-if="!user">Registration</router-link>
       <router-link to="/login" class="btn-login" v-if="!user">Login</router-link>
-      <button v-if="user" class="btn-logout" @click="logout">Logout</button>
     </nav>
     <div class="user-section" v-if="user">
       <div class="user-menu-container">
