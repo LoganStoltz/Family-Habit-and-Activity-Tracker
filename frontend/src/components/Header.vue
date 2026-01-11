@@ -10,7 +10,24 @@
       <button v-if="user" class="btn-logout" @click="logout">Logout</button>
     </nav>
     <div class="user-section" v-if="user">
-      <span class="user-icon">👤</span>
+      <div class="user-menu-container">
+        <span class="user-icon" @click="toggleDropdown">👤</span>
+        <div v-if="isDropdownOpen" class="dropdown-menu">
+          <div class="dropdown-item" @click="navigateTo('/profile-select')">
+            <span class="dropdown-icon">👥</span>
+            <span>Profile Select</span>
+          </div>
+          <div class="dropdown-item" @click="navigateTo('/profile-main')" v-if="profile">
+            <span class="dropdown-icon">🏠</span>
+            <span>Profile Main</span>
+          </div>
+          <div class="dropdown-divider"></div>
+          <div class="dropdown-item logout-item" @click="logout">
+            <span class="dropdown-icon">🚪</span>
+            <span>Logout</span>
+          </div>
+        </div>
+      </div>
     </div>
   </header>
 </template>
@@ -22,6 +39,16 @@ import { useRouter } from 'vue-router';
 const user = ref(null);
 const profile = ref(null);
 const router = useRouter();
+const isDropdownOpen = ref(false);
+
+const toggleDropdown = () => {
+  isDropdownOpen.value = !isDropdownOpen.value;
+};
+
+const navigateTo = (path) => {
+  router.push(path);
+  isDropdownOpen.value = false;
+};
 
 const updateFromStorage = () => {
   const storedUser = localStorage.getItem('user');
@@ -44,9 +71,28 @@ const logout = () => {
   localStorage.removeItem('profile');
   user.value = null;
   profile.value = null;
+  isDropdownOpen.value = false;
   router.push('/login');
 };
-</script>
+
+// Close dropdown when clicking outside
+const handleClickOutside = (event) => {
+  const userMenu = document.querySelector('.user-menu-container');
+  if (userMenu && !userMenu.contains(event.target)) {
+    isDropdownOpen.value = false;
+  }
+};
+
+onMounted(() => {
+  updateFromStorage();
+  window.addEventListener('storage', updateFromStorage);
+  document.addEventListener('click', handleClickOutside);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('storage', updateFromStorage);
+  document.removeEventListener('click', handleClickOutside);
+});</script>
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
@@ -147,15 +193,82 @@ const logout = () => {
   gap: 1rem;
 }
 
+.user-menu-container {
+  position: relative;
+}
+
 .user-icon {
   font-size: 1.5rem;
   opacity: 0.9;
   transition: var(--transition-normal);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .user-icon:hover {
   opacity: 1;
   transform: scale(1.1);
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  background: rgba(30, 66, 95, 0.98);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-medium);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  min-width: 200px;
+  z-index: 1001;
+  overflow: hidden;
+  animation: dropdownSlide 0.2s ease-out;
+}
+
+@keyframes dropdownSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1.25rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: var(--transition-normal);
+  font-weight: 500;
+}
+
+.dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--accent-yellow);
+}
+
+.dropdown-icon {
+  font-size: 1.2rem;
+  opacity: 0.9;
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 0.25rem 0;
+}
+
+.logout-item:hover {
+  background: rgba(230, 57, 70, 0.2);
+  color: #ff6b7a;
 }
 
 /* Mobile responsiveness */
