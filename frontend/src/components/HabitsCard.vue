@@ -37,6 +37,7 @@
       </button>
 
       <button 
+        v-if="toggleEditingMode"
         class="edit-habit-btn card-action-btn" 
         @click="onEdit"
         :disabled="Boolean(isEditing[habit.id])"
@@ -45,7 +46,8 @@
       </button>
 
       <button
-        class="delete-habit-btn"
+        v-if="toggleEditingMode"
+        class="delete-habit-btn card-action-btn"
         @click="onDelete"
         :disabled="Boolean(isDeleting[habit.id])"
       >
@@ -66,7 +68,8 @@ const props = defineProps({
   incrementing: { type: Object, default: () => ({}) },
   incrementError: { type: Object, default: () => ({}) },
   isDeleting: { type: Object, default: () => ({}) },
-  isEditing: { type: Object, default: () => ({}) }
+  isEditing: { type: Object, default: () => ({}) },
+  toggleEditingMode: { type: Boolean, default: false }
 });
 
 const emit = defineEmits(['log-habit', 'edit-habit', 'delete-habit']);

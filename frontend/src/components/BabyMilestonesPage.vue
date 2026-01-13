@@ -1,12 +1,9 @@
 <template>
   <div class="milestonesPage">
-    <h1>Baby Milestones Page</h1>
+    <!-- <h1>Baby Milestones Page</h1> -->
 
     <div class="milestonesContent">
-      <section class="milestonesButtonSection">
-        <router-link class="activityButton" to="/activity-main">View Logs</router-link>
-      </section>
-      
+    
       <section class="milestonesHeroSection">
         <div class="milestoneInfo">
           <p class="eyebrow">Baby milestones</p>
@@ -471,29 +468,6 @@ onMounted(fetchMilestones)
   padding: 20px;
   max-width: 1400px;
   margin: 0 auto;
-}
-
-.milestonesButtonSection {
-    margin-bottom: 20px;
-}
-
-.activityButton {
-    margin-right: 10px;
-    padding: 10px 15px;
-    font-size: 16px;
-    cursor: pointer;
-    background: linear-gradient(135deg, #4f9dff, #74ebd5);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    transition: all 0.2s;
-    text-decoration: none;
-}
-
-.activityButton:hover {
-    filter: brightness(1.1);
-    box-shadow: 0 4px 12px rgba(79, 157, 255, 0.3);
 }
 
 .milestonesHeroSection {

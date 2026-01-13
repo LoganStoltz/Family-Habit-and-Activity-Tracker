@@ -1,18 +1,10 @@
 <template>
   <div class="activityMainPage">
-    <h1>Activity Main Page</h1>
+    <!-- <h1>Activity Main Page</h1> -->
     <!-- Content for the Activity Main Page goes here -->
     <div class="activityContent">
-      <section class="activityButtonsPanel">
-        <button class="activityButton" @click="fetchData">Refresh Activity History</button>
-        <button class="dashboardButton addHabit" @click="openAddHabitFromChild">Add Habit</button>
-        <router-link v-if="profile.profile_type === 'Baby'" class="dashboardButton logBaby" to="/baby-milestones">
-          Log Baby Milestones
-        </router-link>
-      </section>
-
       <section>
-        <habits-page></habits-page>
+        <HabitsPage ref="habitsPageRef" />
       </section>
 
         <!-- Search/Filter Section -->
@@ -42,7 +34,8 @@
                       </option>
                   </select>
               </div>
-              
+
+              <button class="activityButton" @click="fetchData">Refresh Activity History</button>
               <button @click="clearFilters" class="clearButton">Clear Filters</button>
           </div>
           <p class="resultsCount">Showing {{ filteredAndSortedLogs.length }} of {{ enrichedLogs.length }} logs</p>
@@ -261,13 +254,6 @@ const getSortIcon = (column) => {
   return sortDirection.value === 'asc' ? '↑' : '↓'
 }
 
-// Open the child HabitsPage modal from the parent button
-const openAddHabitFromChild = () => {
-  if (habitsPageRef.value?.openAddHabit) {
-    habitsPageRef.value.openAddHabit()
-  }
-}
-
 // Fetch all data
 const fetchData = async () => {
   loading.value = true
@@ -304,10 +290,6 @@ onMounted(fetchData)
     padding: 20px;
     max-width: 1400px;
     margin: 0 auto;
-}
-
-.activityButtonsPanel {
-    margin-bottom: 20px;
 }
 
 .activityButton {

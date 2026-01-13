@@ -3,16 +3,17 @@
   <!-- Desktop Navigation -->
     <nav class="nav">
       <router-link to="/" class="btn-home">Home</router-link>
-      <router-link to="/profile-select" class="btn-profile-select" v-if="user">Profile Select</router-link>
       <router-link to="/profile-main" class="btn-profile-main" v-if="profile">Profile Main</router-link>
       <router-link to="/registration" class="btn-registration" v-if="!user">Registration</router-link>
       <router-link to="/login" class="btn-login" v-if="!user">Login</router-link>
+      <router-link to="/activity-main" class="btn-activity-main" v-if="user">Activity Main</router-link>
+      <router-link to="/baby-milestones" class="btn-baby-milestones" v-if="user && profile.profile_type === 'Baby'">Baby Milestones</router-link>
     </nav>
     <div class="user-section" v-if="user">
       <div class="user-menu-container">
         <span class="user-icon" @click="toggleDropdown">👤</span>
         <div v-if="isDropdownOpen" class="dropdown-menu">
-          <div class="dropdown-item" @click="navigateTo('/profile-select')">
+          <div class="dropdown-item" @click="navigateTo('/profile-select')" v-if="user">
             <span class="dropdown-icon">👥</span>
             <span>Profile Select</span>
           </div>

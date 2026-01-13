@@ -4,7 +4,7 @@
       <!-- Welcome Section -->
       <div class="profile-welcome">
         <div class="profile-header">
-          <h1 class="welcome-heading">Hello, {{ profile.firstName }}{{ profile.lastName ? ' ' + profile.lastName : '' }}! 👋</h1>
+          <h1 class="welcome-heading">Hello, {{ profile.firstName }}{{ profile.lastName ? ' ' + profile.lastName : '' }}!</h1>
           <div class="profile-details">
             <span class="profile-badge">{{ profile.profile_type || 'Profile' }}</span>
             <span class="profile-age" v-if="profile.dob">Born: {{ formatDate(profile.dob) }}</span>

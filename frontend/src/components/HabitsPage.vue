@@ -3,7 +3,9 @@
     <div class="habitsContent">
       <div class="habitPanels">
         <div class="dashboardHeader">
+          <button class="addHabitButton" @click="showAddNewHabit = true">Add Habit</button>
           <h1>Habits & Care</h1>
+          <button class="editingModeButton" :class="{ active: toggleEditingMode }" @click="toggleEditingMode = !toggleEditingMode">✏️</button>
         </div>
 
         <!-- Habits Cards -->
@@ -19,6 +21,7 @@
             @edit-habit="editHabit"
             @delete-habit="confirmDeleteHabit"
             @log-habit="handleIncrement"
+            :toggleEditingMode="toggleEditingMode"
           />
         </div>
       </div>
@@ -111,6 +114,8 @@ const showConfirmModal = ref(false);
 
 const showEditModal = ref(false);
 const editTarget = ref(null);
+
+const toggleEditingMode = ref(false);
 
 const logManager = ref(null); // ref to LogModalManager
 
@@ -260,7 +265,7 @@ const handleLogModalClose = (type) => {
 /* Habits & Care Section Styling */
 .habitPanels {
   padding: 20px;
-  margin: 20px auto;
+  margin: 0px 0px 20px 0px;
   background-color: #f9f9f9;
   border-radius: 12px;
 }
@@ -298,12 +303,41 @@ const handleLogModalClose = (type) => {
 }
 
 .dashboardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   text-align: center;
   margin: -20px -20px 20px -20px;
   background: linear-gradient(135deg, #4f9dff, #74ebd5);
   color: white;
   padding: 2px;
   border-radius: 12px 12px 0px 0px;
+}
+
+.dashboardHeader button {
+  margin: 0px 20px;
+}
+
+.editingModeButton {
+  font-size: 1.5rem;
+  transition: var(--transition-normal);
+  cursor: pointer;
+  padding: 0.7rem;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.1);
+  border: none;
+}
+
+.editingModeButton:hover {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.editingModeButton.active {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.editingModeButton.active:hover {
+  background: rgba(0, 0, 0, 0.2);
 }
 
 .dashboard-cards {
