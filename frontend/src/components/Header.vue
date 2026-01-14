@@ -13,10 +13,28 @@
       <div class="user-menu-container">
         <span class="user-icon" @click="toggleDropdown">👤</span>
         <div v-if="isDropdownOpen" class="dropdown-menu">
-          <div class="dropdown-item" @click="navigateTo('/profile-select')">
+          <div class="dropdown-item" @click.stop="toggleProfileDropDown">
             <span class="dropdown-icon">👥</span>
             <span>Profile Select</span>
+            <span class="dropdown-arrow" :class="{ expanded: isProfileDropDownOpen }">▼</span>
           </div>
+          
+          <!-- Profile options appear inline when expanded -->
+          <div v-if="isProfileDropDownOpen" class="profile-dropdown">
+            <div 
+              class="profile-option" 
+              v-for="option in profileOptions" 
+              :key="option.id"
+              @click="selectProfile(option)">
+              <span class="profile-option-icon">👤</span>
+              <span class="profile-option-name">{{ option.firstName }}</span>
+            </div>
+            <div class="profile-option add-profile" @click="navigateTo('/profile-select')">
+              <span class="profile-option-icon">➕</span>
+              <span class="profile-option-name">Add Profile</span>
+            </div>
+          </div>
+          
           <div class="dropdown-item" @click="navigateTo('/profile-main')" v-if="profile">
             <span class="dropdown-icon">🏠</span>
             <span>Profile Main</span>
@@ -38,11 +56,21 @@ import { useRouter } from 'vue-router';
 
 const user = ref(null);
 const profile = ref(null);
+const profileOptions = ref([]);
 const router = useRouter();
 const isDropdownOpen = ref(false);
+const isProfileDropDownOpen = ref(false);
 
 const toggleDropdown = () => {
   isDropdownOpen.value = !isDropdownOpen.value;
+  if (isDropdownOpen.value) {
+    fetchProfiles();
+  }
+};
+
+const toggleProfileDropDown = (event) => {
+  event?.stopPropagation();
+  isProfileDropDownOpen.value = !isProfileDropDownOpen.value;
 };
 
 const navigateTo = (path) => {
@@ -55,6 +83,37 @@ const updateFromStorage = () => {
   user.value = storedUser ? JSON.parse(storedUser) : null;
   const storedProfile = localStorage.getItem('profile');
   profile.value = storedProfile ? JSON.parse(storedProfile) : null;
+};
+
+const fetchProfiles = async () => {
+  if (!user.value?.id) return;
+  
+  try {
+    const response = await fetch(`http://localhost:3000/users/${user.value.id}/profiles`);
+    if (!response.ok) throw new Error('Failed to fetch profiles');
+    const data = await response.json();
+    
+    profileOptions.value = Array.isArray(data)
+      ? data.map(p => ({
+          id: p.id,
+          firstName: p.first_name,
+          lastName: p.last_name || '',
+          dob: p.dob,
+          profile_type: p.profile_type
+        }))
+      : [];
+  } catch (err) {
+    console.error('Error fetching profiles:', err);
+  }
+};
+
+const selectProfile = (selectedProfile) => {
+  localStorage.setItem('profile', JSON.stringify(selectedProfile));
+  profile.value = selectedProfile;
+  window.dispatchEvent(new Event('storage'));
+  isDropdownOpen.value = false;
+  isProfileDropDownOpen.value = false;
+  window.location.reload();
 };
 
 onMounted(() => {
@@ -80,6 +139,7 @@ const handleClickOutside = (event) => {
   const userMenu = document.querySelector('.user-menu-container');
   if (userMenu && !userMenu.contains(event.target)) {
     isDropdownOpen.value = false;
+    isProfileDropDownOpen.value = false;
   }
 };
 
@@ -228,6 +288,60 @@ onUnmounted(() => {
   animation: dropdownSlide 0.2s ease-out;
 }
 
+.profile-dropdown {
+  background: rgba(15, 40, 60, 0.98);
+  border-left: 3px solid var(--accent-yellow);
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    max-height: 0;
+    opacity: 0;
+  }
+  to {
+    max-height: 300px;
+    opacity: 1;
+  }
+}
+
+.profile-option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem 0.75rem 2rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: var(--transition-normal);
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.profile-option:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--accent-yellow);
+}
+
+.profile-option.add-profile {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--accent-yellow);
+  font-weight: 600;
+}
+
+.profile-option.add-profile:hover {
+  background: rgba(255, 209, 102, 0.2);
+}
+
+.profile-option-name {
+  flex: 1;
+}
+
+.profile-option-icon {
+  font-size: 1rem;
+  opacity: 0.8;
+  margin-right: 0.25rem;
+}
+
 @keyframes dropdownSlide {
   from {
     opacity: 0;
@@ -248,11 +362,23 @@ onUnmounted(() => {
   cursor: pointer;
   transition: var(--transition-normal);
   font-weight: 500;
+  position: relative;
 }
 
 .dropdown-item:hover {
   background: rgba(255, 255, 255, 0.1);
   color: var(--accent-yellow);
+}
+
+.dropdown-arrow {
+  margin-left: auto;
+  font-size: 0.75rem;
+  transition: transform 0.3s ease;
+  opacity: 0.7;
+}
+
+.dropdown-arrow.expanded {
+  transform: rotate(-180deg);
 }
 
 .dropdown-icon {
