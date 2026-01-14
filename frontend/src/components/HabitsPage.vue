@@ -318,6 +318,32 @@ const handleLogModalClose = (type) => {
   margin: 0px 20px;
 }
 
+.addHabitButton {
+  background: rgba(255, 255, 255, 0.95);
+  color: #4f9dff;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  font-weight: 700;
+  font-size: 1.08rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(8px);
+}
+
+.addHabitButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  background: rgba(255, 255, 255, 1);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.addHabitButton:active {
+  transform: translateY(0px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
 .editingModeButton {
   font-size: 1.5rem;
   transition: var(--transition-normal);

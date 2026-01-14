@@ -19,9 +19,21 @@
     </div>
 
     <div class="card-progress">
-      <div class="progress-label">Activity</div>
+      <div class="progress-header">
+        <div class="progress-label">{{ weeklyStreak }} of 7 days</div>
+        <div class="progress-percentage">{{ progressPercent }}%</div>
+      </div>
       <div class="progress-bar">
         <div class="progress-fill" :style="localProgressStyle"></div>
+      </div>
+      <div class="streak-dots">
+        <span 
+          v-for="day in 7" 
+          :key="day" 
+          class="streak-dot" 
+          :class="{ active: day <= weeklyStreak }"
+          :style="{ backgroundColor: day <= weeklyStreak ? palette.accent : '#e2e8f0' }"
+        ></span>
       </div>
     </div>
 
@@ -86,10 +98,32 @@ const palette = computed(() => {
   return options[idx];
 });
 
+// Calculate weekly streak (how many days in the last 7 days the habit was logged)
+const weeklyStreak = computed(() => {
+  if (!props.logs || props.logs.length === 0) return 0;
+  
+  const now = new Date();
+  const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  
+  const uniqueDays = new Set();
+  props.logs.forEach(log => {
+    const logDate = new Date(log.created_at);
+    if (logDate >= sevenDaysAgo) {
+      const dayKey = logDate.toISOString().split('T')[0];
+      uniqueDays.add(dayKey);
+    }
+  });
+  
+  return Math.min(uniqueDays.size, 7);
+});
+
+const progressPercent = computed(() => {
+  return Math.round((weeklyStreak.value / 7) * 100);
+});
+
 const localProgressStyle = computed(() => {
-  const percent = props.logs?.length > 0 ? 100 : 0;
   return {
-    width: `${percent}%`,
+    width: `${progressPercent.value}%`,
     background: palette.value.gradient,
   };
 });
@@ -205,32 +239,77 @@ function onDelete() { emit('delete-habit', props.habit); }
 
 .card-progress {
   margin-top: 14px;
-  padding: 12px 12px 10px;
+  padding: 14px;
   border-radius: 12px;
   background: #f8fafc;
   border: 1px solid #e2e8f0;
 }
 
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
 .progress-label {
-  font-size: 0.94rem;
+  font-size: 0.92rem;
   font-weight: 700;
   color: #475569;
-  margin-bottom: 8px;
+}
+
+.progress-percentage {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--accent);
 }
 
 .progress-bar {
   width: 100%;
-  height: 10px;
+  height: 12px;
   background: #e2e8f0;
   border-radius: 999px;
   overflow: hidden;
+  box-shadow: inset 0 2px 4px rgba(15, 23, 42, 0.08);
 }
 
 .progress-fill {
   height: 100%;
   border-radius: 999px;
-  transition: width 0.25s ease;
-  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.12);
+  transition: width 0.5s ease;
+  box-shadow: 0 0 12px rgba(15, 23, 42, 0.2);
+  position: relative;
+}
+
+.progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.4), transparent);
+  border-radius: 999px 999px 0 0;
+}
+
+.streak-dots {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+  justify-content: center;
+}
+
+.streak-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.1);
+}
+
+.streak-dot.active {
+  transform: scale(1.2);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.25);
 }
 
 .card-action-row {

@@ -294,21 +294,28 @@ onMounted(fetchData)
 
 .activityButton {
     margin-right: 10px;
-    padding: 10px 15px;
-    font-size: 16px;
+    padding: 0.75rem 1.5rem;
+    font-size: 1.08rem;
     cursor: pointer;
     background: linear-gradient(135deg, #4f9dff, #74ebd5);
     color: white;
     border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    transition: all 0.2s;
+    border-radius: 12px;
+    font-weight: 700;
+    transition: all 0.3s ease;
     text-decoration: none;
+    box-shadow: 0 4px 12px rgba(79, 157, 255, 0.18);
 }
 
 .activityButton:hover {
-    filter: brightness(1.1);
-    box-shadow: 0 4px 12px rgba(79, 157, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(79, 157, 255, 0.35);
+    filter: brightness(1.08);
+}
+
+.activityButton:active {
+    transform: translateY(0px);
+    box-shadow: 0 2px 8px rgba(79, 157, 255, 0.18);
 }
 
 .activitySummary {

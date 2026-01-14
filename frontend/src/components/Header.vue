@@ -13,7 +13,7 @@
       <div class="user-menu-container">
         <span class="user-icon" @click="toggleDropdown">👤</span>
         <div v-if="isDropdownOpen" class="dropdown-menu">
-          <div class="dropdown-item" @click="navigateTo('/profile-select')" v-if="user">
+          <div class="dropdown-item" @click="navigateTo('/profile-select')">
             <span class="dropdown-icon">👥</span>
             <span>Profile Select</span>
           </div>
