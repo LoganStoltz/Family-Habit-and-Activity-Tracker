@@ -1,14 +1,14 @@
 <template>
   <section class="HomePage-main-section">
     <!-- Welcome Section -->
-    <div v-if="profile" class="welcome-container">
+    <div v-if="user" class="welcome-container">
       <div class="welcome-message">
-        <h1 v-if="profile" class="welcome-heading">Hello, {{ (user.first_name + (user.last_name ? ', ' + user.last_name : '')) || user.user_name || user.email }}!</h1>
-        <h1 v-else class="welcome-heading">Hello, Guest!</h1>
+        <h1 v-if="user" class="welcome-heading">Hello, {{ (user.first_name + (user.last_name ? ', ' + user.last_name : '')) || user.user_name || user.email }}!</h1>
+        <h1 v-if="!user" class="welcome-heading">Hello, Guest!</h1>
         <p class="welcome-subtitle">Welcome back to your Family Habit and Activity Tracker</p>
       </div>
     </div>
-    <div v-else class="welcome-container">
+    <div v-if="user && !profile" class="welcome-container">
       <div class="welcome-message">
         <h1 class="welcome-heading">Please choose a profile</h1>
         <div>
@@ -25,7 +25,7 @@
     </div>
 
     <!-- Feature Cards -->
-    <div class="features-grid" v-if="user">
+    <div class="features-grid" v-if="user && profile">
       <router-link to="/habits" class="feature-card">
         <div class="feature-icon">📋</div>
         <h3>Habits & Care</h3>
@@ -56,7 +56,7 @@
     </div>
 
     <!-- Call-to-Action for Guests -->
-    <div v-else class="guest-cta">
+    <div v-if="!user" class="guest-cta">
       <p>Sign in to start tracking your family's habits and activities</p>
       <router-link to="/login" class="btn-primary">Sign In</router-link>
     </div>
@@ -282,16 +282,16 @@ onMounted(() => {
   font-size: 1.2rem;
   color: var(--text-secondary);
   margin-bottom: 2rem;
-}
+  }
 
 .btn-primary {
   display: inline-block;
   background: var(--heading-gradient);
-  color: #fff;
+  color: #01678f;
   font-size: 1.1rem;
   font-weight: 600;
   padding: 1rem 2.5rem;
-  margin: 20px 0;
+  margin: 20px 20px;
   border: none;
   border-radius: 10px;
   cursor: pointer;

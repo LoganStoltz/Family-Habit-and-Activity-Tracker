@@ -259,7 +259,7 @@ const handleLogModalClose = (type) => {
 /* Habits Page Styling */
 .habitsPage {
   max-width: 1400px;
-  margin: 0 auto;
+  margin: 20px auto;
 }
 
 /* Habits & Care Section Styling */

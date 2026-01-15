@@ -1,24 +1,24 @@
 <template>
-  <div class="profile-select-container">
-    <h1>Select Profile</h1>
-    <div class="profile-list">
-      <div class="profile-card" v-for="profile in profiles" :key="profile.id">
-        <button @click="selectProfile(profile)">{{ profile.firstName }}</button>
+  <div class="profile-select-overlay">
+    <div class="profile-select">
+      <h1>Select Profile</h1>
+      <div v-if="profiles.length > 1" class="profile-list">
+        <div class="profile-card" v-for="profile in profiles" :key="profile.id">
+          <button @click="selectProfile(profile)">{{ profile.firstName }}</button>
+        </div>
+      </div>
+      <div v-else class="no-profiles-msg">
+        <p>No profiles found. Please add a profile first.</p>
+        <button @click="showProfileRegistration = true">Add Profile</button>
       </div>
     </div>
-    <div class="add-profile-section">
-      <button class="add-profile-btn" @click="toggleComponent">Add Profile</button>
-    </div>
-    <div class="registration-section" v-if="showProfileRegistration">
-      <ProfileRegistration @profile-created="addProfile" />
-    </div>
+    <ProfileRegistration v-if="showProfileRegistration" @close="showProfileRegistration = false" />
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from "vue";
 import { useRouter } from 'vue-router';
-import ProfileRegistration from "./ProfileRegistrationPage.vue";
 
 const profiles = ref([]);
 const showProfileRegistration = ref(false);
@@ -60,30 +60,38 @@ const selectProfile = (profile) => {
   router.push('/profile-main');
 };
 
-const addProfile = (newProfile) => {
-  // Add the new profile to the profiles list for display
-  profiles.value.push(newProfile);
-  // Hide the registration form
-  showProfileRegistration.value = false;
-  // Note: ProfileRegistration handles storing the profile and redirecting
-};
-
-const toggleComponent = () => {
-  showProfileRegistration.value = !showProfileRegistration.value;
-};
-
 onMounted(fetchProfiles);
 </script>
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
 
-.profile-select-container {
+.profile-select-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+
+.profile-select {
+  position: relative;
+  background: rgba(30, 41, 59, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 2.5rem;
+  max-width: 500px;
+  width: 90%;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 12px 40px rgba(30, 41, 59, 0.25);
+  animation: modalSlideIn 0.3s ease-out;
   font-family: 'Inter', sans-serif;
-  background: var(--main-background-dark);
-  min-height: calc(100vh - 4.5rem);
-  padding: 2rem;
-  color: var(--text-primary);
 }
 
 h1 {
@@ -143,38 +151,10 @@ h1 {
   background: linear-gradient(135deg, #74ebd5, #4f9dff);
 }
 
-.add-profile-section {
+.no-profiles-msg {
   text-align: center;
-  margin: 2rem 0;
-}
-
-.add-profile-btn {
-  background: linear-gradient(135deg, var(--accent-yellow), #ff9800);
-  color: #1e3a5f;
-  border: none;
-  padding: 1rem 2rem;
-  border-radius: 12px;
+  color: #f3f3f3;
   font-size: 1.2rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(255, 209, 102, 0.3);
-}
-
-.add-profile-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(255, 209, 102, 0.5);
-  background: linear-gradient(135deg, #ff9800, var(--accent-yellow));
-}
-
-.registration-section {
-  max-width: 500px;
-  margin: 2rem auto;
-  background: rgba(0, 0, 0, 0.15);
-  border-radius: var(--radius-large);
-  padding: 2rem;
-  box-shadow: var(--box-shadow-default);
-  backdrop-filter: blur(10px);
 }
 
 @media (max-width: 768px) {

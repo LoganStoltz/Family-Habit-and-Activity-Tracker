@@ -3,11 +3,8 @@
     <!-- <h1>Activity Main Page</h1> -->
     <!-- Content for the Activity Main Page goes here -->
     <div class="activityContent">
-      <section>
-        <HabitsPage ref="habitsPageRef" />
-      </section>
 
-        <!-- Search/Filter Section -->
+      <!-- Search/Filter Section -->
       <section class="filterSection">
           <div class="filterInputs">
               <div class="filterGroup">
@@ -87,6 +84,10 @@
                     </tr>
                 </tbody>
             </table>
+      </section>
+      <!-- Habits Page Component Section -->
+      <section>
+        <HabitsPage ref="habitsPageRef" />
       </section>
     </div>
   </div>
@@ -323,6 +324,7 @@ onMounted(fetchData)
     padding: 20px;
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    margin: 20px 0px;
 }
 
 .activitySummary h2 {

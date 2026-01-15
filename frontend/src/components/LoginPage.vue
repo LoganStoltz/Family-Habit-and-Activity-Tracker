@@ -6,7 +6,7 @@
 
         <form class="login-form" @submit.prevent="submitForm">
             <div class="form-group">
-                <label for="userName">UserName or Email</label>
+                <label for="userName">Username or Email</label>
                 <input type="text" id="name" v-model="form.userName" @input="loginError = false" :class="{ 'input-error': loginError }" required />
             </div>
 

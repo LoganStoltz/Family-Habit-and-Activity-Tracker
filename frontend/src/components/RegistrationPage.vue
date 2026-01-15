@@ -6,37 +6,37 @@
       <form class="registration-form" @submit.prevent="submitForm">
         <div class="form-group">
           <label for="firstName">First Name</label>
-          <input type="text" id="firstName" v-model="form.firstName" required />
+          <input placeholder="REQUIRED" type="text" id="firstName" v-model="form.firstName" required />
         </div>
 
         <div class="form-group">
           <label for="lastName">Last Name</label>
-          <input type="text" id="lastName" v-model="form.lastName" required />
+          <input placeholder="REQUIRED" type="text" id="lastName" v-model="form.lastName" required />
         </div>
 
         <div class="form-group">
           <label for="userName">User Name</label>
-          <input type="text" id="userName" v-model="form.userName" required />
+          <input placeholder="REQUIRED" type="text" id="userName" v-model="form.userName" required />
         </div>
 
         <div class="form-group">
           <label for="email">Email</label>
-          <input type="email" id="email" v-model="form.email" required />
+          <input placeholder="REQUIRED" type="email" id="email" v-model="form.email" required />
         </div>
 
         <div class="form-group">
           <label for="phoneNumber">Phone Number</label>
-          <input type="tel" id="phoneNumber" v-model="form.phoneNumber" />
+          <input placeholder="OPTIONAL" type="tel" id="phoneNumber" v-model="form.phoneNumber" />
         </div>
 
         <div class="form-group">
           <label for="password">Password</label>
-          <input type="password" id="password" v-model="form.password" required />
+          <input placeholder="REQUIRED" type="password" id="password" v-model="form.password" required />
         </div>
 
         <div class="form-group">
           <label for="rePassword">Confirm Password</label>
-          <input type="password" id="rePassword" v-model="form.rePassword" required />
+          <input placeholder="REQUIRED" type="password" id="rePassword" v-model="form.rePassword" required />
         </div>
 
         <button type="submit" class="submit-button">Register</button>

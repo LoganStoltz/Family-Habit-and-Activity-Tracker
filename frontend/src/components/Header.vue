@@ -1,57 +1,64 @@
 <template>
-  <header class="header">
-  <!-- Desktop Navigation -->
-    <nav class="nav">
-      <router-link to="/" class="btn-home">Home</router-link>
-      <router-link to="/profile-main" class="btn-profile-main" v-if="profile">Profile Main</router-link>
-      <router-link to="/login" class="btn-login" v-if="!user">Login</router-link>
-      <router-link to="/activity-main" class="btn-activity-main" v-if="user">Activity Main</router-link>
-      <router-link to="/baby-milestones" class="btn-baby-milestones" v-if="user && profile && profile.profile_type === 'Baby'">Baby Milestones</router-link>
-    </nav>
-    <div class="user-section" v-if="user">
-      <div class="user-menu-container">
-        <span class="user-icon" @click="toggleDropdown">👤</span>
-        <div v-if="isDropdownOpen" class="dropdown-menu">
-          <div class="dropdown-item" @click.stop="toggleProfileDropDown">
-            <span class="dropdown-icon">👥</span>
-            <span>Profile Select</span>
-            <span class="dropdown-arrow" :class="{ expanded: isProfileDropDownOpen }">▼</span>
-          </div>
-          
-          <!-- Profile options appear inline when expanded -->
-          <div v-if="isProfileDropDownOpen" class="profile-dropdown">
-            <div 
-              class="profile-option" 
-              v-for="option in profileOptions" 
-              :key="option.id"
-              @click="selectProfile(option)">
-              <span class="profile-option-icon">👤</span>
-              <span class="profile-option-name">{{ option.firstName }}</span>
+  <div>
+    <header class="header">
+    <!-- Desktop Navigation -->
+      <nav class="nav">
+        <router-link to="/" class="btn-home">Home</router-link>
+        <router-link to="/profile-main" class="btn-profile-main" v-if="profile">Profile Main</router-link>
+        <router-link to="/login" class="btn-login" v-if="!user">Login</router-link>
+        <router-link to="/habits" class="btn-habits" v-if="user && profile">Habits</router-link>
+        <router-link to="/activity-main" class="btn-activity-main" v-if="user && profile">Activity Main</router-link>
+        <router-link to="/baby-milestones" class="btn-baby-milestones" v-if="user && profile && profile.profile_type === 'Baby'">Baby Milestones</router-link>
+      </nav>
+      <div class="user-section" v-if="user">
+        <div class="user-menu-container">
+          <span class="user-icon" @click="toggleDropdown">👤</span>
+          <div v-if="isDropdownOpen" class="dropdown-menu">
+            <div class="dropdown-item" @click.stop="toggleProfileDropDown">
+              <span class="dropdown-icon">👥</span>
+              <span>Profile Select</span>
+              <span class="dropdown-arrow" :class="{ expanded: isProfileDropDownOpen }">▼</span>
             </div>
-            <div class="profile-option add-profile" @click="navigateTo('/profile-select')">
-              <span class="profile-option-icon">➕</span>
-              <span class="profile-option-name">Add Profile</span>
+            
+            <!-- Profile options appear inline when expanded -->
+            <div v-if="isProfileDropDownOpen" class="profile-dropdown">
+              <div 
+                class="profile-option" 
+                v-for="option in profileOptions" 
+                :key="option.id"
+                @click="selectProfile(option)">
+                <span class="profile-option-icon">👤</span>
+                <span class="profile-option-name">{{ option.firstName }}</span>
+              </div>
+              <div class="profile-option add-profile" @click="openAddProfileModal">
+                <span class="profile-option-icon">➕</span>
+                <span class="profile-option-name">Add Profile</span>
+              </div>
             </div>
-          </div>
-          
-          <div class="dropdown-item" @click="navigateTo('/profile-main')" v-if="profile">
-            <span class="dropdown-icon">🏠</span>
-            <span>Profile Main</span>
-          </div>
-          <div class="dropdown-divider"></div>
-          <div class="dropdown-item logout-item" @click="logout">
-            <span class="dropdown-icon">🚪</span>
-            <span>Logout</span>
+            
+            <div class="dropdown-item" @click="navigateTo('/profile-main')" v-if="profile">
+              <span class="dropdown-icon">🏠</span>
+              <span>Profile Main</span>
+            </div>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-item logout-item" @click="logout">
+              <span class="dropdown-icon">🚪</span>
+              <span>Logout</span>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </header>
+    </header>
+    
+    <!-- Profile Registration Modal -->
+    <ProfileRegistration v-if="showProfileRegistration" @profile-created="handleProfileCreated" @close="showProfileRegistration = false" />
+  </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, computed, watchEffect } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
+import ProfileRegistration from './ProfileRegistrationPage.vue';
 
 const user = ref(null);
 const profile = ref(null);
@@ -59,6 +66,7 @@ const profileOptions = ref([]);
 const router = useRouter();
 const isDropdownOpen = ref(false);
 const isProfileDropDownOpen = ref(false);
+const showProfileRegistration = ref(false);
 let storageCheckInterval = null;
 
 const toggleDropdown = () => {
@@ -71,6 +79,17 @@ const toggleDropdown = () => {
 const toggleProfileDropDown = (event) => {
   event?.stopPropagation();
   isProfileDropDownOpen.value = !isProfileDropDownOpen.value;
+};
+
+const openAddProfileModal = () => {
+  isDropdownOpen.value = false;
+  isProfileDropDownOpen.value = false;
+  showProfileRegistration.value = true;
+};
+
+const handleProfileCreated = (newProfile) => {
+  // Fetch updated profiles list
+  fetchProfiles();
 };
 
 const navigateTo = (path) => {
@@ -158,7 +177,8 @@ onUnmounted(() => {
   window.removeEventListener('user-logged-in', updateFromStorage);
   document.removeEventListener('click', handleClickOutside);
   if (storageCheckInterval) clearInterval(storageCheckInterval);
-});</script>
+});
+</script>
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
