@@ -4,10 +4,9 @@
     <nav class="nav">
       <router-link to="/" class="btn-home">Home</router-link>
       <router-link to="/profile-main" class="btn-profile-main" v-if="profile">Profile Main</router-link>
-      <router-link to="/registration" class="btn-registration" v-if="!user">Registration</router-link>
       <router-link to="/login" class="btn-login" v-if="!user">Login</router-link>
       <router-link to="/activity-main" class="btn-activity-main" v-if="user">Activity Main</router-link>
-      <router-link to="/baby-milestones" class="btn-baby-milestones" v-if="user && profile.profile_type === 'Baby'">Baby Milestones</router-link>
+      <router-link to="/baby-milestones" class="btn-baby-milestones" v-if="user && profile && profile.profile_type === 'Baby'">Baby Milestones</router-link>
     </nav>
     <div class="user-section" v-if="user">
       <div class="user-menu-container">
@@ -51,7 +50,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, computed, watchEffect } from 'vue';
 import { useRouter } from 'vue-router';
 
 const user = ref(null);
@@ -60,6 +59,7 @@ const profileOptions = ref([]);
 const router = useRouter();
 const isDropdownOpen = ref(false);
 const isProfileDropDownOpen = ref(false);
+let storageCheckInterval = null;
 
 const toggleDropdown = () => {
   isDropdownOpen.value = !isDropdownOpen.value;
@@ -80,7 +80,11 @@ const navigateTo = (path) => {
 
 const updateFromStorage = () => {
   const storedUser = localStorage.getItem('user');
-  user.value = storedUser ? JSON.parse(storedUser) : null;
+  const newUser = storedUser ? JSON.parse(storedUser) : null;
+  if (JSON.stringify(newUser) !== JSON.stringify(user.value)) {
+    console.log('Header: User changed from', user.value, 'to', newUser);
+    user.value = newUser;
+  }
   const storedProfile = localStorage.getItem('profile');
   profile.value = storedProfile ? JSON.parse(storedProfile) : null;
 };
@@ -116,15 +120,6 @@ const selectProfile = (selectedProfile) => {
   window.location.reload();
 };
 
-onMounted(() => {
-  updateFromStorage();
-  window.addEventListener('storage', updateFromStorage);
-});
-
-onUnmounted(() => {
-  window.removeEventListener('storage', updateFromStorage);
-});
-
 const logout = () => {
   localStorage.removeItem('user');
   localStorage.removeItem('profile');
@@ -144,14 +139,25 @@ const handleClickOutside = (event) => {
 };
 
 onMounted(() => {
+  console.log('Header mounted');
   updateFromStorage();
+  // Listen for storage events (from other tabs)
   window.addEventListener('storage', updateFromStorage);
+  // Listen for custom user-logged-in event (from same tab)
+  window.addEventListener('user-logged-in', updateFromStorage);
   document.addEventListener('click', handleClickOutside);
+  
+  // Poll localStorage every 100ms to catch changes immediately
+  storageCheckInterval = setInterval(() => {
+    updateFromStorage();
+  }, 100);
 });
 
 onUnmounted(() => {
   window.removeEventListener('storage', updateFromStorage);
+  window.removeEventListener('user-logged-in', updateFromStorage);
   document.removeEventListener('click', handleClickOutside);
+  if (storageCheckInterval) clearInterval(storageCheckInterval);
 });</script>
 
 <style scoped>

@@ -1,11 +1,20 @@
 <template>
   <section class="HomePage-main-section">
     <!-- Welcome Section -->
-    <div class="welcome-container">
+    <div v-if="profile" class="welcome-container">
       <div class="welcome-message">
-        <h2 v-if="user" class="welcome-heading">Hello, {{ (user.first_name + (user.last_name ? ', ' + user.last_name : '')) || user.user_name || user.email }}!</h2>
-        <h2 v-else class="welcome-heading">Hello, Guest!</h2>
+        <h1 v-if="profile" class="welcome-heading">Hello, {{ (user.first_name + (user.last_name ? ', ' + user.last_name : '')) || user.user_name || user.email }}!</h1>
+        <h1 v-else class="welcome-heading">Hello, Guest!</h1>
         <p class="welcome-subtitle">Welcome back to your Family Habit and Activity Tracker</p>
+      </div>
+    </div>
+    <div v-else class="welcome-container">
+      <div class="welcome-message">
+        <h1 class="welcome-heading">Please choose a profile</h1>
+        <div>
+          <router-link to="/profile-select" class="btn-primary">Select Profile</router-link>
+        </div>
+        <p class="welcome-subtitle">Don't have any profiles? Create one to get started!</p>
       </div>
     </div>
 
@@ -56,26 +65,16 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
 
 const user = ref(null);
-const router = useRouter();
+const profile = ref(null);
 
 onMounted(() => {
   const storedUser = localStorage.getItem('user');
   user.value = storedUser ? JSON.parse(storedUser) : null;
+  const storedProfile = localStorage.getItem('profile');
+  profile.value = storedProfile ? JSON.parse(storedProfile) : null;
 });
-
-const logout = () => {
-  localStorage.removeItem('user');
-  localStorage.removeItem('profile');
-  user.value = null;
-
-  // Trigger storage event to update other components (like Header)
-  window.dispatchEvent(new Event('storage'));
-
-  router.push('/login');
-};
 </script>
 
 <style scoped>
@@ -86,7 +85,8 @@ const logout = () => {
   min-height: calc(100vh - 4.5rem);
   display: flex;
   flex-direction: column;
-  padding: 1rem 2rem;
+  align-items: center;
+  padding: 2rem 2rem;
   color: var(--text-primary);
   gap: 3rem;
 }
@@ -94,28 +94,39 @@ const logout = () => {
 /* Welcome Section */
 .welcome-container {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+  justify-content: center;
+  align-items: center;
   gap: 2rem;
-  flex-wrap: wrap;
+  min-width: 700px;
+  transition: 0.3s ease;
+}
+
+.welcome-container:hover {
+  transform: translateY(-3px);
+  border-radius: 12px;
+  box-shadow: var(--box-shadow-hover);
 }
 
 .welcome-message {
   flex: 1;
-  min-width: 300px;
   padding: 2.5rem;
   background: rgba(0, 0, 0, 0.2);
   border-radius: var(--radius-large);
   box-shadow: var(--box-shadow-default);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
 .welcome-heading {
-  font-size: 2.5rem;
-  font-weight: 800;
+  font-size: 3.2rem;
+  font-weight: 1000;
   margin: 0 0 0.5rem 0;
-  background: var(--heading-gradient);
+  background: linear-gradient(#498be0, #74ebd5);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -280,6 +291,7 @@ const logout = () => {
   font-size: 1.1rem;
   font-weight: 600;
   padding: 1rem 2.5rem;
+  margin: 20px 0;
   border: none;
   border-radius: 10px;
   cursor: pointer;

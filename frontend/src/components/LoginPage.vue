@@ -7,25 +7,34 @@
         <form class="login-form" @submit.prevent="submitForm">
             <div class="form-group">
                 <label for="userName">UserName or Email</label>
-                <input type="text" id="name" v-model="form.userName" required />
+                <input type="text" id="name" v-model="form.userName" @input="loginError = false" :class="{ 'input-error': loginError }" required />
             </div>
 
             <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" v-model="form.password" required/>
+                <input type="password" id="password" v-model="form.password" @input="loginError = false" :class="{ 'input-error': loginError }" required/>
             </div>
 
             <button type="submit" class="submit-button">Login</button>
-        </form>
+            <div class="registration-link">
+              <p> Don't have an account? 
+                <router-link to="/registration">Register here</router-link>
+              </p>
+              <p> Forgot your password? 
+                <router-link to="/forgot-password">Reset here</router-link>
+              </p>
+            </div>
+          </form>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue';
+import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
+const loginError = ref(false);
 
 const form = reactive({
   userName: '',
@@ -49,6 +58,7 @@ const submitForm = async () => {
     if (!response.ok) {
       // Invalid login
       const errorData = await response.json();
+      loginError.value = true;
       alert('Login failed: ' + (errorData.error || 'Invalid credentials'));
       return;
     }
@@ -58,7 +68,10 @@ const submitForm = async () => {
     console.log('Login successful:', data);
 
     // Store user info in localStorage for global access
-    localStorage.setItem('user', JSON.stringify(data.user || data));
+    const userToStore = data.user || data;
+    console.log('Storing user in localStorage:', userToStore);
+    localStorage.setItem('user', JSON.stringify(userToStore));
+    console.log('After storing, localStorage.user is:', localStorage.getItem('user'));
 
     // Fire storage event so Header.vue picks it up immediately
     window.dispatchEvent(new Event('storage'));
@@ -202,6 +215,47 @@ const submitForm = async () => {
   transform: translateY(-2px);
 }
 
+.form-group input.input-error {
+  border-color: rgba(230, 57, 70, 0.5) !important;
+}
+
+.form-group input.input-error:focus {
+  border-color: rgba(230, 57, 70, 0.5) !important;
+  box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.1) !important;
+}
+
+.form-group input:invalid {
+  border-color: rgba(230, 57, 70, 0.5);
+}
+
+.form-group input:valid {
+  border-color: rgba(116, 235, 213, 0.5);
+}
+
+.registration-link {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.registration-link a {
+  color: #4f9dff;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color var(--transition-normal);
+}
+
+.forget-password-link {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.forget-password-link a {
+  color: #3a74bb;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color var(--transition-normal);
+}
+
 .submit-button {
   background: linear-gradient(135deg, #4f9dff, #74ebd5);
   color: white;
@@ -214,23 +268,6 @@ const submitForm = async () => {
   transition: all var(--transition-normal);
   margin-top: 1rem;
   box-shadow: 0 4px 15px rgba(79, 157, 255, 0.3);
-  position: relative;
-  overflow: hidden;
-}
-
-.submit-button::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left var(--transition-normal);
-}
-
-.submit-button:hover::before {
-  left: 100%;
 }
 
 .submit-button:hover {
@@ -238,10 +275,6 @@ const submitForm = async () => {
   color: #1e3a5f;
   transform: translateY(-3px);
   box-shadow: 0 8px 25px rgba(255, 209, 102, 0.5);
-}
-
-.submit-button:active {
-  transform: translateY(-1px);
 }
 
 /* Mobile responsiveness */

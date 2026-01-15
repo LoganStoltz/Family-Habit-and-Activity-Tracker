@@ -40,6 +40,11 @@
         </div>
 
         <button type="submit" class="submit-button">Register</button>
+        <div class="login-link">
+              <p> Already have an account? 
+                <router-link to="/login">Login here</router-link>
+              </p>
+            </div>
       </form>
     </div>
   </section>
@@ -114,12 +119,13 @@ async function submitForm() {
 .registration-main::before {
   content: '';
   position: absolute;
-  top: -50%;
-  right: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle, rgba(116, 235, 213, 0.1) 0%, transparent 70%);
+  top: -25%;
+  left: -25%;
+  width: 150%;
+  height: 150%;
+  background: radial-gradient(circle, rgba(116, 235, 213, 0.2) 0%, transparent 60%);
   animation: floatReverse 25s ease-in-out infinite;
+  pointer-events: none;
 }
 
 @keyframes floatReverse {
@@ -138,7 +144,7 @@ async function submitForm() {
   max-width: 90%;
   box-shadow: var(--box-shadow-default);
   position: relative;
-  z-index: 1;
+  z-index: 10;
   transition: all var(--transition-normal);
   animation: slideInUp 0.6s ease-out;
 }
@@ -265,6 +271,18 @@ async function submitForm() {
 
 .submit-button:active {
   transform: translateY(-1px);
+}
+
+.login-link {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.login-link a {
+  color: #4f9dff;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color var(--transition-normal);
 }
 
 /* Form validation styles */
