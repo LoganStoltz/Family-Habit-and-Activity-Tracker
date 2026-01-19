@@ -10,19 +10,24 @@
 
         <!-- Habits Cards -->
         <div class="dashboard-cards">
-          <HabitsCard
-            v-for="habit in filteredHabits"
-            :key="habit.id"
-            :habit="habit"
-            :logs="habitLogs[habit.id] || []"
-            :incrementing="incrementing"
-            :incrementError="incrementError"
-            :isDeleting="isDeleting"
-            @edit-habit="editHabit"
-            @delete-habit="confirmDeleteHabit"
-            @log-habit="handleIncrement"
-            :toggleEditingMode="toggleEditingMode"
-          />
+          <template v-if="filteredHabits.length > 0">
+            <HabitsCard
+              v-for="habit in filteredHabits"
+              :key="habit.id"
+              :habit="habit"
+              :logs="habitLogs[habit.id] || []"
+              :incrementing="incrementing"
+              :incrementError="incrementError"
+              :isDeleting="isDeleting"
+              @edit-habit="editHabit"
+              @delete-habit="confirmDeleteHabit"
+              @log-habit="handleIncrement"
+              :toggleEditingMode="toggleEditingMode"
+            />
+          </template>
+          <div v-else class="no-dashboard-cards">
+            <p>No habits found. Please add a habit first.</p>
+          </div>
         </div>
       </div>
 
@@ -255,7 +260,6 @@ const handleLogModalClose = (type) => {
 </script>
 
 <style>
-
 /* Habits Page Styling */
 .habitsPage {
   max-width: 1400px;
@@ -364,6 +368,14 @@ const handleLogModalClose = (type) => {
 
 .editingModeButton.active:hover {
   background: rgba(0, 0, 0, 0.2);
+}
+
+.no-dashboard-cards {
+  text-align: center;
+  color: #666;
+  font-size: 1.6rem;
+  font-weight: 600;
+  margin-top: 2rem;
 }
 
 .dashboard-cards {

@@ -98,9 +98,25 @@ const openAddProfileModal = () => {
   showProfileRegistration.value = true;
 };
 
-const handleProfileCreated = (newProfile) => {
-  // Fetch updated profiles list
-  fetchProfiles();
+const handleProfileCreated = (profileData) => {
+  console.log('Header: Profile created, received data:', profileData);
+  
+  // Auto-login to the newly created profile
+  const newProfile = {
+    id: profileData.id,
+    firstName: profileData.first_name,
+    lastName: profileData.last_name || '',
+    dob: profileData.dob,
+    profile_type: profileData.profile_type
+  };
+  
+  console.log('Header: Formatted profile:', newProfile);
+  
+  localStorage.setItem('profile', JSON.stringify(newProfile));
+  profile.value = newProfile;
+  window.dispatchEvent(new Event('storage'));
+  showProfileRegistration.value = false;
+  router.push('/profile-main');
 };
 
 const navigateTo = (path) => {

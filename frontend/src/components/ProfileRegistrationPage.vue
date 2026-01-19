@@ -45,6 +45,11 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
 
+// Define props
+const props = defineProps<{
+  hasExistingProfile?: boolean;
+}>();
+
 // Define emits
 const emit = defineEmits(['profile-created', 'close']);
 
@@ -94,13 +99,9 @@ const submitForm = async () => {
     form.profile_type = '';
 
     // Emit the created profile and close modal
+    console.log('About to emit profile-created with:', data.profile || data);
     emit('profile-created', data.profile || data);
-    emit('close');
-
-    // Reload to reflect new profile in the list
-    setTimeout(() => {
-      window.location.reload();
-    }, 500);
+    console.log('Emitted profile-created event');
     
   } catch (err) {
     console.error(err);
