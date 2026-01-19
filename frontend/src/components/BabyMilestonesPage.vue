@@ -99,14 +99,14 @@
           </label>
           <label class="field">
             <span>Category</span>
-            <select v-model="filtersSection.category">
+            <select v-model="filtersSection.category" :class="{ 'placeholder-active': !filtersSection.category }">
               <option value="">All</option>
               <option v-for="category in categories" :key="category" :value="category">{{ category }}</option>
             </select>
           </label>
           <label class="field">
             <span>Time range</span>
-            <select v-model="filtersSection.range">
+            <select v-model="filtersSection.range" :class="{ 'placeholder-active': !filtersSection.range || filtersSection.range === 'all' }">
               <option value="all">All time</option>
               <option value="30">Last 30 days</option>
               <option value="90">Last 90 days</option>
@@ -115,7 +115,7 @@
           </label>
           <label class="field">
             <span>Sort</span>
-            <select v-model="filtersSection.sort">
+            <select v-model="filtersSection.sort" :class="{ 'placeholder-active': !filtersSection.sort }">
               <option value="desc">Newest first</option>
               <option value="asc">Oldest first</option>
               <option value="favorite">Starred first</option>

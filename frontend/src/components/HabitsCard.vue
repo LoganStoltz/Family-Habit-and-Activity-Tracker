@@ -12,7 +12,7 @@
           </span>
         </div>
         <div class="card-meta">
-          <span class="pill" :style="{ color: palette.accent, backgroundColor: palette.tint }">{{ logs.length }} logged</span>
+          <span class="pill" :style="{ color: palette.accent, backgroundColor: palette.tint }">{{ logs.length }} total logs</span>
           <span class="pill muted">ID #{{ habit.id }}</span>
         </div>
       </div>
@@ -20,20 +20,28 @@
 
     <div class="card-progress">
       <div class="progress-header">
-        <div class="progress-label">{{ weeklyStreak }} of 7 days</div>
+        <div class="progress-label-wrapper">
+          <div class="progress-label-main">Weekly Activity</div>
+          <div class="progress-label-sub">{{ weeklyStreak }} {{ weeklyStreak === 1 ? 'day' : 'days' }} logged this week</div>
+        </div>
         <div class="progress-percentage">{{ progressPercent }}%</div>
       </div>
       <div class="progress-bar">
         <div class="progress-fill" :style="localProgressStyle"></div>
       </div>
       <div class="streak-dots">
-        <span 
-          v-for="day in 7" 
-          :key="day" 
-          class="streak-dot" 
-          :class="{ active: day <= weeklyStreak }"
-          :style="{ backgroundColor: day <= weeklyStreak ? palette.accent : '#e2e8f0' }"
-        ></span>
+        <div 
+          v-for="(dayInfo, index) in weekDays" 
+          :key="index" 
+          class="streak-dot-wrapper"
+        >
+          <span 
+            class="streak-dot" 
+            :class="{ active: dayInfo.hasLog }"
+            :style="{ backgroundColor: dayInfo.hasLog ? palette.accent : '#e2e8f0' }"
+          ></span>
+          <span class="day-label" :class="{ 'is-today': dayInfo.isToday }">{{ dayInfo.label }}</span>
+        </div>
       </div>
     </div>
 
@@ -98,23 +106,51 @@ const palette = computed(() => {
   return options[idx];
 });
 
-// Calculate weekly streak (how many days in the last 7 days the habit was logged)
+// Generate Monday-Sunday of the current week with log status
+const weekDays = computed(() => {
+  const days = [];
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  // Create a set of logged dates for quick lookup
+  const loggedDates = new Set();
+  if (props.logs && props.logs.length > 0) {
+    props.logs.forEach(log => {
+      const logDate = new Date(log.created_at);
+      logDate.setHours(0, 0, 0, 0);
+      loggedDates.add(logDate.toISOString().split('T')[0]);
+    });
+  }
+  
+  // Find Monday of the current week
+  const currentDay = today.getDay();
+  const daysFromMonday = currentDay === 0 ? 6 : currentDay - 1; // Sunday is 0, so it's 6 days from Monday
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - daysFromMonday);
+  
+  // Generate Monday through Sunday
+  const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  for (let i = 0; i < 7; i++) {
+    const date = new Date(monday);
+    date.setDate(monday.getDate() + i);
+    
+    const dayKey = date.toISOString().split('T')[0];
+    const todayKey = today.toISOString().split('T')[0];
+    
+    days.push({
+      label: dayNames[i],
+      hasLog: loggedDates.has(dayKey),
+      isToday: dayKey === todayKey,
+      date: date
+    });
+  }
+  
+  return days;
+});
+
+// Calculate how many unique days in the last 7 days the habit was logged
 const weeklyStreak = computed(() => {
-  if (!props.logs || props.logs.length === 0) return 0;
-  
-  const now = new Date();
-  const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-  
-  const uniqueDays = new Set();
-  props.logs.forEach(log => {
-    const logDate = new Date(log.created_at);
-    if (logDate >= sevenDaysAgo) {
-      const dayKey = logDate.toISOString().split('T')[0];
-      uniqueDays.add(dayKey);
-    }
-  });
-  
-  return Math.min(uniqueDays.size, 7);
+  return weekDays.value.filter(day => day.hasLog).length;
 });
 
 const progressPercent = computed(() => {
@@ -249,19 +285,33 @@ function onDelete() { emit('delete-habit', props.habit); }
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
+  gap: 12px;
 }
 
-.progress-label {
+.progress-label-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.progress-label-main {
   font-size: 0.92rem;
-  font-weight: 700;
-  color: #475569;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.progress-label-sub {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--accent);
 }
 
 .progress-percentage {
-  font-size: 1.1rem;
+  font-size: 1.3rem;
   font-weight: 800;
   color: var(--accent);
+  flex-shrink: 0;
 }
 
 .progress-bar {
@@ -294,22 +344,41 @@ function onDelete() { emit('delete-habit', props.habit); }
 
 .streak-dots {
   display: flex;
-  gap: 6px;
-  margin-top: 10px;
+  gap: 8px;
+  margin-top: 12px;
   justify-content: center;
 }
 
+.streak-dot-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
 .streak-dot {
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   transition: all 0.3s ease;
   box-shadow: 0 2px 4px rgba(15, 23, 42, 0.1);
 }
 
 .streak-dot.active {
-  transform: scale(1.2);
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.25);
+  transform: scale(1.3);
+  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.3);
+}
+
+.day-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.day-label.is-today {
+  color: var(--accent);
+  font-weight: 800;
 }
 
 .card-action-row {
@@ -384,6 +453,23 @@ function onDelete() { emit('delete-habit', props.habit); }
 
   .card-action-row {
     flex-direction: column;
+  }
+
+  .progress-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .progress-percentage {
+    font-size: 1.1rem;
+  }
+
+  .streak-dots {
+    gap: 6px;
+  }
+
+  .day-label {
+    font-size: 0.65rem;
   }
 }
 </style>

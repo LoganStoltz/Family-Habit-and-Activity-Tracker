@@ -7,39 +7,73 @@
       <!-- Search/Filter Section -->
       <section class="filterSection">
           <div class="filterInputs">
-              <div class="filterGroup">
-                  <label for="searchName">Search Habit Name:</label>
-                  <input 
-                      id="searchName"
-                      v-model="searchName" 
-                      type="text" 
-                      placeholder="Enter habit name..."
-                      class="filterInput"
-                  />
-              </div>
-              
-              <div class="filterGroup">
-                  <label for="filterCategory">Filter by Category:</label>
-                  <select 
-                      id="filterCategory"
-                      v-model="selectedCategory" 
-                      class="filterSelect"
-                  >
-                      <option value="">All Categories</option>
-                      <option v-for="category in availableCategories" :key="category" :value="category">
-                          {{ category }}
-                      </option>
-                  </select>
-              </div>
+            <div class="filterGroup">
+              <label for="searchLogId">Log ID:</label>
+              <input 
+                  id="searchLogId"
+                  v-model="searchLogId" 
+                  type="text" 
+                  placeholder="Search by Log ID..."
+                  class="filterInput"
+              />
+            </div>  
 
-              <button class="activityButton" @click="fetchData">Refresh Activity History</button>
+            <div class="filterGroup">
+              <label for="searchName">Habit Name:</label>
+              <input 
+                  id="searchName"
+                  v-model="searchName" 
+                  type="text" 
+                  placeholder="Search by Habit Name..."
+                  class="filterInput"
+              />
+            </div>
+            
+            <div class="filterGroup">
+              <label for="filterCategory">Category:</label>
+              <select 
+                  id="filterCategory"
+                  v-model="selectedCategory" 
+                  class="filterSelect"
+                  :class="{ 'placeholder-active': !selectedCategory }"
+              >
+                <option value="" disabled selected hidden>Search by Category...</option>
+                <option v-for="category in availableCategories" :key="category" :value="category">
+                    {{ category }}
+                </option>
+              </select>
+            </div>
+
+            <div class="filterGroup">
+              <label for="filterDate">Time range</label>
+              <select 
+                  id="filterDate"
+                  v-model="selectedDate" 
+                  class="filterSelect"
+                  :class="{ 'placeholder-active': !selectedDate }"
+              >
+                <option value="" disabled selected hidden>Search by Date Range...</option>
+                <option value="1_week"> Last 7 days</option>
+                <option value="1_month"> Last 30 days</option>
+                <option value="3_months"> Last 3 months</option>
+                <option value="6_months"> Last 6 months</option>
+                <option value="1_year"> Last year</option>
+              </select>
+            </div>
+
               <button @click="clearFilters" class="clearButton">Clear Filters</button>
           </div>
           <p class="resultsCount">Showing {{ filteredAndSortedLogs.length }} of {{ enrichedLogs.length }} logs</p>
       </section>
       <!-- Habit Logs Table Section -->
       <section class="activitySummary">
+        <div class="habit-logs-table-header">
             <h2>Habit Logs Table</h2>
+            <div class="header-actions">
+              <button class="activityButton" @click="fetchData">Refresh Logs</button>
+              <button class="editingModeButton" :class="{ active: showActionsColumn }" @click="showActionsColumn = !showActionsColumn">✏️</button>
+            </div>
+        </div>
             
             
             <!-- Loading state -->
@@ -72,6 +106,7 @@
                           <span class="sort-icon">{{ getSortIcon('created_at') }}</span>
                         </th>
                         <th>Notes</th>
+                        <th v-if="showActionsColumn">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -81,10 +116,34 @@
                         <td>{{ log.category || 'N/A' }}</td>
                         <td>{{ formatDate(log.created_at) }}</td>
                         <td>{{ log.notes || 'N/A' }}</td>
+                        <td v-if="showActionsColumn">
+                          <button 
+                            class="delete-log-btn" 
+                            @click="confirmDeleteLog(log)"
+                            :disabled="deletingLogId === log.id"
+                          >
+                            {{ deletingLogId === log.id ? 'Deleting...' : '🗑️ Delete' }}
+                          </button>
+                        </td>
                     </tr>
                 </tbody>
             </table>
       </section>
+
+      <!-- Confirm Delete Modal -->
+      <ConfirmDeleteModal
+        v-if="showConfirmDeleteModal"
+        :title="'Delete Log?'"
+        :message="`Are you sure you want to delete log <strong>#${logToDelete?.id}</strong> for <strong>${logToDelete?.habitName}</strong>?`"
+        :warning="'This action cannot be undone!'"
+        :loading="deletingLogId === logToDelete?.id"
+        :confirmText="'Yes, Delete'"
+        :cancelText="'Cancel'"
+        :loadingText="'Deleting...'"
+        @confirm="deleteLog"
+        @cancel="cancelDeleteLog"
+      />
+
       <!-- Habits Page Component Section -->
       <section>
         <HabitsPage ref="habitsPageRef" />
@@ -98,6 +157,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { apiRequest } from '@/config/api'
 import HabitsPage from './HabitsPage.vue';
+import ConfirmDeleteModal from './ConfirmDeleteModal.vue';
 
 // Get user and profile from LocalStorage
 const user = JSON.parse(localStorage.getItem('user') || '{}')
@@ -112,10 +172,14 @@ const loading = ref(false)
 const error = ref('')
 const sortColumn = ref('created_at')
 const sortDirection = ref('desc')
+const searchLogId = ref('')
 const searchName = ref('')
 const selectedCategory = ref('')
-const habitsPageRef = ref(null)
-
+const selectedDate = ref('')
+const deletingLogId = ref(null)
+const showActionsColumn = ref(false)
+const showConfirmDeleteModal = ref(false)
+const logToDelete = ref(null)
 // Fetch all habits for the profile
 const fetchHabits = async () => {
   if (!userId || !profileId) {
@@ -183,6 +247,13 @@ const availableCategories = computed(() => {
 // Filter logs based on search criteria
 const filteredLogs = computed(() => {
   let logs = enrichedLogs.value
+
+  if (searchLogId.value.trim()) {
+    const search = searchLogId.value.toLowerCase().trim()
+    logs = logs.filter(log => 
+      log.id.toString().toLowerCase().includes(search)
+    )
+  }
   
   // Filter by habit name
   if (searchName.value.trim()) {
@@ -195,6 +266,14 @@ const filteredLogs = computed(() => {
   // Filter by category
   if (selectedCategory.value) {
     logs = logs.filter(log => log.category === selectedCategory.value)
+  }
+
+  if (selectedDate.value) {
+    const [startDate, endDate] = selectedDate.value.split(' - ')
+    logs = logs.filter(log => {
+      const logDate = new Date(log.created_at)
+      return logDate >= new Date(startDate) && logDate <= new Date(endDate)
+    })
   }
 
   return logs
@@ -235,6 +314,50 @@ const filteredAndSortedLogs = computed(() => {
 const clearFilters = () => {
   searchName.value = ''
   selectedCategory.value = ''
+  selectedDate.value = ''
+}
+
+// Show confirmation modal for delete
+const confirmDeleteLog = (log) => {
+  logToDelete.value = log
+  showConfirmDeleteModal.value = true
+}
+
+// Cancel delete
+const cancelDeleteLog = () => {
+  logToDelete.value = null
+  showConfirmDeleteModal.value = false
+}
+
+// Delete a log
+const deleteLog = async () => {
+  if (!logToDelete.value) return
+
+  const log = logToDelete.value
+  deletingLogId.value = log.id
+
+  try {
+    const response = await apiRequest(
+      `/habits/${log.habit_id}/habit_logs/${log.id}`,
+      { method: 'DELETE' }
+    )
+
+    if (!response.ok) {
+      throw new Error(`Failed to delete log: ${response.status}`)
+    }
+
+    // Refresh logs after deletion
+    await fetchData()
+    
+    // Close modal
+    showConfirmDeleteModal.value = false
+    logToDelete.value = null
+  } catch (err) {
+    console.error('Error deleting log:', err)
+    error.value = 'Failed to delete log. Please try again.'
+  } finally {
+    deletingLogId.value = null
+  }
 }
 
 // Sort by column
@@ -340,9 +463,58 @@ onMounted(fetchData)
     font-size: 1.2rem;
 }
 
+.habit-logs-table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.habit-logs-table-header .header-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.habit-logs-table-header h2 {
+  font-size: 1.5rem;
+  margin: 0;
+  color: #333;
+  font-weight: 700;
+}
+
+.editingModeButton {
+  font-size: 1.5rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  padding: 0.7rem;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.1);
+  border: none;
+}
+
+.editingModeButton:hover {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.editingModeButton.active {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.editingModeButton.active:hover {
+  background: rgba(0, 0, 0, 0.2);
+}
+
 .error {
     color: #d32f2f;
     font-weight: 600;
+}
+
+.label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-weight: 700;
+  color: #41506a;
 }
 
 /* Table Styles */
@@ -410,61 +582,107 @@ onMounted(fetchData)
     opacity: 0.7;
 }
 
+.delete-log-btn {
+    padding: 6px 12px;
+    background: linear-gradient(135deg, #f43f5e, #e11d48);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 6px rgba(244, 63, 94, 0.2);
+}
+
+.delete-log-btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(244, 63, 94, 0.3);
+}
+
+.delete-log-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-weight: 700;
+  color: #41506a;
+}
+
 .filterSection {
-    background: white;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    margin-bottom: 20px;
+  margin: 20px 0px;
+  background: #fff;
+  border: 1px solid #e3eaf5;
+  border-radius: 12px;
+  padding: 1rem 1.2rem;
+  box-shadow: 0 10px 30px rgba(79, 157, 255, 0.08);
 }
 
 .filterInputs {
-    display: flex;
-    gap: 15px;
-    align-items: flex-end;
-    flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.9rem;
+  align-items: end;
 }
 
 .filterGroup {
-    flex: 1;
-    min-width: 200px;
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-weight: 700;
+  color: #41506a;
 }
 
 .filterGroup label {
-    margin-bottom: 6px;
-    font-weight: 600;
-    color: #555;
-    font-size: 0.9rem;
+  font-weight: 700;
+  color: #41506a;
 }
 
 .filterInput,
 .filterSelect {
-    padding: 10px 12px;
-    border: 2px solid #e0e7ef;
-    border-radius: 12px;
-    font-size: 1rem;
-    transition: border-color 0.2s;
+  border: 1.5px solid #d4deef;
+  border-radius: 12px;
+  padding: 0.75rem 0.85rem;
+  font-size: 1rem;
+  background: #f8fbff;
+  transition: border 0.2s, box-shadow 0.2s;
+  color: #333;
+}
+
+.filterInput::placeholder {
+  color: #aaa;
+}
+
+.filterSelect.placeholder-active {
+  color: #aaa;
+}
+
+.filterSelect option {
+  color: #333;
 }
 
 .filterInput:focus,
 .filterSelect:focus {
-    outline: none;
-    border-color: #4f9dff;
+  outline: none;
+  border-color: #4f9dff;
+  box-shadow: 0 0 0 3px rgba(79, 157, 255, 0.12);
 }
 
 .clearButton {
-  padding: 10px 20px;
+  padding: 12px 20px;
   background: white;
-  color: #ff0000;
-  border: 1.4px solid #c90d0080;
+  color: #f44336;
+  border: 1.4px solid #f4433680;
   border-radius: 12px;
   cursor: pointer;
   font-weight: 1000;
   transition: all 0.2s;
   align-self: flex-end;
-  transform: translate(0px, -1px);
 }
 
 .clearButton:hover {

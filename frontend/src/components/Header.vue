@@ -3,7 +3,7 @@
     <header class="header">
     <!-- Desktop Navigation -->
       <nav class="nav">
-        <router-link to="/" class="btn-home">Home</router-link>
+        <router-link to="/" class="btn-home" v-if="!profile">Home</router-link>
         <router-link to="/profile-main" class="btn-profile-main" v-if="profile">Profile Main</router-link>
         <router-link to="/login" class="btn-login" v-if="!user">Login</router-link>
         <router-link to="/habits" class="btn-habits" v-if="user && profile">Habits</router-link>
@@ -12,7 +12,18 @@
       </nav>
       <div class="user-section" v-if="user">
         <div class="user-menu-container">
-          <span class="user-icon" @click="toggleDropdown">👤</span>
+          <div class="profile-header-name" @click="toggleDropdown">
+            <div class="profile-avatar">{{ profile?.firstName?.charAt(0).toUpperCase() || '👤' }}</div>
+            <div class="profile-info" v-if="profile">
+              <div class="profile-name-text">{{ profile.firstName }}</div>
+              <div class="profile-type-badge">{{ profile.profile_type || 'Adult' }}</div>
+            </div>
+            <div class="profile-info" v-else>
+              <div class="profile-name-text">Select Profile</div>
+              <div class="profile-type-badge">No Profile</div>
+            </div>
+            <div class="dropdown-arrow-icon" :class="{ open: isDropdownOpen }">▼</div>
+          </div>
           <div v-if="isDropdownOpen" class="dropdown-menu">
             <div class="dropdown-item" @click.stop="toggleProfileDropDown">
               <span class="dropdown-icon">👥</span>
@@ -283,20 +294,77 @@ onUnmounted(() => {
   position: relative;
 }
 
-.user-icon {
-  font-size: 1.5rem;
-  opacity: 0.9;
-  transition: var(--transition-normal);
+.profile-header-name {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
   cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 50%;
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
   background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.user-icon:hover {
-  opacity: 1;
-  transform: scale(1.1);
+.profile-header-name:hover {
   background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.profile-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4f9dff, #74ebd5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: white;
+  box-shadow: 0 3px 10px rgba(79, 157, 255, 0.3);
+  flex-shrink: 0;
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  align-items: flex-start;
+}
+
+.profile-name-text {
+  font-size: 1rem;
+  font-weight: 700;
+  color: white;
+  line-height: 1;
+  letter-spacing: 0.3px;
+}
+
+.profile-type-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.15rem 0.5rem;
+  border-radius: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.dropdown-arrow-icon {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.7);
+  transition: transform 0.3s ease;
+  margin-left: 0.25rem;
+}
+
+.dropdown-arrow-icon.open {
+  transform: rotate(180deg);
 }
 
 .dropdown-menu {
@@ -445,6 +513,25 @@ onUnmounted(() => {
     font-size: 0.9rem;
     padding: 0.6rem 1rem;
     white-space: nowrap;
+  }
+  
+  .profile-header-name {
+    padding: 0.4rem 0.75rem;
+    gap: 0.5rem;
+  }
+  
+  .profile-avatar {
+    width: 35px;
+    height: 35px;
+    font-size: 1rem;
+  }
+  
+  .profile-name-text {
+    font-size: 0.9rem;
+  }
+  
+  .profile-type-badge {
+    font-size: 0.65rem;
   }
 }
 

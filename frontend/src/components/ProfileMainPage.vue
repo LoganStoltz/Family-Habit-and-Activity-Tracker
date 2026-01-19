@@ -51,7 +51,7 @@
           <div class="stat-card">
             <div class="stat-icon">⭐</div>
             <div class="stat-content">
-              <p class="stat-label">Total Achievements</p>
+              <p class="stat-label">Total Logs and Milestones</p>
               <p class="stat-value">{{ totalAchievements }}</p>
             </div>
           </div>
@@ -104,6 +104,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
+import { apiRequest } from '../config/api';
 
 interface Profile {
   id: number;
@@ -111,6 +112,10 @@ interface Profile {
   lastName?: string;
   dob?: string;
   profile_type?: string;
+  activeHabitsCount?: number;
+  currentStreak?: number;
+  completedToday?: number;
+  totalAchievements?: number;
 }
 
 const profile = ref<Profile | null>(null);
@@ -143,16 +148,102 @@ const loadProfile = () => {
   const storedProfile = localStorage.getItem('profile');
   if (storedProfile) {
     profile.value = JSON.parse(storedProfile);
-    loadMockStats();
+    fetchProfileStats();
   }
 };
 
-const loadMockStats = () => {
-  // These are placeholder stats. In a real app, you'd fetch from the API
-  activeHabitsCount.value = Math.floor(Math.random() * 10) + 3;
-  currentStreak.value = Math.floor(Math.random() * 30) + 1;
-  completedToday.value = Math.floor(Math.random() * activeHabitsCount.value) + 1;
-  totalAchievements.value = Math.floor(Math.random() * 50) + 10;
+// Normalize various user-id keys that may exist in localStorage
+const getUserId = (): number | null => {
+  const storedUser = localStorage.getItem('user');
+  if (!storedUser) return null;
+  try {
+    const user = JSON.parse(storedUser);
+    return user?.id ?? user?.user_id ?? null;
+  } catch {
+    return null;
+  }
+};
+
+// Format a Date object as YYYY-MM-DD in local time
+const formatYMD = (d: Date): string => {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+};
+
+// Handle either 'YYYY-MM-DD' or ISO strings by returning 'YYYY-MM-DD'
+const normalizeYMD = (s: string | undefined | null): string => {
+  if (!s) return '';
+  return s.slice(0, 10);
+};
+
+// Compute the longest streak (consecutive days ending today) across habits
+const computeMaxStreakByHabit = (logsPerHabit: Array<Array<any>>): number => {
+  const todayStr = formatYMD(new Date());
+  let maxStreak = 0;
+
+  for (const logs of logsPerHabit) {
+    const dates = new Set<string>(logs.map(l => normalizeYMD(l.log_date)));
+    // Fast skip if nothing today
+    if (!dates.has(todayStr)) continue;
+
+    let streak = 0;
+    let cursor = new Date();
+    while (dates.has(formatYMD(cursor))) {
+      streak += 1;
+      // Move to previous day in local time
+      cursor.setDate(cursor.getDate() - 1);
+    }
+    if (streak > maxStreak) maxStreak = streak;
+  }
+  return maxStreak;
+};
+
+// Fetch progress stats from backend
+const fetchProfileStats = async () => {
+  if (!profile.value) return;
+
+  const userId = getUserId();
+  const profileId = profile.value.id;
+  if (!userId || !profileId) return;
+
+  try {
+    // 1) Habits for this profile
+    const habitsRes = await apiRequest(`/users/${userId}/profiles/${profileId}/habits`);
+    if (!habitsRes.ok) throw new Error(`Failed to fetch habits (${habitsRes.status})`);
+    const habits: Array<any> = await habitsRes.json();
+
+    activeHabitsCount.value = Array.isArray(habits) ? habits.length : 0;
+
+    // 2) Logs per habit (to compute completedToday, streak, total logs)
+    const logsPromises = (habits || []).map(async (h) => {
+      const res = await apiRequest(`/habits/${h.id}/habit_logs`);
+      if (!res.ok) return [] as Array<any>;
+      const logs = await res.json();
+      return Array.isArray(logs) ? logs : [];
+    });
+    const logsPerHabit = await Promise.all(logsPromises);
+    const allLogs = logsPerHabit.reduce((acc, logs) => acc.concat(logs), []);
+
+    const todayStr = formatYMD(new Date());
+    completedToday.value = allLogs.filter(l => normalizeYMD(l.log_date) === todayStr).length;
+
+    // 3) Milestones for this profile
+    const milestonesRes = await apiRequest(`/users/${userId}/profiles/${profileId}/milestones`);
+    let milestones: Array<any> = [];
+    if (milestonesRes.ok) {
+      const m = await milestonesRes.json();
+      milestones = Array.isArray(m) ? m : [];
+    }
+
+    totalAchievements.value = allLogs.length + milestones.length;
+
+    // 4) Current streak (max across habits)
+    currentStreak.value = computeMaxStreakByHabit(logsPerHabit);
+  } catch (err) {
+    console.error('Failed to fetch progress stats', err);
+  }
 };
 
 const formatDate = (dateString: string) => {
@@ -182,6 +273,7 @@ onMounted(() => {
     const customEvent = event as CustomEvent;
     if (customEvent.detail) {
       profile.value = customEvent.detail;
+      fetchProfileStats();
     } else {
       loadProfile();
     }

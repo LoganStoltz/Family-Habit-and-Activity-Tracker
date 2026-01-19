@@ -441,11 +441,11 @@ onMounted(() => {
     gap: 2rem;
     padding: 2.5rem 2rem;
   }
-hero-social-proof {
-    gap: 1.5rem;
-  }
 
-  .
+  .hero-social-proof {
+      gap: 1.5rem;
+  }
+  
   .features-grid {
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   }
@@ -555,7 +555,8 @@ hero-social-proof {
   .hero-section {
     padding: 1.5rem 1rem;
   }
-features-title {
+  
+  .features-title {
     font-size: 1.1rem;
   }
 
@@ -575,7 +576,6 @@ features-title {
     gap: 0.5rem;
   }
 
-  .
   .hero-title {
     font-size: 1.8rem;
   }
