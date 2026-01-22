@@ -247,22 +247,25 @@ h1 {
 
 .modal-exit {
   position: absolute;
-  margin: 0;
-  padding: 0;
-  top: 1.5rem;
-  right: 2rem;
+  top: 1rem;
+  right: 1rem;
   background: none;
   border: none;
+  color: #f3f3f3;
   font-size: 2rem;
-  color: #4f9dff;
   cursor: pointer;
-  font-weight: bold;
-  box-shadow: none;
-  z-index: 10;
+  transition: all 0.2s ease;
+  padding: 0;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .modal-exit:hover {
-  color: #ff9e4f;
+  color: #4f9dff;
+  transform: rotate(90deg);
 }
 
 .add-profile-container {

@@ -2,5 +2,10 @@
 - Ensure that the habit's progress is recalculated correctly after a log deletion.
 - Uniformity across all pop-up modals in terms of styling and behavior.
 - Add a feature to show only certain components on the activity main page based on user preferences.
+- 
+
+
+
 - Improve performance by lazy-loading components.
 - Switch from local Storage to cloud Storage.
+- Implement real-time synchronization between multiple devices.
