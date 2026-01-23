@@ -137,10 +137,8 @@ const submitForm = async () => {
   padding: 2.5rem;
   max-width: 500px;
   width: 90%;
-  backdrop-filter: blur(20px);
   box-shadow: 0 12px 40px rgba(30, 41, 59, 0.25);
   animation: modalSlideIn 0.3s ease-out;
-  font-family: 'Inter', sans-serif;
 }
 
 .modal-exit {

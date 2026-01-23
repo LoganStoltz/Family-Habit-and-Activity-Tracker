@@ -247,7 +247,7 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
   gap: 2rem;
-  max-width: 900px;
+  max-width: 1200px;
   transition: 0.3s ease;
   width: 100%;
 }
@@ -292,7 +292,7 @@ onMounted(() => {
 /* Main Intro Section */
 .intro {
   text-align: center;
-  max-width: 800px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 3rem;
   background: rgba(0, 0, 0, 0.15);
@@ -301,6 +301,7 @@ onMounted(() => {
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+  width: 100%;
 }
 
 .intro:hover {
@@ -331,7 +332,7 @@ onMounted(() => {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 2rem;
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 0 auto;
   width: 100%;
 }
@@ -398,7 +399,7 @@ onMounted(() => {
 /* Guest CTA */
 .guest-cta {
   text-align: center;
-  max-width: 600px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 3rem;
   background: rgba(0, 0, 0, 0.15);
@@ -406,6 +407,7 @@ onMounted(() => {
   box-shadow: var(--box-shadow-default);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
+  width: 100%;
 }
 
 .guest-cta p {

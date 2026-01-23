@@ -17,7 +17,7 @@ module.exports = {
       // Where is your project?
       // It is relative to `vetur.config.js`.
       root: './',
-      // **optional** default: `'package.json'`
+      // **optional**
       // Where is `package.json` in the project?
       // We use it to determine the version of vue.
       // It is relative to root property.
