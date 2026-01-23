@@ -41,7 +41,7 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { defineAsyncComponent } from 'vue';
-const ConfirmDeleteModal = defineAsyncComponent(() => import('./ConfirmDeleteModal.vue'));
+const ConfirmDeleteModal = defineAsyncComponent(() => import('../Popups/ConfirmDeleteModal.vue'));
 
 // Define profile type
 interface Profile {

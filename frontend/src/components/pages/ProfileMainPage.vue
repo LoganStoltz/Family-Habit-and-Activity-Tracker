@@ -104,7 +104,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
-import { apiRequest } from '../config/api';
+import { apiRequest } from '../../config/api';
 
 interface Profile {
   id: number;

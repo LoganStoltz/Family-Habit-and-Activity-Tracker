@@ -32,7 +32,7 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
 import { useRouter } from 'vue-router';
-import ProfileRegistration from './ProfileRegistrationPage.vue';
+import ProfileRegistration from '../pages/ProfileRegistrationPage.vue';
 
 const profiles = ref([]);
 const showProfileRegistration = ref(false);

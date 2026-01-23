@@ -69,7 +69,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
-import ProfileRegistration from './ProfileRegistrationPage.vue';
+import ProfileRegistration from '../pages/ProfileRegistrationPage.vue';
 
 const user = ref(null);
 const profile = ref(null);

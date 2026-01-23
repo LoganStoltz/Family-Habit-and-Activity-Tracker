@@ -156,8 +156,8 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { apiRequest } from '@/config/api'
-import HabitsPage from './HabitsPage.vue';
-import ConfirmDeleteModal from './ConfirmDeleteModal.vue';
+import HabitsPage from '../pages/HabitsPage.vue';
+import ConfirmDeleteModal from '../Popups/ConfirmDeleteModal.vue';
 
 // Get user and profile from LocalStorage
 const user = JSON.parse(localStorage.getItem('user') || '{}')

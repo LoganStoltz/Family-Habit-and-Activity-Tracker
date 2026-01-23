@@ -88,7 +88,7 @@
       />
 
       <!-- Log Modals -->
-      <LogModalManager 
+      <HabitLogModalManager 
         ref="logManager"
         @close="handleLogModalClose"
         @logged="onLogged"
@@ -99,11 +99,11 @@
 
 <script setup>
 import { ref, onMounted, computed, defineExpose } from 'vue';
-import HabitsCard from './HabitsCard.vue';
-import ConfirmDeleteModal from './ConfirmDeleteModal.vue';
-import LogModalManager from './LogModalManager.vue';
-import AddHabitModal from './AddHabitModal.vue';
-import EditHabitModal from './EditHabitModal.vue';
+import HabitsCard from '../elements/HabitsCard.vue';
+import ConfirmDeleteModal from '../Popups/ConfirmDeleteModal.vue';
+import HabitLogModalManager from '../logs/HabitLogModalManager.vue';
+import AddHabitModal from '../Popups/AddHabitModal.vue';
+import EditHabitModal from '../Popups/EditHabitModal.vue';
 
 // State
 const habits = ref([]);
@@ -122,7 +122,7 @@ const editTarget = ref(null);
 
 const toggleEditingMode = ref(false);
 
-const logManager = ref(null); // ref to LogModalManager
+const logManager = ref(null); // ref to HabitLogModalManager
 
 // User/Profile
 const user = JSON.parse(localStorage.getItem('user') || '{}');

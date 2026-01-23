@@ -1,13 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import LoginPage from '@/components/LoginPage.vue';
-import RegistrationPage from '@/components/RegistrationPage.vue';
-import HomePage from '@/components/HomePage.vue';
-import ProfileSelect from '@/components/ProfileSelectPage.vue';
-import ProfileMainPage from '@/components/ProfileMainPage.vue';
-import ProfileSettings from '@/components/ProfileSettingsPage.vue';
-import HabitsPage from '@/components/HabitsPage.vue';
-import ActivityMainPage from '@/components/ActivityMainPage.vue';
-import BabyMilestonesPage from '@/components/BabyMilestonesPage.vue';
+import LoginPage from '@/components/pages/UserLoginPage.vue';
+import RegistrationPage from '@/components/pages/UserRegistrationPage.vue';
+import HomePage from '@/components/pages/GenericHomePage.vue';
+import ProfileSelect from '@/components/Popups/ProfileSelectModal.vue';
+import ProfileMainPage from '@/components/pages/ProfileMainPage.vue';
+import ProfileSettings from '@/components/pages/ProfileSettingsPage.vue';
+import HabitsPage from '@/components/pages/HabitsPage.vue';
+import ActivityMainPage from '@/components/pages/ActivityMainPage.vue';
+import BabyMilestonesPage from '@/components/pages/BabyMilestonesPage.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
