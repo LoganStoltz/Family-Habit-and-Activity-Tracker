@@ -674,7 +674,7 @@ onMounted(fetchData)
 }
 
 .clearButton {
-  padding: 12px 20px;
+  padding: 13px 20px;
   background: white;
   color: #f44336;
   border: 1.4px solid #f4433680;
@@ -686,9 +686,8 @@ onMounted(fetchData)
 }
 
 .clearButton:hover {
-    background: #ff004017;
-    border: 1.4px solid #49070279;
-    box-shadow: 0 2px 6px rgba(244, 67, 54, 0.39);
+    border: 0;
+    color: white;
 }
 
 .resultsCount {

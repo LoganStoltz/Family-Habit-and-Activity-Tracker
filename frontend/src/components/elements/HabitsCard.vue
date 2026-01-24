@@ -62,7 +62,7 @@
         @click="onEdit"
         :disabled="Boolean(isEditing[habit.id])"
       >
-        {{ isEditing[habit.id] ? 'Editing...' : 'Edit Habit' }}
+        {{ isEditing[habit.id] ? 'Editing...' : '✏️ Edit Habit' }}
       </button>
 
       <button
@@ -71,7 +71,7 @@
         @click="onDelete"
         :disabled="Boolean(isDeleting[habit.id])"
       >
-        {{ isDeleting[habit.id] ? 'Deleting...' : 'Delete Habit' }}
+        {{ isDeleting[habit.id] ? 'Deleting...' : '🗑️ Delete Habit' }}
       </button>
     </div>
 
@@ -418,7 +418,6 @@ function onDelete() { emit('delete-habit', props.habit); }
 .edit-habit-btn {
   background: #0f172a;
   color: #f8fafc;
-  border-color: #0f172a;
 }
 
 .delete-habit-btn {

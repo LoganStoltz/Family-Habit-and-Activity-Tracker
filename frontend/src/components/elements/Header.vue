@@ -245,7 +245,6 @@ onUnmounted(() => {
   padding: 0.75rem 1.5rem;
   border-radius: var(--radius-medium);
   transition: var(--transition-normal);
-  border: 2px solid transparent;
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(5px);
   position: relative;
