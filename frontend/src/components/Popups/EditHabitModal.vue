@@ -96,8 +96,4 @@ const handleSubmit = async () => {
 }
 </script>
 
-<style scoped>
-/* minimal reuse of your modal styling */
-.modal-form label { display:block; margin-bottom: 0.6rem; text-align:left; }
-.modal-form input { width:100%; padding:0.6rem; border-radius:8px; border:1px solid #d1dbe6; }
-</style>
+<style src="../../assets/modal.css"></style>

@@ -119,3 +119,5 @@ const handleSubmit = async () => {
   }
 }
 </script>
+
+<style src="../../assets/modal.css"></style>

@@ -40,4 +40,4 @@ function submitLog() {
 }
 </script>
 
-<style src="@/assets/log-modal.css"></style>
+<style src="../../assets/modal.css"></style>

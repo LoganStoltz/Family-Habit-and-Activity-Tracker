@@ -36,4 +36,4 @@ function submitLog() {
 }
 </script>
 
-<style src="@/assets/log-modal.css" />
+<style src="../../assets/modal.css"></style>

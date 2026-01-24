@@ -69,7 +69,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
-import ProfileRegistration from '../pages/ProfileRegistrationPage.vue';
+import ProfileRegistration from '../Popups/ProfileRegistrationModal.vue';
 
 const user = ref(null);
 const profile = ref(null);
@@ -234,6 +234,7 @@ onUnmounted(() => {
   display: flex;
   gap: 2rem;
   align-items: center;
+  margin: 0 1rem 0 0;
 }
 
 .nav a, .nav button {
@@ -508,7 +509,7 @@ onUnmounted(() => {
 }
 
 /* Mobile responsiveness */
-@media (max-width: 768px) {
+@media (max-width: 1000px) {
   .header {
     padding: 0 1rem;
     height: 4rem;
@@ -527,7 +528,7 @@ onUnmounted(() => {
   
   .nav a, .nav button {
     font-size: 0.9rem;
-    padding: 0.6rem 1rem;
+    padding: 0.8rem 0.8rem;
     white-space: nowrap;
   }
   
@@ -551,14 +552,14 @@ onUnmounted(() => {
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 800px) {
   .nav {
     gap: 0.5rem;
   }
   
   .nav a, .nav button {
-    font-size: 0.8rem;
-    padding: 0.5rem 0.8rem;
+    font-size: 1rem;
+    padding: 0.8rem 0.8rem;
   }
 }
 </style>
