@@ -1,9 +1,8 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ TODO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 - Ensure that the habit's progress is recalculated correctly after a log deletion.
-- Uniformity across all pop-up modals in terms of styling and behavior.
+- Uniformity across all pop-up modals in terms of styling and behavior. (Almost done)
+ - Still deciding if I want 1 CSS file for each of popup type (Log popup, function popup) or if I want them to share the same stlying
 - Add a feature to show only certain components on the activity main page based on user preferences.
-- 
-
 
 
 - Improve performance by lazy-loading components.
