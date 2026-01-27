@@ -49,11 +49,18 @@
       <div v-if="showAddNewHabit" class="modal-overlay">
         <div class="modal">
           <button class="modal-exit" type="button" @click="showAddNewHabit = false">&times;</button>
-          <h2>Premade or Custom Habit</h2>
+          <h2>Create a New Habit</h2>
+          <p>Select whether you want to add a premade habit or create a custom one.</p>
           <form class="modal-form">
             <div class="modal-actions">
-              <button type="button" class="modal-add" @click="showAddPreMadeHabit = true; showAddNewHabit = false">Premade</button>
-              <button type="button" class="modal-add" style="background: linear-gradient(135deg, #a78bfa, #ffd166);" @click="showAddCustomHabit = true; showAddNewHabit = false">Custom</button>
+              <button class="modal-premade" type="button" @click="showAddPreMadeHabit = true; showAddNewHabit = false; isPremade = true">
+                <h3>Premade</h3>
+                <p>Choose from a list of common habits</p>
+              </button>
+              <button class="modal-custom" type="button" @click="showAddCustomHabit = true; showAddNewHabit = false; isPremade = false">
+                <h3>Custom</h3>
+                <p>Create a habit tailored to your needs, currently in development</p>
+              </button>
             </div>
           </form>
         </div>
@@ -67,16 +74,18 @@
         :profileId="profileId"
         @added="handleHabitAdded"
         @close="() => { showAddCustomHabit = false }"
+        @undo="() => { showAddCustomHabit = false; showAddPreMadeHabit = false; showAddNewHabit = true }"
       />
 
       <!-- Add Habit Modal (Premade) replaced by component -->
       <AddHabitModal
         v-if="showAddPreMadeHabit"
-        :isPremade="true"
+        :isPremade="isPremade"
         :userId="userId"
         :profileId="profileId"
         @added="handleHabitAdded"
         @close="() => { showAddPreMadeHabit = false }"
+        @undo="() => { showAddPreMadeHabit = false; showAddCustomHabit = false; showAddNewHabit = true }"
       />
 
       <!-- Edit Habit Modal -->
@@ -116,6 +125,8 @@ const habitToDelete = ref(null);
 const incrementing = ref({});
 const incrementError = ref({});
 const showConfirmModal = ref(false);
+const step = ref('choose');
+const isPremade = ref(false);
 
 const showEditModal = ref(false);
 const editTarget = ref(null);
@@ -272,6 +283,44 @@ const handleLogModalClose = (type) => {
   margin: 0px 0px 20px 0px;
   background-color: #f9f9f9;
   border-radius: 12px;
+}
+
+.modal-premade, .modal-custom {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 10px;
+  font-size: 18px;
+  font-weight: 700;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  color: #fff;
+  transition: all 0.3s ease;
+}
+
+.modal-custom {
+  background: linear-gradient(135deg, #a78bfa, #ffd166);
+}
+
+.modal-custom:hover {
+  background: linear-gradient(135deg, #ffd166, #a78bfa) !important;
+}
+
+.modal-premade h3, .modal-custom h3 {
+  margin: 4px 4px 0px 4px;
+  font-size: 1.5rem; 
+  border-radius: 8px;
+  padding: 2px 8px;
+}
+
+.modal-premade p, .modal-custom p {
+  font-size: 0.9rem;
+  font-weight: 400;
+  text-align: left;
+  margin-top: 6px;
+  padding: 0 8px;
 }
 
 .dashboardButton {

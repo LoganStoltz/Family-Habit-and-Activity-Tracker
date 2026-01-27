@@ -29,11 +29,11 @@
   color: #f3f3f3;
 }
 
-/* Close button */
-.modal-exit {
+/* Close and Undo buttons */
+.modal-exit,
+.modal-undo {
   position: absolute;
   top: 1rem;
-  right: 1rem;
   width: 2rem;
   height: 2rem;
   display: flex;
@@ -51,6 +51,17 @@
   transition: color 0.2s ease, transform 0.3s ease;
   transform-origin: center;
 }
+
+.modal-undo { left: 1rem; }
+.modal-exit { right: 1rem; }
+
+.modal-undo:hover {
+  color: #74ebd5;
+  background-color: rgba(255, 255, 255, 0);
+  animation: undoShake 0.6s ease-in-out infinite;
+}
+
+/* Close button */
 
 .modal-exit:hover {
   color: #ff4f4f;
@@ -90,8 +101,6 @@ label {
 
 input,
 select,
-.modal-form input,
-.modal-form select,
 .modal-form textarea {
   width: 100%;
   padding: 0.75rem 1rem;
@@ -105,55 +114,46 @@ select,
 }
 
 input,
-.modal-form input,
 .modal-form textarea {
   transition: all 0.3s ease;
 }
 
-select,
-.modal-form select {
+select {
   transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease, color 0.3s ease;
 }
 
 input::placeholder,
-.modal-form input::placeholder,
 .modal-form textarea::placeholder {
   color: rgba(255, 255, 255, 0.5);
 }
 
 /* Date input color for empty state */
-input[type="date"],
-.modal-form input[type="date"] {
+input[type="date"] {
   color: rgba(255, 255, 255, 0.5);
 }
 
-input[type="date"]:valid,
-.modal-form input[type="date"]:valid {
+input[type="date"]:valid {
   color: #f3f3f3;
 }
 
 /* Date picker icon color */
-input[type="date"]::-webkit-calendar-picker-indicator,
-.modal-form input[type="date"]::-webkit-calendar-picker-indicator {
+input[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(0.7);
   cursor: pointer;
 }
 
 /* Style select placeholder option */
-select option:first-child,
-.modal-form select option:first-child {
+select option:first-child {
   color: rgba(255, 255, 255, 0.5);
 }
 
-select option,
-.modal-form select option {
+select option {
   color: #f3f3f3;
   background: rgba(30, 41, 59, 0.95);
 }
 
 /* Select text color - grey when empty, white when selected */
-select,
-.modal-form select {
+select {
   color: rgba(255, 255, 255, 0.5);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='rgba(255,255,255,0.5)' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
@@ -167,8 +167,6 @@ select,
 
 input:focus,
 select:focus,
-.modal-form input:focus,
-.modal-form select:focus,
 .modal-form textarea:focus {
   outline: none;
   border-color: #4f9dff;
@@ -181,8 +179,7 @@ select:focus,
 }
 
 /* Checkboxes */
-input[type="checkbox"],
-.modal-form input[type="checkbox"] {
+input[type="checkbox"] {
   width: 20px;
   height: 20px;
   margin-right: 0.6rem;
@@ -196,21 +193,18 @@ input[type="checkbox"],
   position: relative;
 }
 
-input[type="checkbox"]:hover,
-.modal-form input[type="checkbox"]:hover {
+input[type="checkbox"]:hover {
   border-color: #4f9dff;
   box-shadow: 0 0 0 3px rgba(79, 157, 255, 0.1);
 }
 
-input[type="checkbox"]:checked,
-.modal-form input[type="checkbox"]:checked {
+input[type="checkbox"]:checked {
   background: linear-gradient(135deg, #4f9dff, #74ebd5);
   border-color: #4f9dff;
   box-shadow: 0 0 0 3px rgba(79, 157, 255, 0.2);
 }
 
-input[type="checkbox"]:checked::after,
-.modal-form input[type="checkbox"]:checked::after {
+input[type="checkbox"]:checked::after {
   content: '✓';
   position: absolute;
   top: 50%;
@@ -221,8 +215,7 @@ input[type="checkbox"]:checked::after,
   font-weight: bold;
 }
 
-input[type="checkbox"]:focus,
-.modal-form input[type="checkbox"]:focus {
+input[type="checkbox"]:focus {
   outline: none;
   border-color: #4f9dff;
   box-shadow: 0 0 0 3px rgba(79, 157, 255, 0.2);
@@ -268,7 +261,7 @@ button {
 }
 
 .modal-add:hover:not(:disabled),
-button:not(.modal-exit):hover:not(:disabled) {
+button:not(.modal-exit):not(.modal-undo):hover:not(:disabled) {
   background: linear-gradient(135deg, #74ebd5, #4f9dff);
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(79, 157, 255, 0.5);
@@ -301,5 +294,14 @@ button:disabled {
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes undoShake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(-5px);
   }
 }

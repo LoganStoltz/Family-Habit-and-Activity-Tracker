@@ -1,6 +1,7 @@
 <template>
   <div class="modal-overlay">
     <div class="modal">
+      <button class="modal-undo" @click="$emit('undo')">&lsaquo;</button>
       <button class="modal-exit" @click="$emit('close')">&times;</button>
       <h2>{{ isPremade ? 'Add Premade Habit' : 'Add Custom Habit' }}</h2>
 
@@ -36,7 +37,7 @@ const props = defineProps({
   profileId: [String, Number],
   apiBase: { type: String, default: 'http://localhost:3000' }
 })
-const emits = defineEmits(['added', 'close'])
+const emits = defineEmits(['added', 'close', 'undo'])
 
 const habitType = ref('')
 const habit = ref({ name: '', description: '' })
