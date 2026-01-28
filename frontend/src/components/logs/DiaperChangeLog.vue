@@ -3,19 +3,19 @@
     <button class="modal-exit" type="button" @click="$emit('close')">&times;</button>
     <h2>Log Diaper Change</h2>
     <form @submit.prevent="submitLog">
-      <label>
-        Type:
+      <div class="modal-two-col-form">
+        <label>Type:</label>
         <select v-model="changeType" required>
           <option value="" disabled>Select type</option>
           <option value="wet">Wet</option>
           <option value="dirty">Dirty</option>
           <option value="both">Both</option>
         </select>
-      </label>
-      <label>
-        Notes:
+      </div>
+      <div class="modal-two-col-form">
+        <label>Notes:</label>
         <input v-model="notes" placeholder="Additional notes" />
-      </label>
+      </div>
       <button type="submit">Submit Log</button>
     </form>
   </div>

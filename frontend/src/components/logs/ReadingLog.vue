@@ -3,14 +3,14 @@
     <button class="modal-exit" @click="$emit('close')">&times;</button>
     <h2>Log Reading</h2>
     <form @submit.prevent="submitLog">
-      <label>
-          Number of Pages Read:
-          <input type="number" v-model.number="pagesRead" min="0" step="1" required />
-      </label>
-      <label>
-          Notes:
-          <input type="text" v-model="notes" placeholder="Additional Notes" />
-      </label>
+      <div class="modal-two-col-form">
+        <label>Number of Pages Read:</label>
+        <input type="number" v-model.number="pagesRead" min="0" step="1" required />
+      </div>
+      <div class="modal-two-col-form">
+        <label>Notes:</label>
+        <input type="text" v-model="notes" placeholder="Additional Notes" />
+      </div>
       <button type="submit">Submit Log</button>
     </form>
   </div>

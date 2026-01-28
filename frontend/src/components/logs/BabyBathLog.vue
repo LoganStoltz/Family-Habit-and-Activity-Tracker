@@ -3,14 +3,14 @@
     <button class="modal-exit" type="button" @click="$emit('close')">&times;</button>
     <h2>Log Baby Bath</h2>
     <form @submit.prevent="submitLog">
-      <label>
-          Lotion Applied:
-          <input type="checkbox" v-model="lotionApplied" />
-      </label>
-      <label>
-            Notes:
-            <input type="text" v-model="notes" placeholder="Additional Notes" />
-      </label>
+      <div class="modal-two-col-form">
+        <label>Lotion Applied:</label>
+        <input type="checkbox" v-model="lotionApplied" />
+      </div>
+      <div class="modal-two-col-form">
+        <label>Notes:</label>
+        <input type="text" v-model="notes" placeholder="Additional Notes" />
+      </div>
       <button type="submit">Submit Log</button>
     </form>
   </div>

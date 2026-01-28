@@ -3,12 +3,12 @@
     <button class="modal-exit" @click="$emit('close')">&times;</button>
     <h2>Log Exercise</h2>
     <form @submit.prevent="submitLog">
-      <label>
-          Duration (minutes):
-          <input type="number" v-model.number="duration" min="0" step="1" required />
-      </label>
-      <label>
-        Type:
+      <div class="modal-two-col-form">
+        <label>Duration (minutes):</label>
+        <input type="number" v-model.number="duration" min="0" step="1" required />
+      </div>
+      <div class="modal-two-col-form">
+        <label>Type:</label>
         <select v-model="type" required>
            <option value="" disabled>Select type</option>
            <option value="cardio">Cardio</option>
@@ -16,19 +16,19 @@
            <option value="flexibility">Flexibility</option>
            <option value="balance">Balance</option>
         </select>
-      </label>
-      <label>
-            Warmup:
-            <input type="checkbox" v-model="warmup" />
-      </label>
-      <label>
-          CoolDown:
-          <input type="checkbox" v-model="cooldown" />
-      </label>
-      <label>
-          Notes:
-          <input type="text" v-model="notes" placeholder="Additional Notes" />
-      </label>
+      </div>
+      <div class="modal-two-col-form">
+        <label>Warmup:</label>
+        <input type="checkbox" v-model="warmup" />
+      </div>
+      <div class="modal-two-col-form">
+        <label>CoolDown:</label>
+        <input type="checkbox" v-model="cooldown" />
+      </div>
+      <div class="modal-two-col-form">
+        <label>Notes:</label>
+        <input type="text" v-model="notes" placeholder="Additional Notes" />
+      </div>
       <button type="submit">Submit Log</button>
     </form>
   </div>

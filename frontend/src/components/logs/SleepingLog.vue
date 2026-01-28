@@ -3,18 +3,18 @@
     <button class="modal-exit" type="button" @click="$emit('close')">&times;</button>
     <h2>Log Sleep</h2>
     <form @submit.prevent="submitLog">
-      <label>
-        Amount of sleep in hours:
+      <div class="modal-two-col-form">
+        <label>Amount of sleep in hours:</label>
         <input v-model.number="amount" type="number" min="0" step="0.5" required />
-      </label>
-      <label>
-        Went to bed by:
+      </div>
+      <div class="modal-two-col-form">
+        <label>Went to bed by:</label>
         <input v-model="bedtime" type="time" required />
-      </label>
-      <label>
-        Notes:
+      </div>
+      <div class="modal-two-col-form">
+        <label>Notes:</label>
         <input type="text" v-model="notes" placeholder="Additional Notes" />
-      </label>
+      </div>
       <button type="submit">Submit Log</button>
     </form>
   </div>

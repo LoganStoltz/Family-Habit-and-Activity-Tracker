@@ -5,15 +5,15 @@
       <h2>Edit Habit</h2>
 
       <form @submit.prevent="handleSubmit" class="modal-form">
-        <label>
-          Name
+        <div class="modal-two-col-form">
+          <label>Name</label>
           <input v-model="local.name" placeholder="Habit Name" required />
-        </label>
-
-        <label>
-          Description
+        </div>
+        
+        <div class="modal-two-col-form">
+          <label>Description</label>
           <input v-model="local.description" placeholder="Description" />
-        </label>
+        </div>
 
         <div v-if="error" class="modal-error">{{ error }}</div>
 
