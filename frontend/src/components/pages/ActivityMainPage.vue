@@ -4,130 +4,141 @@
     <!-- Content for the Activity Main Page goes here -->
     <div class="activityContent">
 
+      
       <!-- Search/Filter Section -->
       <section class="filterSection">
-          <div class="filterInputs">
-            <div class="filterGroup">
-              <label for="searchLogId">Log ID:</label>
-              <input 
-                  id="searchLogId"
-                  v-model="searchLogId" 
-                  type="text" 
-                  placeholder="Search by Log ID..."
-                  class="filterInput"
-              />
-            </div>  
+        <close-element @minimize="$emit('minimize')" :showCollapse="true" @toggle="handleFilterToggle" />
+        <div :class="{ collapsed: isFilterCollapsed }">
+          <div class="filterSectionHeader">
+            <h1>Filter Habit Logs</h1>
+          </div>
 
-            <div class="filterGroup">
-              <label for="searchName">Habit Name:</label>
-              <input 
-                  id="searchName"
-                  v-model="searchName" 
-                  type="text" 
-                  placeholder="Search by Habit Name..."
-                  class="filterInput"
-              />
-            </div>
+          <div class="filterConsole" :class="{ collapsed: isFilterCollapsed }">
             
-            <div class="filterGroup">
-              <label for="filterCategory">Category:</label>
-              <select 
-                  id="filterCategory"
-                  v-model="selectedCategory" 
-                  class="filterSelect"
-                  :class="{ 'placeholder-active': !selectedCategory }"
-              >
-                <option value="" disabled selected hidden>Search by Category...</option>
-                <option v-for="category in availableCategories" :key="category" :value="category">
-                    {{ category }}
-                </option>
-              </select>
-            </div>
+            <div class="filterInputs">
+              <div class="filterGroup">
+                <label for="searchLogId">Log ID:</label>
+                <input 
+                    id="searchLogId"
+                    v-model="searchLogId" 
+                    type="text" 
+                    placeholder="Search by Log ID..."
+                    class="filterInput"
+                />
+              </div>  
 
-            <div class="filterGroup">
-              <label for="filterDate">Time range</label>
-              <select 
-                  id="filterDate"
-                  v-model="selectedDate" 
-                  class="filterSelect"
-                  :class="{ 'placeholder-active': !selectedDate }"
-              >
-                <option value="" disabled selected hidden>Search by Date Range...</option>
-                <option value="1_week"> Last 7 days</option>
-                <option value="1_month"> Last 30 days</option>
-                <option value="3_months"> Last 3 months</option>
-                <option value="6_months"> Last 6 months</option>
-                <option value="1_year"> Last year</option>
-              </select>
-            </div>
+              <div class="filterGroup">
+                <label for="searchName">Habit Name:</label>
+                <input 
+                    id="searchName"
+                    v-model="searchName" 
+                    type="text" 
+                    placeholder="Search by Habit Name..."
+                    class="filterInput"
+                />
+              </div>
+              
+              <div class="filterGroup">
+                <label for="filterCategory">Category:</label>
+                <select 
+                    id="filterCategory"
+                    v-model="selectedCategory" 
+                    class="filterSelect"
+                    :class="{ 'placeholder-active': !selectedCategory }"
+                >
+                  <option value="" disabled selected hidden>Search by Category...</option>
+                  <option v-for="category in availableCategories" :key="category" :value="category">
+                      {{ category }}
+                  </option>
+                </select>
+              </div>
 
-              <button @click="clearFilters" class="clearButton">Clear Filters</button>
+              <div class="filterGroup">
+                <label for="filterDate">Time range</label>
+                <select 
+                    id="filterDate"
+                    v-model="selectedDate" 
+                    class="filterSelect"
+                    :class="{ 'placeholder-active': !selectedDate }"
+                >
+                  <option value="" disabled selected hidden>Search by Date Range...</option>
+                  <option value="1_week"> Last 7 days</option>
+                  <option value="1_month"> Last 30 days</option>
+                  <option value="3_months"> Last 3 months</option>
+                  <option value="6_months"> Last 6 months</option>
+                  <option value="1_year"> Last year</option>
+                </select>
+              </div>
+
+                <button @click="clearFilters" class="clearButton">Clear Filters</button>
+            </div>
           </div>
           <p class="resultsCount">Showing {{ filteredAndSortedLogs.length }} of {{ enrichedLogs.length }} logs</p>
+        </div>
       </section>
       <!-- Habit Logs Table Section -->
       <section class="activitySummary">
-        <div class="habit-logs-table-header">
+        <close-element @minimize="$emit('minimize')" :showCollapse="true" @toggle="handleTableToggle" />
+        <div :class="{ collapsed: isTableCollapsed }">
+          <div class="habit-logs-table-header">
             <h2>Habit Logs Table</h2>
             <div class="header-actions">
               <button class="activityButton" @click="fetchData">Refresh Logs</button>
               <button class="editingModeButton" :class="{ active: showActionsColumn }" @click="showActionsColumn = !showActionsColumn">✏️</button>
             </div>
+          </div>
+              
+          <!-- Loading state -->
+          <p v-if="loading">Loading habit logs...</p>
+          <!-- Error state -->
+          <p v-else-if="error" class="error">{{ error }}</p>
+          <!-- Empty state -->
+          <p v-else-if="enrichedLogs.length === 0">No habit logs found.</p>
+        
+          <!-- Table -->
+          <table v-else class="habits-table">
+              <thead>
+                  <tr>
+                      <th @click="sortBy('id')" class="sortable">
+                        Log ID
+                        <span class="sort-icon">{{ getSortIcon('id') }}</span>
+                      </th>
+                      <th @click="sortBy('habitName')" class="sortable">
+                        Habit Name
+                        <span class="sort-icon">{{ getSortIcon('habitName') }}</span>
+                      </th>
+                      <th @click="sortBy('category')" class="sortable">
+                        Category
+                        <span class="sort-icon">{{ getSortIcon('category') }}</span>
+                      </th>
+                      <th @click="sortBy('created_at')" class="sortable">
+                        Logged At
+                        <span class="sort-icon">{{ getSortIcon('created_at') }}</span>
+                      </th>
+                      <th>Notes</th>
+                      <th v-if="showActionsColumn">Actions</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  <tr v-for="log in filteredAndSortedLogs" :key="log.id">
+                      <td>{{ log.id }}</td>
+                      <td>{{ log.habitName }}</td>
+                      <td>{{ log.category || 'N/A' }}</td>
+                      <td>{{ formatDate(log.created_at) }}</td>
+                      <td>{{ log.notes || 'N/A' }}</td>
+                      <td v-if="showActionsColumn">
+                        <button 
+                          class="delete-log-btn" 
+                          @click="confirmDeleteLog(log)"
+                          :disabled="deletingLogId === log.id"
+                        >
+                          {{ deletingLogId === log.id ? 'Deleting...' : '🗑️ Delete' }}
+                        </button>
+                      </td>
+                  </tr>
+              </tbody>
+          </table>
         </div>
-            
-            
-            <!-- Loading state -->
-            <p v-if="loading">Loading habit logs...</p>
-            
-            <!-- Error state -->
-            <p v-else-if="error" class="error">{{ error }}</p>
-            
-            <!-- Empty state -->
-            <p v-else-if="enrichedLogs.length === 0">No habit logs found.</p>
-            
-            <!-- Table -->
-            <table v-else class="habits-table">
-                <thead>
-                    <tr>
-                        <th @click="sortBy('id')" class="sortable">
-                          Log ID
-                          <span class="sort-icon">{{ getSortIcon('id') }}</span>
-                        </th>
-                        <th @click="sortBy('habitName')" class="sortable">
-                          Habit Name
-                          <span class="sort-icon">{{ getSortIcon('habitName') }}</span>
-                        </th>
-                        <th @click="sortBy('category')" class="sortable">
-                          Category
-                          <span class="sort-icon">{{ getSortIcon('category') }}</span>
-                        </th>
-                        <th @click="sortBy('created_at')" class="sortable">
-                          Logged At
-                          <span class="sort-icon">{{ getSortIcon('created_at') }}</span>
-                        </th>
-                        <th>Notes</th>
-                        <th v-if="showActionsColumn">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="log in filteredAndSortedLogs" :key="log.id">
-                        <td>{{ log.id }}</td>
-                        <td>{{ log.habitName }}</td>
-                        <td>{{ log.category || 'N/A' }}</td>
-                        <td>{{ formatDate(log.created_at) }}</td>
-                        <td>{{ log.notes || 'N/A' }}</td>
-                        <td v-if="showActionsColumn">
-                          <button 
-                            class="delete-log-btn" 
-                            @click="confirmDeleteLog(log)"
-                            :disabled="deletingLogId === log.id"
-                          >
-                            {{ deletingLogId === log.id ? 'Deleting...' : '🗑️ Delete' }}
-                          </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
       </section>
 
       <!-- Confirm Delete Modal -->
@@ -158,6 +169,7 @@ import { ref, computed, onMounted } from 'vue';
 import { apiRequest } from '@/config/api'
 import HabitsPage from '../pages/HabitsPage.vue';
 import ConfirmDeleteModal from '../Popups/ConfirmDeleteModal.vue';
+import CloseElement from '@/components/elements/closeElement.vue';
 
 // Get user and profile from LocalStorage
 const user = JSON.parse(localStorage.getItem('user') || '{}')
@@ -180,6 +192,8 @@ const deletingLogId = ref(null)
 const showActionsColumn = ref(false)
 const showConfirmDeleteModal = ref(false)
 const logToDelete = ref(null)
+const isFilterCollapsed = ref(false)
+const isTableCollapsed = ref(false)
 // Fetch all habits for the profile
 const fetchHabits = async () => {
   if (!userId || !profileId) {
@@ -405,6 +419,17 @@ const formatDate = (dateString) => {
     minute: '2-digit'
   })
 }
+
+// Handle collapse/expand toggle for filter section
+const handleFilterToggle = (collapsed) => {
+  isFilterCollapsed.value = collapsed
+}
+
+// Handle collapse/expand toggle for table section
+const handleTableToggle = (collapsed) => {
+  isTableCollapsed.value = collapsed
+}
+
 // Fetch on component mount
 onMounted(fetchData)
 </script>
@@ -448,6 +473,20 @@ onMounted(fetchData)
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     margin: 20px 0px;
+    position: relative;
+}
+
+.activitySummary .collapsed {
+  padding-bottom: 0;
+}
+
+.activitySummary .collapsed .habits-table,
+.activitySummary .collapsed p {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  margin: 0;
+  padding: 0;
 }
 
 .activitySummary h2 {
@@ -467,6 +506,11 @@ onMounted(fetchData)
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background: linear-gradient(135deg, #4f9dff, #74ebd5);
+  padding: 20px;
+  border-radius: 12px 12px 0 0;
+  margin: -20px -20px 20px -20px;
+  color: white;
 }
 
 .habit-logs-table-header .header-actions {
@@ -478,7 +522,7 @@ onMounted(fetchData)
 .habit-logs-table-header h2 {
   font-size: 1.5rem;
   margin: 0;
-  color: #333;
+  color: white;
   font-weight: 700;
 }
 
@@ -616,11 +660,37 @@ onMounted(fetchData)
 
 .filterSection {
   margin: 20px 0px;
+  padding-bottom: 8px;
   background: #fff;
-  border: 1px solid #e3eaf5;
   border-radius: 12px;
-  padding: 1rem 1.2rem;
-  box-shadow: 0 10px 30px rgba(79, 157, 255, 0.08);
+  position: relative;
+}
+
+.filterSection .collapsed {
+  padding-bottom: 10px;
+}
+
+.filterSection .collapsed .filterConsole,
+.filterSection .collapsed .resultsCount {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  padding: 0 20px;
+  margin: 0;
+}
+
+.filterSectionHeader {
+  background: linear-gradient(135deg, #4f9dff, #74ebd5);
+  padding: 2px;
+  border-radius: 12px 12px 0 0;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.filterConsole {
+  padding: 30px 20px 20px 20px;
+  transition: all 0.3s ease;
 }
 
 .filterInputs {
@@ -695,6 +765,7 @@ onMounted(fetchData)
     color: #666;
     font-size: 0.95rem;
     text-align: center;
+    transition: all 0.3s ease;
 }
 
 /* Responsive */

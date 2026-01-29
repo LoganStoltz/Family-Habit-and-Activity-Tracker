@@ -1,7 +1,8 @@
 <template>
   <div class="habitsPage">
     <div class="habitsContent">
-      <div class="habitPanels">
+      <close-element @minimize="$emit('minimize')" :showCollapse="true" @toggle="handleToggle" />
+      <div class="habitPanels" :class="{ collapsed: isCollapsed }">
         <div class="dashboardHeader">
           <button class="addHabitButton" @click="showAddNewHabit = true">Add Habit</button>
           <h1>Habits & Care</h1>
@@ -9,7 +10,8 @@
         </div>
 
         <!-- Habits Cards -->
-        <div class="dashboard-cards">
+        <div class="collapsible-content">
+          <div class="dashboard-cards">
           <template v-if="filteredHabits.length > 0">
             <HabitsCard
               v-for="habit in filteredHabits"
@@ -28,6 +30,7 @@
           <div v-else class="no-dashboard-cards">
             <p>No habits found. Please add a habit first.</p>
           </div>
+        </div>
         </div>
       </div>
 
@@ -109,6 +112,8 @@
 <script setup>
 import { ref, onMounted, computed, defineExpose } from 'vue';
 import HabitsCard from '../elements/HabitsCard.vue';
+import closeElement from '../elements/closeElement.vue';
+
 import ConfirmDeleteModal from '../Popups/ConfirmDeleteModal.vue';
 import HabitLogModalManager from '../logs/HabitLogModalManager.vue';
 import AddHabitModal from '../Popups/AddHabitModal.vue';
@@ -125,15 +130,20 @@ const habitToDelete = ref(null);
 const incrementing = ref({});
 const incrementError = ref({});
 const showConfirmModal = ref(false);
-const step = ref('choose');
 const isPremade = ref(false);
 
 const showEditModal = ref(false);
 const editTarget = ref(null);
 
 const toggleEditingMode = ref(false);
+const isCollapsed = ref(false);
 
 const logManager = ref(null); // ref to HabitLogModalManager
+
+// Handle collapse toggle
+const handleToggle = (collapsed) => {
+  isCollapsed.value = collapsed;
+};
 
 // User/Profile
 const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -279,10 +289,30 @@ const handleLogModalClose = (type) => {
 
 /* Habits & Care Section Styling */
 .habitPanels {
+  position: relative;
   padding: 20px;
   margin: 0px 0px 20px 0px;
   background-color: #f9f9f9;
   border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.habitPanels.collapsed {
+  padding-bottom: 0;
+}
+
+.habitPanels.collapsed .collapsible-content {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  margin-top: 0;
+}
+
+.collapsible-content {
+  max-height: 5000px;
+  overflow: visible;
+  opacity: 1;
+  transition: all 0.4s ease;
 }
 
 .modal-premade, .modal-custom {
