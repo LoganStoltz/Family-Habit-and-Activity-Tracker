@@ -40,10 +40,10 @@ const toggleCollapse = () => {
 .collapse-toggle,
 .close-toggle {
   position: relative;
-  top: 10px;
-  right: 10px;
+  top: 13px;
+  right: 12px;
   width: 40px;
-  height: 80px;
+  height: 50px;
   border: none;
   border-radius: 8px 0px 0px 8px;
   cursor: pointer;
@@ -59,10 +59,10 @@ const toggleCollapse = () => {
 }
 
 .collapse-toggle:hover {
-  width: 120px;
+  width: 80px;
   background: linear-gradient(135deg, #74ebd5, #4f9dff);
   box-shadow: 2px 0 12px rgba(79, 157, 255, 0.3);
-  transform: translateX(-80px) !important;
+  transform: translateX(-40px) !important;
 }
 
 .close-toggle {

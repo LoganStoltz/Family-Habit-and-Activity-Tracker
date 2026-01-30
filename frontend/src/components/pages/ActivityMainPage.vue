@@ -6,15 +6,15 @@
 
       
       <!-- Search/Filter Section -->
-      <section class="filterSection">
+      <section class="filterSection activitySection" :class="{ collapsed: isFilterCollapsed }">
         <close-element @minimize="$emit('minimize')" :showCollapse="true" @toggle="handleFilterToggle" />
-        <div :class="{ collapsed: isFilterCollapsed }">
-          <div class="filterSectionHeader">
-            <h1>Filter Habit Logs</h1>
-          </div>
-
-          <div class="filterConsole" :class="{ collapsed: isFilterCollapsed }">
-            
+        <div class="filterSectionHeader">
+          <div class="header-left"></div>
+          <h1>Filter Habit Logs</h1>
+          <div class="header-right"></div>
+        </div>
+        <div class="filterSectionBody">
+          <div class="filterConsole">
             <div class="filterInputs">
               <div class="filterGroup">
                 <label for="searchLogId">Log ID:</label>
@@ -77,17 +77,18 @@
         </div>
       </section>
       <!-- Habit Logs Table Section -->
-      <section class="activitySummary">
+      <section class="activitySummary activitySection" :class="{ collapsed: isTableCollapsed }">
         <close-element @minimize="$emit('minimize')" :showCollapse="true" @toggle="handleTableToggle" />
-        <div :class="{ collapsed: isTableCollapsed }">
-          <div class="habit-logs-table-header">
-            <h2>Habit Logs Table</h2>
-            <div class="header-actions">
-              <button class="activityButton" @click="fetchData">Refresh Logs</button>
-              <button class="editingModeButton" :class="{ active: showActionsColumn }" @click="showActionsColumn = !showActionsColumn">✏️</button>
-            </div>
+        <div class="habit-logs-table-header">
+          <div class="header-left">
+            <button class="activityButton" @click="fetchData">Refresh Logs</button>
           </div>
-              
+          <h1>Habit Logs Table</h1>
+          <div class="header-right">
+            <button class="editingModeButton" :class="{ active: showActionsColumn }" @click="showActionsColumn = !showActionsColumn">✏️</button>
+          </div>
+        </div>
+        <div class="activitySummaryBody">
           <!-- Loading state -->
           <p v-if="loading">Loading habit logs...</p>
           <!-- Error state -->
@@ -140,6 +141,10 @@
           </table>
         </div>
       </section>
+      <!-- Habits Page Component Section -->
+      <section class="activitySection" :class="{ collapsed: isHabitsCollapsed }">
+        <HabitsPage ref="habitsPageRef" @toggle="handleHabitsToggle" />
+      </section>
 
       <!-- Confirm Delete Modal -->
       <ConfirmDeleteModal
@@ -154,11 +159,6 @@
         @confirm="deleteLog"
         @cancel="cancelDeleteLog"
       />
-
-      <!-- Habits Page Component Section -->
-      <section>
-        <HabitsPage ref="habitsPageRef" />
-      </section>
     </div>
   </div>
     
@@ -194,6 +194,7 @@ const showConfirmDeleteModal = ref(false)
 const logToDelete = ref(null)
 const isFilterCollapsed = ref(false)
 const isTableCollapsed = ref(false)
+const isHabitsCollapsed = ref(false)
 // Fetch all habits for the profile
 const fetchHabits = async () => {
   if (!userId || !profileId) {
@@ -430,30 +431,105 @@ const handleTableToggle = (collapsed) => {
   isTableCollapsed.value = collapsed
 }
 
+// Handle collapse/expand toggle for habits section
+const handleHabitsToggle = (collapsed) => {
+  isHabitsCollapsed.value = collapsed
+}
+
 // Fetch on component mount
 onMounted(fetchData)
 </script>
 
 <style scoped>
 .activityMainPage {
-    padding: 20px;
-    max-width: 1400px;
+    max-width: 1600px;
     margin: 0 auto;
 }
 
+.activitySection {
+    margin: 20px 0;
+    position: relative;
+}
+
+.activitySection.collapsed {
+    margin: 15px 0;
+}
+
+/* ========== SECTION HEADER STYLES ========== */
+/* Common header styling for all sections */
+.filterSectionHeader,
+.habit-logs-table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, #4f9dff, #74ebd5);
+  padding: 15px 20px;
+  border-radius: 12px 12px 0 0;
+  margin: -20px -20px 20px -20px;
+  color: white;
+  height: 74px;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 1;
+}
+
+/* Header titles */
+.filterSectionHeader h1,
+.habit-logs-table-header h1 {
+  font-size: 1.5rem;
+  margin: 0;
+  color: white;
+  font-weight: 700;
+  text-align: center;
+  flex: 1;
+}
+
+/* Header button containers */
+.header-left,
+.header-right {
+  width: 180px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+.header-left {
+  justify-content: flex-start;
+}
+
+.header-right {
+  justify-content: flex-end;
+}
+
+/* Collapsed header states */
+.filterSection.collapsed .filterSectionHeader,
+.activitySummary.collapsed .habit-logs-table-header {
+  margin: -10px -20px 0 -20px;
+  border-radius: 12px;
+}
+
+/* Position collapse buttons on left side of headers, vertically centered */
+.activitySection :deep(.button-group) {
+  top: 0px;
+  left: -3px;
+  right: auto;
+  height: 30px;
+  z-index: 0;
+}
+/* ========== END SECTION HEADER STYLES ========== */
+
 .activityButton {
-    margin-right: 10px;
-    padding: 0.75rem 1.5rem;
-    font-size: 1.08rem;
-    cursor: pointer;
-    background: linear-gradient(135deg, #4f9dff, #74ebd5);
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-weight: 700;
-    transition: all 0.3s ease;
-    text-decoration: none;
-    box-shadow: 0 4px 12px rgba(79, 157, 255, 0.18);
+  background: rgba(255, 255, 255, 0.95);
+  color: #4f9dff;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  font-weight: 700;
+  font-size: 1.08rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(8px);
 }
 
 .activityButton:hover {
@@ -472,16 +548,20 @@ onMounted(fetchData)
     padding: 20px;
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    margin: 20px 0px;
     position: relative;
+    transition: all 0.3s ease;
 }
 
-.activitySummary .collapsed {
-  padding-bottom: 0;
+.activitySummary.collapsed {
+  padding: 0px 20px 20px 20px;
+  box-shadow: none;
 }
 
-.activitySummary .collapsed .habits-table,
-.activitySummary .collapsed p {
+.activitySummaryBody {
+  transition: all 0.3s ease;
+}
+
+.activitySummary.collapsed .activitySummaryBody {
   max-height: 0;
   overflow: hidden;
   opacity: 0;
@@ -500,30 +580,6 @@ onMounted(fetchData)
     margin-top: 0;
     color: #333;
     font-size: 1.2rem;
-}
-
-.habit-logs-table-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: linear-gradient(135deg, #4f9dff, #74ebd5);
-  padding: 20px;
-  border-radius: 12px 12px 0 0;
-  margin: -20px -20px 20px -20px;
-  color: white;
-}
-
-.habit-logs-table-header .header-actions {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-.habit-logs-table-header h2 {
-  font-size: 1.5rem;
-  margin: 0;
-  color: white;
-  font-weight: 700;
 }
 
 .editingModeButton {
@@ -659,37 +715,73 @@ onMounted(fetchData)
 }
 
 .filterSection {
-  margin: 20px 0px;
-  padding-bottom: 8px;
-  background: #fff;
+  padding: 20px;
+  background: #f9f9f9;
   border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   position: relative;
+  transition: all 0.3s ease;
 }
 
-.filterSection .collapsed {
-  padding-bottom: 10px;
+.filterSection.collapsed {
+  padding: 0 20px 20px 20px;
+  box-shadow: none;
 }
 
-.filterSection .collapsed .filterConsole,
-.filterSection .collapsed .resultsCount {
+.filterSectionBody {
+  transition: all 0.3s ease;
+}
+
+.filterSection.collapsed .filterSectionBody {
   max-height: 0;
   overflow: hidden;
   opacity: 0;
-  padding: 0 20px;
   margin: 0;
+  padding: 0;
 }
 
 .filterSectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   background: linear-gradient(135deg, #4f9dff, #74ebd5);
-  padding: 2px;
+  padding: 15px 20px;
   border-radius: 12px 12px 0 0;
+  margin: -20px -20px 20px -20px;
+  color: white;
+}
+
+.filterSectionHeader h1 {
+  font-size: 1.5rem;
+  margin: 0;
+  color: white;
+  font-weight: 700;
   text-align: center;
-  position: relative;
-  z-index: 1;
+  flex: 1;
+}
+
+.header-left,
+.header-right {
+  width: 180px;
+  display: flex;
+  align-items: center;
+}
+
+.header-left {
+  justify-content: flex-start;
+}
+
+.header-right {
+  justify-content: flex-end;
+}
+
+.filterSection.collapsed .filterSectionHeader {
+  margin: -10px -20px 0 -20px;
+  border-radius: 12px;
 }
 
 .filterConsole {
-  padding: 30px 20px 20px 20px;
+  padding: 0 20px 20px 20px;
   transition: all 0.3s ease;
 }
 

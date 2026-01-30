@@ -4,9 +4,13 @@
       <close-element @minimize="$emit('minimize')" :showCollapse="true" @toggle="handleToggle" />
       <div class="habitPanels" :class="{ collapsed: isCollapsed }">
         <div class="dashboardHeader">
-          <button class="addHabitButton" @click="showAddNewHabit = true">Add Habit</button>
+          <div class="header-left">
+            <button class="addHabitButton" @click="showAddNewHabit = true">Add Habit</button>
+          </div>
           <h1>Habits & Care</h1>
-          <button class="editingModeButton" :class="{ active: toggleEditingMode }" @click="toggleEditingMode = !toggleEditingMode">✏️</button>
+          <div class="header-right">
+            <button class="editingModeButton" :class="{ active: toggleEditingMode }" @click="toggleEditingMode = !toggleEditingMode">✏️</button>
+          </div>
         </div>
 
         <!-- Habits Cards -->
@@ -110,7 +114,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, defineExpose } from 'vue';
+import { ref, onMounted, computed, defineExpose, defineEmits } from 'vue';
 import HabitsCard from '../elements/HabitsCard.vue';
 import closeElement from '../elements/closeElement.vue';
 
@@ -118,6 +122,9 @@ import ConfirmDeleteModal from '../Popups/ConfirmDeleteModal.vue';
 import HabitLogModalManager from '../logs/HabitLogModalManager.vue';
 import AddHabitModal from '../Popups/AddHabitModal.vue';
 import EditHabitModal from '../Popups/EditHabitModal.vue';
+
+// Define emits
+const emit = defineEmits(['toggle', 'minimize']);
 
 // State
 const habits = ref([]);
@@ -143,6 +150,8 @@ const logManager = ref(null); // ref to HabitLogModalManager
 // Handle collapse toggle
 const handleToggle = (collapsed) => {
   isCollapsed.value = collapsed;
+  // Emit to parent component
+  emit('toggle', collapsed);
 };
 
 // User/Profile
@@ -283,7 +292,7 @@ const handleLogModalClose = (type) => {
 <style>
 /* Habits Page Styling */
 .habitsPage {
-  max-width: 1400px;
+  max-width: 1600px;
   margin: 20px auto;
 }
 
@@ -291,15 +300,63 @@ const handleLogModalClose = (type) => {
 .habitPanels {
   position: relative;
   padding: 20px;
-  margin: 0px 0px 20px 0px;
+  margin: 0;
   background-color: #f9f9f9;
   border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   transition: all 0.3s ease;
 }
 
 .habitPanels.collapsed {
-  padding-bottom: 0;
+  padding: 0 20px 20px 20px;
+  box-shadow: none;
 }
+
+/* ========== SECTION HEADER STYLES ========== */
+.dashboardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+  margin: -20px -20px 20px -20px;
+  background: linear-gradient(135deg, #4f9dff, #74ebd5);
+  color: white;
+  padding: 15px 20px;
+  border-radius: 12px 12px 0px 0px;
+  height: 74px;
+  box-sizing: border-box;
+}
+
+.dashboardHeader h1 {
+  font-size: 1.5rem;
+  margin: 0;
+  color: white;
+  font-weight: 700;
+  text-align: center;
+  flex: 1;
+}
+
+.header-left,
+.header-right {
+  width: 180px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+.header-left {
+  justify-content: flex-start;
+}
+
+.header-right {
+  justify-content: flex-end;
+}
+
+.habitPanels.collapsed .dashboardHeader {
+  margin: -10px -20px 0 -20px;
+  border-radius: 12px;
+}
+/* ========== END SECTION HEADER STYLES ========== */
 
 .habitPanels.collapsed .collapsible-content {
   max-height: 0;
@@ -393,12 +450,61 @@ const handleLogModalClose = (type) => {
   margin: -20px -20px 20px -20px;
   background: linear-gradient(135deg, #4f9dff, #74ebd5);
   color: white;
-  padding: 2px;
+  padding: 15px 20px;
   border-radius: 12px 12px 0px 0px;
 }
 
-.dashboardHeader button {
-  margin: 0px 20px;
+.habitPanels.collapsed .dashboardHeader {
+  margin: -10px -20px 0 -20px;
+  border-radius: 12px;
+}
+
+/* Center collapse button over header */
+.habitsPage :deep(.close-element) {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+}
+
+.dashboardHeader h1 {
+  font-size: 1.5rem;
+  margin: 0;
+  color: white;
+  font-weight: 700;
+  text-align: center;
+  flex: 1;
+}
+
+.header-left,
+.header-right {
+  width: 180px;
+  display: flex;
+  align-items: center;
+}
+
+.header-left {
+  justify-content: flex-start;
+}
+
+.header-right {
+  justify-content: flex-end;
+}
+
+.header-left,
+.header-right {
+  width: 180px;
+  display: flex;
+  align-items: center;
+}
+
+.header-left {
+  justify-content: flex-start;
+}
+
+.header-right {
+  justify-content: flex-end;
 }
 
 .addHabitButton {
