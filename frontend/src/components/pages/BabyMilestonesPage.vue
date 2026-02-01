@@ -602,7 +602,13 @@ onMounted(fetchMilestones)
   padding: 0.75rem 0.85rem;
   font-size: 1rem;
   background: #f8fbff;
+  color: #41506a;
   transition: border 0.2s, box-shadow 0.2s;
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+  color: #a6b5cc;
 }
 
 .field input:focus,
