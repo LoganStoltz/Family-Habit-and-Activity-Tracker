@@ -5,93 +5,101 @@
     <div class="milestonesContent">
     
       <section class="milestonesHeroSection">
-        <div class="milestoneInfo">
-          <p class="eyebrow">Baby milestones</p>
-          <h1>Celebrate {{ profileName }}'s Milestones</h1>
-          <p class="lede">
-            Capture first giggles, tiny steps, and the everyday wonders so you never lose a moment.
-          </p>
-          <div class="milestoneStats">
-            <div class="milestoneStatCard">
-              <span class="stat-label">Total milestones</span>
-              <span class="stat-value">{{ milestones.length }}</span>
-              <span class="stat-sub">Saved locally for this profile</span>
-            </div>
-            <div class="milestoneStatCard">
-              <span class="stat-label">This Month</span>
-              <span class="stat-value">{{ thisMonthCount }}</span>
-              <span class="stat-sub">Milestones added this month</span>
-            </div>
-            <div class="milestoneStatCard">
-              <span class="stat-label">Starred favorites</span>
-              <span class="stat-value">{{ favoriteCount }}</span>
-              <span class="stat-sub">Moments to cherish</span>
-            </div>
-            <div class="milestoneStatCard">
-              <span class="stat-label">Last updated</span>
-              <span class="stat-value">{{ lastUpdated }}</span>
-              <span class="stat-sub">Auto-saves as you go</span>
-            </div>
-            <div class="milestoneStatCard">
-              <span class="stat-label">Most active category</span>
-              <span class="stat-value">{{ topCategory || 'N/A' }}</span>
-              <span class="stat-sub">Category with the most milestones</span>
-            </div>
-            
-          </div>
+        <div class="milestoneSectionHeader">
+          <h1>Milestones</h1>
         </div>
-
-        <div class="addMilestoneCard">
-          <div class="card-header">
-            <div>
-              <p class="eyebrow">Quick add</p>
-              <h3>Add a milestone</h3>
+        <div class="content-grid">
+          <div class="milestoneInfo">
+            <p class="eyebrow">Baby milestones</p>
+            <h1>Celebrate {{ profileName }}'s Milestones</h1>
+            <p class="lede">
+              Capture first giggles, tiny steps, and the everyday wonders so you never lose a moment.
+            </p>
+            <div class="milestoneStats">
+              <div class="milestoneStatCard">
+                <span class="stat-label">Total milestones</span>
+                <span class="stat-value">{{ milestones.length }}</span>
+                <span class="stat-sub">Saved locally for this profile</span>
+              </div>
+              <div class="milestoneStatCard">
+                <span class="stat-label">This Month</span>
+                <span class="stat-value">{{ thisMonthCount }}</span>
+                <span class="stat-sub">Milestones added this month</span>
+              </div>
+              <div class="milestoneStatCard">
+                <span class="stat-label">Starred favorites</span>
+                <span class="stat-value">{{ favoriteCount }}</span>
+                <span class="stat-sub">Moments to cherish</span>
+              </div>
+              <div class="milestoneStatCard">
+                <span class="stat-label">Last updated</span>
+                <span class="stat-value">{{ lastUpdated }}</span>
+                <span class="stat-sub">Auto-saves as you go</span>
+              </div>
+              <div class="milestoneStatCard">
+                <span class="stat-label">Most active category</span>
+                <span class="stat-value">{{ topCategory || 'N/A' }}</span>
+                <span class="stat-sub">Category with the most milestones</span>
+              </div>
+              
             </div>
-            <span class="pill">Private</span>
           </div>
-          <form class="quick-form" @submit.prevent="addMilestone">
-            <label class="field">
-              <span>Title</span>
-              <input v-model.trim="form.title" type="text" placeholder="First steps, new word, big smile" required />
-            </label>
-            <div class="row">
-              <label class="field">
-                <span>Date</span>
-                <input v-model="form.date" type="date" required />
-              </label>
-              <label class="field">
-                <span>Time</span>
-                <input v-model="form.time" type="time" />
-              </label>
+
+          <div class="addMilestoneCard">
+            <div class="card-header">
+              <div>
+                <p class="eyebrow">Quick add</p>
+                <h3>Add a milestone</h3>
+              </div>
+              <span class="pill">Private</span>
             </div>
-            <div class="row">
+            <form class="quick-form" @submit.prevent="addMilestone">
               <label class="field">
-                <span>Category</span>
-                <select v-model="form.category">
-                  <option v-for="category in categories" :key="category" :value="category">{{ category }}</option>
-                </select>
+                <span>Title</span>
+                <input v-model.trim="form.title" type="text" placeholder="First steps, new word, big smile" required />
+              </label>
+              <div class="row">
+                <label class="field">
+                  <span>Date</span>
+                  <input v-model="form.date" type="date" required />
+                </label>
+                <label class="field">
+                  <span>Time</span>
+                  <input v-model="form.time" type="time" />
+                </label>
+              </div>
+              <div class="row">
+                <label class="field">
+                  <span>Category</span>
+                  <select v-model="form.category">
+                    <option v-for="category in categories" :key="category" :value="category">{{ category }}</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span>Mood</span>
+                  <select v-model="form.mood">
+                    <option v-for="mood in moods" :key="mood" :value="mood">{{ mood }}</option>
+                  </select>
+                </label>
+              </div>
+              <label class="field">
+                <span>Notes</span>
+                <textarea v-model.trim="form.notes" rows="3" placeholder="What happened, who was there, tiny details..."></textarea>
               </label>
               <label class="field">
-                <span>Mood</span>
-                <select v-model="form.mood">
-                  <option v-for="mood in moods" :key="mood" :value="mood">{{ mood }}</option>
-                </select>
+                <span>Tags (comma separated)</span>
+                <input v-model.trim="form.tags" type="text" placeholder="family, first-word, video" />
               </label>
-            </div>
-            <label class="field">
-              <span>Notes</span>
-              <textarea v-model.trim="form.notes" rows="3" placeholder="What happened, who was there, tiny details..."></textarea>
-            </label>
-            <label class="field">
-              <span>Tags (comma separated)</span>
-              <input v-model.trim="form.tags" type="text" placeholder="family, first-word, video" />
-            </label>
-            <button class="primary" type="submit">Save milestone</button>
-          </form>
+              <button class="primary" type="submit">Save milestone</button>
+            </form>
+          </div>
         </div>
       </section>
 
       <section class="filtersSection">
+        <div class="milestoneSectionHeader">
+          <h1>Filters</h1>
+        </div>
         <div class="filter-controls">
           <label class="field">
             <span>Search</span>
@@ -126,42 +134,47 @@
       </section>
 
       <section class="timelineSection">
-        <div v-if="loading" class="empty">
-          <p>Loading milestones...</p>
+        <div class="milestoneSectionHeader">
+          <h1>Milestone Logs</h1>
         </div>
-        <div v-else-if="error" class="empty error">
-          <p>{{ error }}</p>
-        </div>
-        <div v-else-if="!filteredMilestones.length" class="empty">
-          <p>No milestones yet. Add one to start the story.</p>
-        </div>
-        <div v-else class="timelineSection-list">
-          <div v-for="group in groupedMilestones" :key="group.label" class="timelineSection-group">
-            <div class="group-label">
-              <h4>{{ group.label }}</h4>
-              <span>{{ group.items.length }} saved</span>
-            </div>
-            <div class="timelineSection-items">
-              <article v-for="item in group.items" :key="item.id" class="timelineSection-card">
-                <div class="card-top">
-                  <div class="card-meta">
-                    <span class="pill pill-soft">{{ item.category }}</span>
-                    <span class="muted">{{ formatDate(item.occurredAt) }}</span>
+        <div class="timelineSection-content">
+          <div v-if="loading" class="empty">
+            <p>Loading milestones...</p>
+          </div>
+          <div v-else-if="error" class="empty error">
+            <p>{{ error }}</p>
+          </div>
+          <div v-else-if="!filteredMilestones.length" class="empty">
+            <p>No milestones yet. Add one to start the story.</p>
+          </div>
+          <div v-else class="timelineSection-list">
+            <div v-for="group in groupedMilestones" :key="group.label" class="timelineSection-group">
+              <div class="group-label">
+                <h4>{{ group.label }}</h4>
+                <span>{{ group.items.length }} saved</span>
+              </div>
+              <div class="timelineSection-items">
+                <article v-for="item in group.items" :key="item.id" class="timelineSection-card">
+                  <div class="card-top">
+                    <div class="card-meta">
+                      <span class="pill pill-soft">{{ item.category }}</span>
+                      <span class="muted">{{ formatDate(item.occurredAt) }}</span>
+                    </div>
+                    <button class="icon-btn" type="button" @click="toggleFavorite(item.id)">
+                      <span :class="['star', { active: item.favorite }]">★</span>
+                    </button>
                   </div>
-                  <button class="icon-btn" type="button" @click="toggleFavorite(item.id)">
-                    <span :class="['star', { active: item.favorite }]">★</span>
-                  </button>
-                </div>
-                <h3>{{ item.title }}</h3>
-                <p class="note" v-if="item.notes">{{ item.notes }}</p>
-                <div class="card-actions">
-                  <span class="pill muted">Mood: {{ item.mood }}</span>
-                  <div class="action-buttons">
-                    <button class="ghost" type="button" @click="duplicateMilestone(item)">Duplicate</button>
-                    <button class="danger" type="button" @click="deleteMilestone(item.id)">Delete</button>
+                  <h3>{{ item.title }}</h3>
+                  <p class="note" v-if="item.notes">{{ item.notes }}</p>
+                  <div class="card-actions">
+                    <span class="pill muted">Mood: {{ item.mood }}</span>
+                    <div class="action-buttons">
+                      <button class="ghost" type="button" @click="duplicateMilestone(item)">Duplicate</button>
+                      <button class="danger" type="button" @click="deleteMilestone(item.id)">Delete</button>
+                    </div>
                   </div>
-                </div>
-              </article>
+                </article>
+              </div>
             </div>
           </div>
         </div>
@@ -471,15 +484,38 @@ onMounted(fetchMilestones)
 }
 
 .milestonesHeroSection {
-  display: grid;
-  grid-template-columns: 1.1fr 1fr;
-  gap: 1.8rem;
   align-items: start;
   background: linear-gradient(120deg, #f6f9ff 70%, #e5f7ff);
-  border: 1.5px solid #dbe7ff;
   border-radius: 12px;
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.8rem;
   padding: 2rem;
-  box-shadow: 0 16px 60px rgba(79, 157, 255, 0.12);
+}
+
+.milestoneSectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+  background: linear-gradient(135deg, #4f9dff, #74ebd5);
+  color: white;
+  padding: 15px 20px;
+  border-radius: 12px 12px 0px 0px;
+  height: 74px;
+  box-sizing: border-box;
+}
+
+.milestoneSectionHeader h1 {
+  font-size: 1.5rem;
+  margin: 0;
+  color: white;
+  font-weight: 700;
+  text-align: center;
+  flex: 1;
 }
 
 .milestoneInfo h1 {
@@ -633,9 +669,7 @@ onMounted(fetchMilestones)
 .filtersSection {
   margin: 20px 0px;
   background: #fff;
-  border: 1px solid #e3eaf5;
   border-radius: 12px;
-  padding: 1rem 1.2rem;
   box-shadow: 0 10px 30px rgba(79, 157, 255, 0.08);
 }
 
@@ -643,6 +677,7 @@ onMounted(fetchMilestones)
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 0.9rem;
+  padding: 1rem 1.2rem;
   align-items: end;
 }
 
@@ -677,9 +712,7 @@ onMounted(fetchMilestones)
 
 .timelineSection {
   background: #fff;
-  border: 1px solid #e2eaf5;
   border-radius: 12px;
-  padding: 1.2rem;
   box-shadow: 0 12px 36px rgba(79, 157, 255, 0.1);
 }
 
@@ -693,15 +726,14 @@ onMounted(fetchMilestones)
   color: #d14343;
 }
 
-.timelineSection-group + .timelineSection-group {
-  margin-top: 1rem;
+.timelineSection-content {
+  padding: 1rem;
 }
 
 .group-label {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.2rem 0.4rem;
   color: #7a88a4;
   font-weight: 700;
 }
