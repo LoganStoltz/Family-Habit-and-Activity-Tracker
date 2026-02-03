@@ -5,175 +5,185 @@
     <div class="milestonesContent">
     
       <section class="milestonesHeroSection">
+        <close-element @minimize="$emit('minimize')" :showCollapse="true" @toggle="handleToggleMilestones" />
         <div class="milestoneSectionHeader">
           <h1>Milestones</h1>
         </div>
-        <div class="content-grid">
-          <div class="milestoneInfo">
-            <p class="eyebrow">Baby milestones</p>
-            <h1>Celebrate {{ profileName }}'s Milestones</h1>
-            <p class="lede">
-              Capture first giggles, tiny steps, and the everyday wonders so you never lose a moment.
-            </p>
-            <div class="milestoneStats">
-              <div class="milestoneStatCard">
-                <span class="stat-label">Total milestones</span>
-                <span class="stat-value">{{ milestones.length }}</span>
-                <span class="stat-sub">Saved locally for this profile</span>
+        <div class="closeElement" :class="{ collapsed: isMilestonesCollapsed }">
+          <div class="content-grid">
+            <div class="milestoneInfo">
+              <p class="eyebrow">Baby milestones</p>
+              <h1>Celebrate {{ profileName }}'s Milestones</h1>
+              <p class="lede">
+                Capture first giggles, tiny steps, and the everyday wonders so you never lose a moment.
+              </p>
+              <div class="milestoneStats">
+                <div class="milestoneStatCard">
+                  <span class="stat-label">Total milestones</span>
+                  <span class="stat-value">{{ milestones.length }}</span>
+                  <span class="stat-sub">Saved locally for this profile</span>
+                </div>
+                <div class="milestoneStatCard">
+                  <span class="stat-label">This Month</span>
+                  <span class="stat-value">{{ thisMonthCount }}</span>
+                  <span class="stat-sub">Milestones added this month</span>
+                </div>
+                <div class="milestoneStatCard">
+                  <span class="stat-label">Starred favorites</span>
+                  <span class="stat-value">{{ favoriteCount }}</span>
+                  <span class="stat-sub">Moments to cherish</span>
+                </div>
+                <div class="milestoneStatCard">
+                  <span class="stat-label">Last updated</span>
+                  <span class="stat-value">{{ lastUpdated }}</span>
+                  <span class="stat-sub">Auto-saves as you go</span>
+                </div>
+                <div class="milestoneStatCard">
+                  <span class="stat-label">Most active category</span>
+                  <span class="stat-value">{{ topCategory || 'N/A' }}</span>
+                  <span class="stat-sub">Category with the most milestones</span>
+                </div>
+                
               </div>
-              <div class="milestoneStatCard">
-                <span class="stat-label">This Month</span>
-                <span class="stat-value">{{ thisMonthCount }}</span>
-                <span class="stat-sub">Milestones added this month</span>
-              </div>
-              <div class="milestoneStatCard">
-                <span class="stat-label">Starred favorites</span>
-                <span class="stat-value">{{ favoriteCount }}</span>
-                <span class="stat-sub">Moments to cherish</span>
-              </div>
-              <div class="milestoneStatCard">
-                <span class="stat-label">Last updated</span>
-                <span class="stat-value">{{ lastUpdated }}</span>
-                <span class="stat-sub">Auto-saves as you go</span>
-              </div>
-              <div class="milestoneStatCard">
-                <span class="stat-label">Most active category</span>
-                <span class="stat-value">{{ topCategory || 'N/A' }}</span>
-                <span class="stat-sub">Category with the most milestones</span>
-              </div>
-              
             </div>
-          </div>
 
-          <div class="addMilestoneCard">
-            <div class="card-header">
-              <div>
-                <p class="eyebrow">Quick add</p>
-                <h3>Add a milestone</h3>
+            <div class="addMilestoneCard">
+              <div class="card-header">
+                <div>
+                  <p class="eyebrow">Quick add</p>
+                  <h3>Add a milestone</h3>
+                </div>
+                <span class="pill">Private</span>
               </div>
-              <span class="pill">Private</span>
+              <form class="quick-form" @submit.prevent="addMilestone">
+                <label class="field">
+                  <span>Title</span>
+                  <input v-model.trim="form.title" type="text" placeholder="First steps, new word, big smile" required />
+                </label>
+                <div class="row">
+                  <label class="field">
+                    <span>Date</span>
+                    <input v-model="form.date" type="date" required />
+                  </label>
+                  <label class="field">
+                    <span>Time</span>
+                    <input v-model="form.time" type="time" />
+                  </label>
+                </div>
+                <div class="row">
+                  <label class="field">
+                    <span>Category</span>
+                    <select v-model="form.category">
+                      <option v-for="category in categories" :key="category" :value="category">{{ category }}</option>
+                    </select>
+                  </label>
+                  <label class="field">
+                    <span>Mood</span>
+                    <select v-model="form.mood">
+                      <option v-for="mood in moods" :key="mood" :value="mood">{{ mood }}</option>
+                    </select>
+                  </label>
+                </div>
+                <label class="field">
+                  <span>Notes</span>
+                  <textarea v-model.trim="form.notes" rows="3" placeholder="What happened, who was there, tiny details..."></textarea>
+                </label>
+                <label class="field">
+                  <span>Tags (comma separated)</span>
+                  <input v-model.trim="form.tags" type="text" placeholder="family, first-word, video" />
+                </label>
+                <button class="primary" type="submit">Save milestone</button>
+              </form>
             </div>
-            <form class="quick-form" @submit.prevent="addMilestone">
-              <label class="field">
-                <span>Title</span>
-                <input v-model.trim="form.title" type="text" placeholder="First steps, new word, big smile" required />
-              </label>
-              <div class="row">
-                <label class="field">
-                  <span>Date</span>
-                  <input v-model="form.date" type="date" required />
-                </label>
-                <label class="field">
-                  <span>Time</span>
-                  <input v-model="form.time" type="time" />
-                </label>
-              </div>
-              <div class="row">
-                <label class="field">
-                  <span>Category</span>
-                  <select v-model="form.category">
-                    <option v-for="category in categories" :key="category" :value="category">{{ category }}</option>
-                  </select>
-                </label>
-                <label class="field">
-                  <span>Mood</span>
-                  <select v-model="form.mood">
-                    <option v-for="mood in moods" :key="mood" :value="mood">{{ mood }}</option>
-                  </select>
-                </label>
-              </div>
-              <label class="field">
-                <span>Notes</span>
-                <textarea v-model.trim="form.notes" rows="3" placeholder="What happened, who was there, tiny details..."></textarea>
-              </label>
-              <label class="field">
-                <span>Tags (comma separated)</span>
-                <input v-model.trim="form.tags" type="text" placeholder="family, first-word, video" />
-              </label>
-              <button class="primary" type="submit">Save milestone</button>
-            </form>
           </div>
         </div>
       </section>
 
       <section class="filtersSection">
+        <close-element @minimize="$emit('minimize')" :showCollapse="true" @toggle="handleToggleFilters" />
         <div class="milestoneSectionHeader">
           <h1>Filters</h1>
         </div>
-        <div class="filter-controls">
-          <label class="field">
-            <span>Search</span>
-            <input v-model.trim="filtersSection.search" type="text" placeholder="Find a milestone" />
-          </label>
-          <label class="field">
-            <span>Category</span>
-            <select v-model="filtersSection.category" :class="{ 'placeholder-active': !filtersSection.category }">
-              <option value="">All</option>
-              <option v-for="category in categories" :key="category" :value="category">{{ category }}</option>
-            </select>
-          </label>
-          <label class="field">
-            <span>Time range</span>
-            <select v-model="filtersSection.range" :class="{ 'placeholder-active': !filtersSection.range || filtersSection.range === 'all' }">
-              <option value="all">All time</option>
-              <option value="30">Last 30 days</option>
-              <option value="90">Last 90 days</option>
-              <option value="365">Last year</option>
-            </select>
-          </label>
-          <label class="field">
-            <span>Sort</span>
-            <select v-model="filtersSection.sort" :class="{ 'placeholder-active': !filtersSection.sort }">
-              <option value="desc">Newest first</option>
-              <option value="asc">Oldest first</option>
-              <option value="favorite">Starred first</option>
-            </select>
-          </label>
-          <button class="clearButton" type="button" @click="resetfiltersSection">Clear</button>
+        <div class="closeElement" :class=" { collapsed: isFiltersCollapsed }">
+          <div class="filter-controls" >
+            <label class="field">
+              <span>Search</span>
+              <input v-model.trim="filtersSection.search" type="text" placeholder="Find a milestone" />
+            </label>
+            <label class="field">
+              <span>Category</span>
+              <select v-model="filtersSection.category" :class="{ 'placeholder-active': !filtersSection.category }">
+                <option value="">All</option>
+                <option v-for="category in categories" :key="category" :value="category">{{ category }}</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Time range</span>
+              <select v-model="filtersSection.range" :class="{ 'placeholder-active': !filtersSection.range || filtersSection.range === 'all' }">
+                <option value="all">All time</option>
+                <option value="30">Last 30 days</option>
+                <option value="90">Last 90 days</option>
+                <option value="365">Last year</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Sort</span>
+              <select v-model="filtersSection.sort" :class="{ 'placeholder-active': !filtersSection.sort }">
+                <option value="desc">Newest first</option>
+                <option value="asc">Oldest first</option>
+                <option value="favorite">Starred first</option>
+              </select>
+            </label>
+            <button class="clearButton" type="button" @click="resetfiltersSection">Clear</button>
+          </div>
         </div>
+        
       </section>
 
       <section class="timelineSection">
+        <close-element @minimize="$emit('minimize')" :showCollapse="true" @toggle="handleToggleMilestoneLogs" />
         <div class="milestoneSectionHeader">
           <h1>Milestone Logs</h1>
         </div>
-        <div class="timelineSection-content">
-          <div v-if="loading" class="empty">
-            <p>Loading milestones...</p>
-          </div>
-          <div v-else-if="error" class="empty error">
-            <p>{{ error }}</p>
-          </div>
-          <div v-else-if="!filteredMilestones.length" class="empty">
-            <p>No milestones yet. Add one to start the story.</p>
-          </div>
-          <div v-else class="timelineSection-list">
-            <div v-for="group in groupedMilestones" :key="group.label" class="timelineSection-group">
-              <div class="group-label">
-                <h4>{{ group.label }}</h4>
-                <span>{{ group.items.length }} saved</span>
-              </div>
-              <div class="timelineSection-items">
-                <article v-for="item in group.items" :key="item.id" class="timelineSection-card">
-                  <div class="card-top">
-                    <div class="card-meta">
-                      <span class="pill pill-soft">{{ item.category }}</span>
-                      <span class="muted">{{ formatDate(item.occurredAt) }}</span>
+        <div class="closeElement" :class=" { collapsed: isMilestoneLogsCollapsed }">
+          <div class="timelineSection-content">
+            <div v-if="loading" class="empty">
+              <p>Loading milestones...</p>
+            </div>
+            <div v-else-if="error" class="empty error">
+              <p>{{ error }}</p>
+            </div>
+            <div v-else-if="!filteredMilestones.length" class="empty">
+              <p>No milestones yet. Add one to start the story.</p>
+            </div>
+            <div v-else class="timelineSection-list">
+              <div v-for="group in groupedMilestones" :key="group.label" class="timelineSection-group">
+                <div class="group-label">
+                  <h4>{{ group.label }}</h4>
+                  <span>{{ group.items.length }} saved</span>
+                </div>
+                <div class="timelineSection-items">
+                  <article v-for="item in group.items" :key="item.id" class="timelineSection-card">
+                    <div class="card-top">
+                      <div class="card-meta">
+                        <span class="pill pill-soft">{{ item.category }}</span>
+                        <span class="muted">{{ formatDate(item.occurredAt) }}</span>
+                      </div>
+                      <button class="icon-btn" type="button" @click="toggleFavorite(item.id)">
+                        <span :class="['star', { active: item.favorite }]">★</span>
+                      </button>
                     </div>
-                    <button class="icon-btn" type="button" @click="toggleFavorite(item.id)">
-                      <span :class="['star', { active: item.favorite }]">★</span>
-                    </button>
-                  </div>
-                  <h3>{{ item.title }}</h3>
-                  <p class="note" v-if="item.notes">{{ item.notes }}</p>
-                  <div class="card-actions">
-                    <span class="pill muted">Mood: {{ item.mood }}</span>
-                    <div class="action-buttons">
-                      <button class="ghost" type="button" @click="duplicateMilestone(item)">Duplicate</button>
-                      <button class="danger" type="button" @click="deleteMilestone(item.id)">Delete</button>
+                    <h3>{{ item.title }}</h3>
+                    <p class="note" v-if="item.notes">{{ item.notes }}</p>
+                    <div class="card-actions">
+                      <span class="pill muted">Mood: {{ item.mood }}</span>
+                      <div class="action-buttons">
+                        <button class="ghost" type="button" @click="duplicateMilestone(item)">Duplicate</button>
+                        <button class="danger" type="button" @click="deleteMilestone(item.id)">Delete</button>
+                      </div>
                     </div>
-                  </div>
-                </article>
+                  </article>
+                </div>
               </div>
             </div>
           </div>
@@ -186,12 +196,36 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import { apiRequest } from '@/config/api'
+import closeElement from '../elements/closeElement.vue'
 
 const user = JSON.parse(localStorage.getItem('user') || '{}')
 const profile = JSON.parse(localStorage.getItem('profile') || '{}')
 const userId = user?.id
 const profileId = profile?.id
 const profileName = profile?.firstName || 'your little one'
+
+const isMilestonesCollapsed = ref(false);
+const isFiltersCollapsed = ref(false);
+const isMilestoneLogsCollapsed = ref(false);
+const emit = defineEmits(['toggle', 'minimize']);
+
+const handleToggleMilestones = (collapsed) => {
+  isMilestonesCollapsed.value = collapsed;
+  // Emit to parent component
+  emit('toggle', collapsed);
+};
+
+const handleToggleFilters = (collapsed) => {
+  isFiltersCollapsed.value = collapsed;
+  // Emit to parent component
+  emit('toggle', collapsed);
+};
+
+const handleToggleMilestoneLogs = (collapsed) => {
+  isMilestoneLogsCollapsed.value = collapsed;
+  // Emit to parent component
+  emit('toggle', collapsed);
+};
 
 const categories = ['Firsts', 'Movement', 'Language', 'Health', 'Sleep', 'Social', 'Play', 'Growth']
 const moods = ['Delighted', 'Proud', 'Curious', 'Sleepy', 'Playful', 'Comforted']
@@ -487,6 +521,13 @@ onMounted(fetchMilestones)
   align-items: start;
   background: linear-gradient(120deg, #f6f9ff 70%, #e5f7ff);
   border-radius: 12px;
+  position: relative;
+  padding-bottom: 20px;
+}
+
+.milestonesPage :deep(.button-group) {
+  position: absolute;
+  z-index: 5;
 }
 
 .content-grid {
@@ -494,6 +535,10 @@ onMounted(fetchMilestones)
   grid-template-columns: 1fr 1fr;
   gap: 1.8rem;
   padding: 2rem;
+}
+
+.closeElement.collapsed  {
+  display: none;
 }
 
 .milestoneSectionHeader {
@@ -507,6 +552,8 @@ onMounted(fetchMilestones)
   border-radius: 12px 12px 0px 0px;
   height: 74px;
   box-sizing: border-box;
+  position: relative;
+  z-index: 5;
 }
 
 .milestoneSectionHeader h1 {
@@ -671,6 +718,7 @@ onMounted(fetchMilestones)
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 10px 30px rgba(79, 157, 255, 0.08);
+  padding-bottom: 20px;
 }
 
 .filter-controls {
@@ -714,8 +762,8 @@ onMounted(fetchMilestones)
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 12px 36px rgba(79, 157, 255, 0.1);
+  padding-bottom: 20px;
 }
-
 .empty {
   text-align: center;
   color: #6b7893;

@@ -304,7 +304,6 @@ const handleLogModalClose = (type) => {
   background-color: #f9f9f9;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  transition: all 0.3s ease;
 }
 
 .habitPanels.collapsed {
@@ -351,18 +350,13 @@ const handleLogModalClose = (type) => {
 .header-right {
   justify-content: flex-end;
 }
-
-.habitPanels.collapsed .dashboardHeader {
-  margin: -10px -20px 0 -20px;
-  border-radius: 12px;
-}
 /* ========== END SECTION HEADER STYLES ========== */
 
 .habitPanels.collapsed .collapsible-content {
   max-height: 0;
   overflow: hidden;
   opacity: 0;
-  margin-top: 0;
+
 }
 
 .collapsible-content {
@@ -455,7 +449,7 @@ const handleLogModalClose = (type) => {
 }
 
 .habitPanels.collapsed .dashboardHeader {
-  margin: -10px -20px 0 -20px;
+  margin: 0px -20px 0 -20px;
   border-radius: 12px;
 }
 

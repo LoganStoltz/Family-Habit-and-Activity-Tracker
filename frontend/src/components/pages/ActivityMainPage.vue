@@ -76,6 +76,7 @@
           <p class="resultsCount">Showing {{ filteredAndSortedLogs.length }} of {{ enrichedLogs.length }} logs</p>
         </div>
       </section>
+
       <!-- Habit Logs Table Section -->
       <section class="activitySummary activitySection" :class="{ collapsed: isTableCollapsed }">
         <close-element @minimize="$emit('minimize')" :showCollapse="true" @toggle="handleTableToggle" />
@@ -141,6 +142,7 @@
           </table>
         </div>
       </section>
+
       <!-- Habits Page Component Section -->
       <section class="activitySection" :class="{ collapsed: isHabitsCollapsed }">
         <HabitsPage ref="habitsPageRef" @toggle="handleHabitsToggle" />
@@ -452,7 +454,7 @@ onMounted(fetchData)
 }
 
 .activitySection.collapsed {
-    margin: 15px 0;
+    margin: 20px 0;
 }
 
 /* ========== SECTION HEADER STYLES ========== */
@@ -504,7 +506,7 @@ onMounted(fetchData)
 /* Collapsed header states */
 .filterSection.collapsed .filterSectionHeader,
 .activitySummary.collapsed .habit-logs-table-header {
-  margin: -10px -20px 0 -20px;
+  margin: 0px -20px 0 -20px;
   border-radius: 12px;
 }
 
@@ -549,7 +551,6 @@ onMounted(fetchData)
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     position: relative;
-    transition: all 0.3s ease;
 }
 
 .activitySummary.collapsed {
@@ -565,21 +566,19 @@ onMounted(fetchData)
   max-height: 0;
   overflow: hidden;
   opacity: 0;
-  margin: 0;
-  padding: 0;
 }
 
 .activitySummary h2 {
-    margin-top: 0;
-    color: #333;
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
+  margin-top: 0;
+  color: #333;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
 }
 .activitySummary p {
-    text-align: center;
-    margin-top: 0;
-    color: #333;
-    font-size: 1.2rem;
+  text-align: center;
+  margin-top: 0;
+  color: #333;
+  font-size: 1.2rem;
 }
 
 .editingModeButton {
@@ -719,8 +718,7 @@ onMounted(fetchData)
   background: #f9f9f9;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  position: relative;
-  transition: all 0.3s ease;
+  position: relative
 }
 
 .filterSection.collapsed {
@@ -776,7 +774,7 @@ onMounted(fetchData)
 }
 
 .filterSection.collapsed .filterSectionHeader {
-  margin: -10px -20px 0 -20px;
+  margin: 0px -20px 0 -20px;
   border-radius: 12px;
 }
 
