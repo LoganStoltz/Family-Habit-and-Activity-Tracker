@@ -456,8 +456,8 @@ const handleLogModalClose = (type) => {
 /* Center collapse button over header */
 .habitsPage :deep(.close-element) {
   position: absolute;
-  top: 10px;
-  left: 50%;
+  top: 0px;
+  left: -3px;
   transform: translateX(-50%);
   z-index: 10;
 }

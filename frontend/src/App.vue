@@ -18,7 +18,7 @@ import Header from './components/elements/Header.vue';
 
   /* Colors - Backgrounds */
   --main-background-dark: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-  --background-light: linear-gradient(to right, #5a7480, #384c6b);
+  --background-light: linear-gradient(to right, #ff0000, #384c6b);
   --background-blue: #6f8bbe77;
   --background-header: #1e425f;
   --dropdown-nav: #1a3b53;
