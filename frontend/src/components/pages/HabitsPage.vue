@@ -296,6 +296,10 @@ const handleLogModalClose = (type) => {
   margin: 20px auto;
 }
 
+.habitsContent {
+  margin-top: 20px;
+}
+
 /* Habits & Care Section Styling */
 .habitPanels {
   position: relative;
@@ -456,8 +460,8 @@ const handleLogModalClose = (type) => {
 /* Center collapse button over header */
 .habitsPage :deep(.close-element) {
   position: absolute;
-  top: 0px;
-  left: -3px;
+  top: 10px;
+  left: 50%;
   transform: translateX(-50%);
   z-index: 10;
 }

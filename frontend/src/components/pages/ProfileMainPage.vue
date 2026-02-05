@@ -84,14 +84,6 @@
           </router-link>
         </div>
       </div>
-
-      <!-- Motivation Section -->
-      <div class="motivation-section">
-        <div class="motivation-card">
-          <h3>💡 Tip of the Day</h3>
-          <p>{{ dailyTip }}</p>
-        </div>
-      </div>
     </div>
     
     <div class="no-profile" v-else>
@@ -123,17 +115,6 @@ const activeHabitsCount = ref(0);
 const currentStreak = ref(0);
 const completedToday = ref(0);
 const totalAchievements = ref(0);
-
-const dailyTips = [
-  "Consistency is key! Even small daily efforts add up to big results.",
-  "Celebrate your small wins - they're important milestones on your journey.",
-  "Try to complete your habits at the same time each day to build stronger routines.",
-  "Remember, progress is more important than perfection. Do your best!",
-  "Share your achievements with your family - their support matters!",
-  "Track your habits regularly to see how far you've come.",
-];
-
-const dailyTip = ref('');
 
 const loadProfile = () => {
   // Check if user is still logged in first
@@ -266,9 +247,6 @@ const formatDate = (dateString: string) => {
 onMounted(() => {
   loadProfile();
   
-  // Select a random daily tip
-  dailyTip.value = dailyTips[Math.floor(Math.random() * dailyTips.length)];
-
   const handleProfileUpdate = (event: Event) => {
     const customEvent = event as CustomEvent;
     if (customEvent.detail) {

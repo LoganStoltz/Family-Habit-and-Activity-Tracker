@@ -512,9 +512,8 @@ onMounted(fetchMilestones)
 
 <style scoped>
 .milestonesPage {
-  padding: 20px;
   max-width: 1600px;
-  margin: 0 auto;
+  margin: 20px auto;
 }
 
 .milestonesHeroSection {

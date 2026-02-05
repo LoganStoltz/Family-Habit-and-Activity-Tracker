@@ -513,7 +513,7 @@ onMounted(fetchData)
 /* Position collapse buttons on left side of headers, vertically centered */
 .activitySection :deep(.button-group) {
   top: 0px;
-  left: -3px;
+  left: 0px;
   right: auto;
   height: 30px;
   z-index: 0;
