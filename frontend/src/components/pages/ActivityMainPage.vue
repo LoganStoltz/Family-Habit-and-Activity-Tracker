@@ -80,7 +80,7 @@
       <!-- Habit Logs Table Section -->
       <section class="activitySummary activitySection" :class="{ collapsed: isTableCollapsed }">
         <close-element @minimize="$emit('minimize')" :showCollapse="true" @toggle="handleTableToggle" />
-        <div class="habit-logs-table-header">
+        <div class="habitLogsSectionHeader">
           <div class="header-left">
             <button class="activityButton" @click="fetchData">Refresh Logs</button>
           </div>
@@ -460,7 +460,7 @@ onMounted(fetchData)
 /* ========== SECTION HEADER STYLES ========== */
 /* Common header styling for all sections */
 .filterSectionHeader,
-.habit-logs-table-header {
+.habitLogsSectionHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -477,7 +477,7 @@ onMounted(fetchData)
 
 /* Header titles */
 .filterSectionHeader h1,
-.habit-logs-table-header h1 {
+.habitLogsSectionHeader h1 {
   font-size: 1.5rem;
   margin: 0;
   color: white;
@@ -503,9 +503,9 @@ onMounted(fetchData)
   justify-content: flex-end;
 }
 
-/* Collapsed header states */
+/* Collapsed Section header states */
 .filterSection.collapsed .filterSectionHeader,
-.activitySummary.collapsed .habit-logs-table-header {
+.activitySummary.collapsed .habitLogsSectionHeader {
   margin: 0px -20px 0 -20px;
   border-radius: 12px;
 }
@@ -519,31 +519,6 @@ onMounted(fetchData)
   z-index: 0;
 }
 /* ========== END SECTION HEADER STYLES ========== */
-
-.activityButton {
-  background: rgba(255, 255, 255, 0.95);
-  color: #4f9dff;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  font-weight: 700;
-  font-size: 1.08rem;
-  padding: 0.75rem 1.5rem;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  backdrop-filter: blur(8px);
-}
-
-.activityButton:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(79, 157, 255, 0.35);
-    filter: brightness(1.08);
-}
-
-.activityButton:active {
-    transform: translateY(0px);
-    box-shadow: 0 2px 8px rgba(79, 157, 255, 0.18);
-}
 
 .activitySummary {
     background-color: #f9f9f9;
@@ -579,28 +554,6 @@ onMounted(fetchData)
   margin-top: 0;
   color: #333;
   font-size: 1.2rem;
-}
-
-.editingModeButton {
-  font-size: 1.5rem;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  padding: 0.7rem;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.1);
-  border: none;
-}
-
-.editingModeButton:hover {
-  background: rgba(0, 0, 0, 0.2);
-}
-
-.editingModeButton.active {
-  background: rgba(0, 0, 0, 0.3);
-}
-
-.editingModeButton.active:hover {
-  background: rgba(0, 0, 0, 0.2);
 }
 
 .error {

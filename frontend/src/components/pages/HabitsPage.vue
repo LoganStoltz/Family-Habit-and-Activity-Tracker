@@ -5,7 +5,7 @@
       <div class="habitPanels" :class="{ collapsed: isCollapsed }">
         <div class="dashboardHeader">
           <div class="header-left">
-            <button class="addHabitButton" @click="showAddNewHabit = true">Add Habit</button>
+            <button class="activityButton" @click="showAddNewHabit = true">Add Habit</button>
           </div>
           <h1>Habits & Care</h1>
           <div class="header-right">
@@ -503,54 +503,6 @@ const handleLogModalClose = (type) => {
 
 .header-right {
   justify-content: flex-end;
-}
-
-.addHabitButton {
-  background: rgba(255, 255, 255, 0.95);
-  color: #4f9dff;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  font-weight: 700;
-  font-size: 1.08rem;
-  padding: 0.75rem 1.5rem;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  backdrop-filter: blur(8px);
-}
-
-.addHabitButton:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
-  background: rgba(255, 255, 255, 1);
-  border-color: rgba(255, 255, 255, 0.5);
-}
-
-.addHabitButton:active {
-  transform: translateY(0px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-}
-
-.editingModeButton {
-  font-size: 1.5rem;
-  transition: var(--transition-normal);
-  cursor: pointer;
-  padding: 0.7rem;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.1);
-  border: none;
-}
-
-.editingModeButton:hover {
-  background: rgba(0, 0, 0, 0.2);
-}
-
-.editingModeButton.active {
-  background: rgba(0, 0, 0, 0.3);
-}
-
-.editingModeButton.active:hover {
-  background: rgba(0, 0, 0, 0.2);
 }
 
 .no-dashboard-cards {

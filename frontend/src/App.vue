@@ -3,7 +3,7 @@
     <Header />
     <router-view />
   </div>
-</template>
+</template> 
 
 <script setup lang="ts">
 import Header from './components/elements/Header.vue';
@@ -68,6 +68,70 @@ body {
   min-height: 100vh;
 }
 
+/* Generic Global Button Styles */
+.btn {
+  font-family: var(--font-family-base);
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius-medium);
+  cursor: pointer;
+  transition: var(--transition-normal);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Activity Button */
+.activityButton {
+  background: rgba(255, 255, 255, 0.95);
+  color: #4f9dff;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  font-weight: 700;
+  font-size: 1.08rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(8px);
+}
+
+.activityButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(79, 157, 255, 0.35);
+    filter: brightness(1.08);
+}
+
+.activityButton:active {
+    transform: translateY(0px);
+    box-shadow: 0 2px 8px rgba(79, 157, 255, 0.18);
+}
+
+
+/* ✏️ Editing Mode Button */
+.editingModeButton {
+  font-size: 1.5rem;
+  transition: var(--transition-normal);
+  cursor: pointer;
+  padding: 0.7rem;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.1);
+  border: none;
+}
+
+.editingModeButton:hover {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.editingModeButton.active {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.editingModeButton.active:hover {
+  background: rgba(0, 0, 0, 0.2);
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 14px;
@@ -86,24 +150,9 @@ body {
   background: linear-gradient(180deg, #7f9aa8, #476b7d);
 }
 
-/* Firefox */
 * {
   scrollbar-width: 14px;
   scrollbar-color: #5f7f8c #12222c;
-}
-
-/* Global button styles */
-.btn {
-  font-family: var(--font-family-base);
-  font-weight: 600;
-  border: none;
-  border-radius: var(--radius-medium);
-  cursor: pointer;
-  transition: var(--transition-normal);
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
 }
 
 /* Loading animation */
