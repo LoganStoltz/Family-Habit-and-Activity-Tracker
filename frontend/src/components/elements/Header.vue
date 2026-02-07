@@ -316,7 +316,7 @@ onUnmounted(() => {
   gap: 0.75rem;
   cursor: pointer;
   padding: 0.5rem 1rem;
-  border-radius: 12px;
+  border-radius: var(--radius-medium);
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.15);
@@ -367,7 +367,7 @@ onUnmounted(() => {
   color: rgba(255, 255, 255, 0.7);
   background: rgba(255, 255, 255, 0.1);
   padding: 0.15rem 0.5rem;
-  border-radius: 8px;
+  border-radius: var(--radius-small);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }

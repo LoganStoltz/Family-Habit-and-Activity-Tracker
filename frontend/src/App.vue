@@ -18,9 +18,10 @@ import Header from './components/elements/Header.vue';
 
   /* Colors - Backgrounds */
   --main-background-dark: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-  --background-light: linear-gradient(to right, #ff0000, #384c6b);
-  --background-blue: #6f8bbe77;
-  --background-header: #1e425f;
+  --display-panel-background: linear-gradient(to right, #ff0000, #384c6b);
+  --interactable-panel-background: linear-gradient(to right, #ff0000, #384c6b);
+  --main-header-background: linear-gradient(to right, #ff0000, #384c6b);
+  --section-header-blue: #6f8bbe77;
   --dropdown-nav: #1a3b53;
 
   /* Colors - Text */
@@ -35,10 +36,6 @@ import Header from './components/elements/Header.vue';
   --accent-blue: hsl(146, 100%, 93%);
   --accent-yellow: #ffd166;
   --heading-gradient: linear-gradient(135deg, #74ebd5, #e3caff);
-
-  /* Shadows */
-  --box-shadow-default: 0 12px 36px rgba(0, 0, 0, 0.25);
-  --box-shadow-hover: 0 16px 40px rgba(0, 0, 0, 0.5);
 
   /* Border radius */
   --radius-large: 16px;
@@ -90,7 +87,7 @@ body {
   font-weight: 700;
   font-size: 1.08rem;
   padding: 0.75rem 1.5rem;
-  border-radius: 12px;
+  border-radius: var(--radius-medium);
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
