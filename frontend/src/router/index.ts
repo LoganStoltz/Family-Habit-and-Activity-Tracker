@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import LoginPage from '@/components/pages/UserLoginPage.vue';
 import RegistrationPage from '@/components/pages/UserRegistrationPage.vue';
+import AccountRecoveryPage from '@/components/pages/AccountRecoveryPage.vue';
 import HomePage from '@/components/pages/GenericHomePage.vue';
 import ProfileSelect from '@/components/Popups/ProfileSelectModal.vue';
 import ProfileMainPage from '@/components/pages/ProfileMainPage.vue';
@@ -15,6 +16,7 @@ const router = createRouter({
     { path: '/', name: 'Home', component: HomePage },
     { path: '/login', name: 'Login', component: LoginPage },
     { path: '/registration', name: 'Registration', component: RegistrationPage },
+    { path: '/account-recovery', name: 'AccountRecovery', component: AccountRecoveryPage },
     { path: '/profile-select', name: 'ProfileSelect', component: ProfileSelect },
     { path: '/profile-main', name: 'ProfileMain', component: ProfileMainPage },
     { path: '/profile-settings', name: 'ProfileSettings', component: ProfileSettings },

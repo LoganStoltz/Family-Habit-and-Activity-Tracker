@@ -21,7 +21,7 @@
                 <router-link to="/registration">Register here</router-link>
               </p>
               <p> Forgot your password? 
-                <router-link to="/forgot-password">Reset here</router-link>
+                <router-link to="/account-recovery">Reset here</router-link>
               </p>
             </div>
           </form>
