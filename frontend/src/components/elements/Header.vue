@@ -51,6 +51,10 @@
               <span class="dropdown-icon">🏠</span>
               <span>Profile Main</span>
             </div>
+            <div class="dropdown-item" @click="navigateTo('/user-settings')" v-if="profile">
+              <span class="dropdown-icon">⚙️</span>
+              <span>User Settings</span>
+            </div>
             <div class="dropdown-divider"></div>
             <div class="dropdown-item logout-item" @click="logout">
               <span class="dropdown-icon">🚪</span>

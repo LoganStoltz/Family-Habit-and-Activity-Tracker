@@ -6,6 +6,7 @@ import HomePage from '@/components/pages/GenericHomePage.vue';
 import ProfileSelect from '@/components/Popups/ProfileSelectModal.vue';
 import ProfileMainPage from '@/components/pages/ProfileMainPage.vue';
 import ProfileSettings from '@/components/pages/ProfileSettingsPage.vue';
+import UserSettings from '@/components/pages/UserSettingsPage.vue';
 import HabitsPage from '@/components/pages/HabitsPage.vue';
 import ActivityMainPage from '@/components/pages/ActivityMainPage.vue';
 import BabyMilestonesPage from '@/components/pages/BabyMilestonesPage.vue';
@@ -20,6 +21,7 @@ const router = createRouter({
     { path: '/profile-select', name: 'ProfileSelect', component: ProfileSelect },
     { path: '/profile-main', name: 'ProfileMain', component: ProfileMainPage },
     { path: '/profile-settings', name: 'ProfileSettings', component: ProfileSettings },
+    { path: '/user-settings', name: 'UserSettings', component: UserSettings },
     { path: '/habits', name: 'HabitPage', component: HabitsPage },
     { path: '/activity-main', name: 'ActivityMainPage', component: ActivityMainPage },
     { path: '/baby-milestones', name: 'BabyMilestonesPage', component: BabyMilestonesPage }
