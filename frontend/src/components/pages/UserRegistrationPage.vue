@@ -51,7 +51,10 @@
 </template>
 
 <script setup lang="ts">
+import { useRouter } from "vue-router";
 import { reactive } from "vue";
+  
+const router = useRouter();
 
 const form = reactive({
   firstName: "",
@@ -94,6 +97,7 @@ async function submitForm() {
     const data = await response.json();
     console.log("User created:", data);
     alert("Registration successful!");
+    await router.push("/login");
   } catch (err) {
     console.error(err);
     alert("Something went wrong.");
