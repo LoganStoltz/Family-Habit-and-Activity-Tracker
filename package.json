@@ -1,0 +1,10 @@
+{
+  "name": "family-habit-and-activity-tracker",
+  "version": "1.0.0",
+  "description": "A family habit and activity tracking application",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ]
+}

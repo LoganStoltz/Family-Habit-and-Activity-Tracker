@@ -1,0 +1,14 @@
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ TODO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+- Uniformity across all pop-up modals in terms of styling and behavior. (Almost done)
+    - Still deciding if I want 1 CSS file for each of popup type (Log popup, function popup) or if I want them to share the same stlying
+    - Make the Log popups look uniform across all logs types
+- Finish feature to show only certain components on the activity main page based on user preferences. (babyMilestone Page only)
+- Fix Stlying issues with BabyMilestone Page, all user input components are white on white, change the colors up
+- Implement Forgot Password System
+- Implement Editing CRUD capibilities to user account and to profiles of the user account.
+- Make it Mobile Freindly
+
+
+- Improve performance by lazy-loading components.
+- Switch from local Storage to cloud Storage.
+- Implement real-time synchronization between multiple devices.
