@@ -5,8 +5,9 @@
   </div>
 </template> 
 
-<script setup lang="ts">
+<script setup>
 import Header from './components/elements/Header.vue';
+
 </script>
 
 <style>

@@ -247,15 +247,6 @@ const filtersSection = ref({
   sort: 'desc'
 })
 
-const ideaList = [
-  'First rollover or crawl',
-  'First clear word or babble',
-  'Met a new friend or relative',
-  'Tried a new food',
-  'Slept through the night',
-  'Pulled up to stand or balanced'
-]
-
 const milestones = ref([])
 const loading = ref(false)
 const error = ref('')
@@ -455,11 +446,6 @@ const topCategory = computed(() => {
   return Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0]
 })
 
-const categoryCount = (category) => {
-  if (!category) return 0
-  return milestones.value.filter(item => item.category === category).length
-}
-
 const favoriteCount = computed(() => milestones.value.filter(item => item.favorite).length)
 
 const lastUpdated = computed(() => {
@@ -478,12 +464,6 @@ const thisMonthCount = computed(() => {
   }).length
 })
 
-const recentTags = computed(() => {
-  const tags = new Set()
-  milestones.value.slice(0, 10).forEach(item => item.tags.forEach(tag => tags.add(tag)))
-  return Array.from(tags).slice(0, 8)
-})
-
 const formatDate = (dateString) => {
   const date = new Date(dateString)
   return date.toLocaleString('en-US', {
@@ -496,7 +476,7 @@ const formatDate = (dateString) => {
 }
 
 const formatRelative = (date) => {
-  const diff = Date.now() - date.getTime()
+  const diff = Math.abs(Date.now() - date.getTime());
   const days = Math.floor(diff / (1000 * 60 * 60 * 24))
   if (days === 0) return 'Today'
   if (days === 1) return 'Yesterday'
@@ -571,6 +551,10 @@ onMounted(fetchMilestones)
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  max-width:700px;
 }
 
 .lede {

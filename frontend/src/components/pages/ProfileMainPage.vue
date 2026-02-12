@@ -18,7 +18,7 @@
             <span>📊</span> Track Activity
           </router-link>
           <router-link to="/profile-settings" class="action-button secondary">
-            <span>⚙️</span> Settings
+            <span>⚙️</span> Profile Settings
           </router-link>
         </div>
       </div>

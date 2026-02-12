@@ -84,7 +84,7 @@ const handleProfileCreated = async (profileData) => {
   
   showProfileRegistration.value = false;
   showSelectProfile.value = false;
-  router.push('/profile-main');
+  router.push('/');
 };
 
 const fetchProfiles = async () => {
@@ -134,8 +134,8 @@ const selectProfile = (profile) => {
   localStorage.setItem("profile", JSON.stringify(profile));
   // Notify other components of the change
   window.dispatchEvent(new Event('storage'));
-  // Redirect to profile main page
-  router.push('/profile-main');
+  // Redirect to home page
+  router.push('/');
 };
 
 onMounted(fetchProfiles);
@@ -187,8 +187,7 @@ onMounted(fetchProfiles);
 .modal-actions {
   display: flex;
   gap: 1rem;
-  margin-top: 1.5rem;
-  justify-content: flex-end;
+  margin-top: 2rem;
 }
 
 @media (max-width: 768px) {

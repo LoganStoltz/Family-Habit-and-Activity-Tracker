@@ -3,8 +3,7 @@
     <header class="header">
     <!-- Desktop Navigation -->
       <nav class="nav">
-        <router-link to="/" class="btn-home" v-if="!profile">Home</router-link>
-        <router-link to="/profile-main" class="btn-profile-main" v-if="profile">Profile Main</router-link>
+        <router-link to="/" class="btn-home">Home</router-link>
         <router-link to="/login" class="btn-login" v-if="!user">Login</router-link>
         <router-link to="/habits" class="btn-habits" v-if="user && profile">Habits</router-link>
         <router-link to="/activity-main" class="btn-activity-main" v-if="user && profile">Activity Main</router-link>
@@ -47,13 +46,13 @@
               </div>
             </div>
             
-            <div class="dropdown-item" @click="navigateTo('/profile-main')" v-if="profile">
+            <div class="dropdown-item" @click="navigateTo('/')" v-if="profile">
               <span class="dropdown-icon">🏠</span>
-              <span>Profile Main</span>
+              <span>Home</span>
             </div>
-            <div class="dropdown-item" @click="navigateTo('/user-settings')" v-if="profile">
+            <div class="dropdown-item" @click="navigateTo('/profile-settings')" v-if="profile">
               <span class="dropdown-icon">⚙️</span>
-              <span>User Settings</span>
+              <span>Profile Settings</span>
             </div>
             <div class="dropdown-divider"></div>
             <div class="dropdown-item logout-item" @click="logout">
@@ -120,7 +119,7 @@ const handleProfileCreated = (profileData) => {
   profile.value = newProfile;
   window.dispatchEvent(new Event('storage'));
   showProfileRegistration.value = false;
-  router.push('/profile-main');
+  router.push('/');
 };
 
 const navigateTo = (path) => {
@@ -167,7 +166,7 @@ const selectProfile = (selectedProfile) => {
   window.dispatchEvent(new Event('storage'));
   isDropdownOpen.value = false;
   isProfileDropDownOpen.value = false;
-  window.location.reload();
+  router.push('/');
 };
 
 const logout = () => {
@@ -363,6 +362,10 @@ onUnmounted(() => {
   color: white;
   line-height: 1;
   letter-spacing: 0.3px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 100px;
 }
 
 .profile-type-badge {
@@ -447,6 +450,10 @@ onUnmounted(() => {
 }
 
 .profile-option-name {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 120px;
   flex: 1;
 }
 
