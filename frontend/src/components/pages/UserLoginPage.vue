@@ -50,7 +50,7 @@ const submitForm = async () => {
       ? { email: form.userName, password: form.password }
       : { user_name: form.userName, password: form.password };
 
-    const response = await fetch(`${API_BASE_URL}/login`, {
+    const response = await fetch(`${API_BASE_URL}:3000/login`, {
       method: 'POST',
       credentials: "include",
       headers: { 'Content-Type': 'application/json' },
