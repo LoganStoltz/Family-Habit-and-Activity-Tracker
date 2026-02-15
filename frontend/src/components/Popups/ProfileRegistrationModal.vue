@@ -44,7 +44,7 @@
 
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
-import { API_BASE_URL } from '@/config/api';
+import { API_BASE_URL } from '../../config/api.js';
 
 // Define props
 const props = defineProps<{

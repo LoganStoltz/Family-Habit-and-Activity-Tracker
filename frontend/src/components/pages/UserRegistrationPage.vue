@@ -53,7 +53,7 @@
 <script setup lang="ts">
 import { useRouter } from "vue-router";
 import { reactive } from "vue";
-import { API_BASE_URL } from '@/config/api';
+import { API_BASE_URL } from '../../config/api.js';
   
 const router = useRouter();
 
@@ -91,9 +91,13 @@ async function submitForm() {
 
     if (!response.ok) {
       const errorData = await response.json();
-      alert("Error: " + errorData.errors.join(", "));
+      const errors = Array.isArray(errorData.errors)
+        ? errorData.errors.join(", ")
+        : errorData.errors || "Unknown error";
+      alert("Error: " + errors);
       return;
     }
+
 
     const data = await response.json();
     console.log("User created:", data);

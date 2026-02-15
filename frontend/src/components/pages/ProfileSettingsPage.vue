@@ -195,6 +195,7 @@ const saveProfile = async () => {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           first_name: editForm.value.firstName,
           last_name: editForm.value.lastName,
@@ -284,7 +285,8 @@ const deleteProfile = async () => {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-        }
+        },
+        credentials: 'include'
       }
     );
     if (!response.ok) {

@@ -116,7 +116,7 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { defineAsyncComponent } from 'vue';
-import { API_BASE_URL } from '@/config/api';
+import { API_BASE_URL } from '../../config/api.js';
 const ConfirmDeleteModal = defineAsyncComponent(() => import('../Popups/ConfirmDeleteModal.vue'));
 
 // Define user type
@@ -134,15 +134,17 @@ const showConfirmModal = ref(false);
 const isDeleting = ref(false);
 const isSaving = ref(false);
 const saveMessage = ref<{ type: string; text: string } | null>(null);
-const editForm = ref({
+const editForm = ref<Pick<User, 'first_name' | 'last_name' | 'email' | 'phone_number'>>({
   first_name: '',
   last_name: '',
   email: '',
   phone_number: ''
 });
+
 const router = useRouter();
 
 // Load current user on mount
+const isLoading = ref(true);
 onMounted(() => {
   const storedUser = localStorage.getItem('user');
   if (storedUser) {
@@ -160,6 +162,7 @@ onMounted(() => {
     // If no user is logged in, redirect to login
     router.push('/login');
   }
+  isLoading.value = false;
 });
 
 // Save user changes

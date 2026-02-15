@@ -44,54 +44,40 @@ const form = reactive({
 
 const submitForm = async () => {
   try {
-    // Send login request to backend
     const isEmail = form.userName.includes('@');
     const body = isEmail
       ? { email: form.userName, password: form.password }
       : { user_name: form.userName, password: form.password };
 
-    const response = await fetch(`${API_BASE_URL}:3000/login`, {
+    const response = await fetch(`${API_BASE_URL}/login`, {
       method: 'POST',
-      credentials: "include",
+      credentials: 'include', // needed if Rails sets cookies
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
     });
 
+    const data = await response.json(); // parse JSON once
+
     if (!response.ok) {
-      // Invalid login
-      const errorData = await response.json();
       loginError.value = true;
-      alert('Login failed: ' + (errorData.error || 'Invalid credentials'));
+      alert('Login failed: ' + (data.error || 'Invalid credentials'));
       return;
     }
 
-    // Successful login
-    const data = await response.json();
     console.log('Login successful:', data);
+    localStorage.setItem('user', JSON.stringify(data.user || data));
+    if (data.token) localStorage.setItem('authToken', data.token);
 
-    // Store user info in localStorage for global access
-    const userToStore = data.user || data;
-    console.log('Storing user in localStorage:', userToStore);
-    localStorage.setItem('user', JSON.stringify(userToStore));
-    console.log('After storing, localStorage.user is:', localStorage.getItem('user'));
-
-    // Fire storage event so Header.vue picks it up immediately
-    window.dispatchEvent(new Event('storage'));
-
-    // Optionally store a token in localStorage/sessionStorage
-    if (data.token) {
-      localStorage.setItem('authToken', data.token);
-    }
-
-    alert('Login successful!');
-
-    // Redirect user to home page
+    window.dispatchEvent(new Event('storage')); // notify Header.vue
     router.push('/');
+
   } catch (err) {
     console.error(err);
+    loginError.value = true;
     alert('Something went wrong during login.');
   }
 };
+
 </script>
 
 <style scoped>
