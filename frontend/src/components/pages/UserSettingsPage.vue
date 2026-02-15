@@ -116,6 +116,7 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { defineAsyncComponent } from 'vue';
+import { API_BASE_URL } from '@/config/api';
 const ConfirmDeleteModal = defineAsyncComponent(() => import('../Popups/ConfirmDeleteModal.vue'));
 
 // Define user type
@@ -184,7 +185,7 @@ const saveUser = async () => {
 
     // Make PUT request to backend
     const response = await fetch(
-      `http://localhost:3000/users/${currentUser.value.id}`,
+      `${API_BASE_URL}/users/${currentUser.value.id}`,
       {
         method: 'PUT',
         headers: {
@@ -268,7 +269,7 @@ const deleteUser = async () => {
     isDeleting.value = true;
     // Make DELETE request to backend
     const response = await fetch(
-      `http://localhost:3000/users/${currentUser.value.id}`,
+      `${API_BASE_URL}/users/${currentUser.value.id}`,
       {
         method: 'DELETE',
         headers: {

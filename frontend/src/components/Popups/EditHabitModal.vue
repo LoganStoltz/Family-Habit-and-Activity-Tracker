@@ -30,10 +30,11 @@
 
 <script setup>
 import { ref, watch } from 'vue'
+import { API_BASE_URL } from '@/config/api'
 
 const props = defineProps({
   habit: { type: Object, required: true },
-  apiBase: { type: String, default: 'http://localhost:3000' }
+  apiBase: { type: String, default: API_BASE_URL }
 })
 const emits = defineEmits(['updated', 'close'])
 

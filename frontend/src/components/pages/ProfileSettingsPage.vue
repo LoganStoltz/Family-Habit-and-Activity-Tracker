@@ -118,6 +118,7 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { defineAsyncComponent } from 'vue';
+import { API_BASE_URL } from '../../config/api.js';
 const ConfirmDeleteModal = defineAsyncComponent(() => import('../Popups/ConfirmDeleteModal.vue'));
 
 // Define profile type
@@ -188,7 +189,7 @@ const saveProfile = async () => {
 
     // Make PUT request to backend
     const response = await fetch(
-      `http://localhost:3000/users/${user.id}/profiles/${currentProfile.value.id}`,
+      `${API_BASE_URL}/users/${user.id}/profiles/${currentProfile.value.id}`,
       {
         method: 'PUT',
         headers: {
@@ -278,7 +279,7 @@ const deleteProfile = async () => {
     }
     // Make DELETE request to backend
     const response = await fetch(
-      `http://localhost:3000/users/${user.id}/profiles/${currentProfile.value.id}`, 
+      `${API_BASE_URL}/users/${user.id}/profiles/${currentProfile.value.id}`, 
       {
         method: 'DELETE',
         headers: {

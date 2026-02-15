@@ -115,6 +115,7 @@
 
 <script setup>
 import { ref, onMounted, computed, defineExpose, defineEmits } from 'vue';
+import { API_BASE_URL } from '@/config/api';
 import HabitsCard from '../elements/HabitsCard.vue';
 import closeElement from '../elements/closeElement.vue';
 
@@ -183,7 +184,7 @@ const onLogged = async (habitId) => {
 // Fetch habits for current profile
 const fetchHabits = async () => {
   try {
-    const response = await fetch(`http://localhost:3000/users/${userId}/profiles/${profileId}/habits`);
+    const response = await fetch(`${API_BASE_URL}/users/${userId}/profiles/${profileId}/habits`);
     const data = await response.json();
     habits.value = data;
     for (const habit of data) {
@@ -197,7 +198,7 @@ const fetchHabits = async () => {
 // Fetch logs for a habit
 const fetchLogs = async (habitId) => {
   try {
-    const response = await fetch(`http://localhost:3000/habits/${habitId}/habit_logs`);
+    const response = await fetch(`${API_BASE_URL}/habits/${habitId}/habit_logs`);
     const data = await response.json();
     habitLogs.value[habitId] = data;
   } catch (err) {
@@ -242,7 +243,7 @@ const cancelDelete = () => {
 const removeHabit = async (habitId) => {
   isDeleting.value[habitId] = true;
   try {
-    const response = await fetch(`http://localhost:3000/habits/${habitId}`, {
+    const response = await fetch(`${API_BASE_URL}/habits/${habitId}`, {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' }
     });

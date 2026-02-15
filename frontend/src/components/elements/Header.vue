@@ -72,6 +72,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { API_BASE_URL } from '@/config/api';
 import ProfileRegistration from '../Popups/ProfileRegistrationModal.vue';
 
 const user = ref(null);
@@ -142,7 +143,7 @@ const fetchProfiles = async () => {
   if (!user.value?.id) return;
   
   try {
-    const response = await fetch(`http://localhost:3000/users/${user.value.id}/profiles`);
+    const response = await fetch(`${API_BASE_URL}/users/${user.value.id}/profiles`);
     if (!response.ok) throw new Error('Failed to fetch profiles');
     const data = await response.json();
     

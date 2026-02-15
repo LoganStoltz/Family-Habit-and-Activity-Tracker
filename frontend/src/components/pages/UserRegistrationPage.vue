@@ -53,6 +53,7 @@
 <script setup lang="ts">
 import { useRouter } from "vue-router";
 import { reactive } from "vue";
+import { API_BASE_URL } from '@/config/api';
   
 const router = useRouter();
 
@@ -73,7 +74,7 @@ async function submitForm() {
   }
 
   try {
-    const response = await fetch("http://localhost:3000/users", {
+    const response = await fetch(`${API_BASE_URL}/users`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

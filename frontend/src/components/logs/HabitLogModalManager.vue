@@ -73,6 +73,7 @@
 
 <script setup>
 import { ref, computed } from 'vue';
+import { API_BASE_URL } from '@/config/api';
 import GenericHabitLog from './GenericHabitLog.vue';
 import SleepingLog from './SleepingLog.vue';
 import MealLog from './MealLog.vue';
@@ -130,7 +131,7 @@ const handleLogSubmitted = async (logData) => {
     };
 
     const response = await fetch(
-      `http://localhost:3000/habits/${selectedHabit.value.id}/habit_logs`,
+      `${API_BASE_URL}/habits/${selectedHabit.value.id}/habit_logs`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

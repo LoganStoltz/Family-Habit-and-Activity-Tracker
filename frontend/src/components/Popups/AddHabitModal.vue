@@ -31,11 +31,12 @@
 
 <script setup>
 import { ref } from 'vue'
+import { API_BASE_URL } from '../../config/api.js'
 const props = defineProps({
   isPremade: Boolean,
   userId: [String, Number],
   profileId: [String, Number],
-  apiBase: { type: String, default: 'http://localhost:3000' }
+  apiBase: { type: String, default: API_BASE_URL }
 })
 const emits = defineEmits(['added', 'close', 'undo'])
 

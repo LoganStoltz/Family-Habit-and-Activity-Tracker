@@ -44,6 +44,7 @@
 
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
+import { API_BASE_URL } from '@/config/api';
 
 // Define props
 const props = defineProps<{
@@ -77,7 +78,7 @@ const submitForm = async () => {
     loading.value = true;
 
     // POST request to nested route /users/:user_id/profiles
-    const response = await fetch(`http://localhost:3000/users/${user.id}/profiles`, {
+    const response = await fetch(`${API_BASE_URL}/users/${user.id}/profiles`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ profile: form }), // Wrap form data in 'profile' key

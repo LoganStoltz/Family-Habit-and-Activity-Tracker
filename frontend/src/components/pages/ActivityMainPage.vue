@@ -223,7 +223,7 @@ const fetchAllLogs = async () => {
   
   for (const habit of habits.value) {
     try {
-      const response = await fetch(`http://localhost:3000/habits/${habit.id}/habit_logs`)
+      const response = await apiRequest(`/habits/${habit.id}/habit_logs`)
       if (response.ok) {
         const logs = await response.json()
         // Add habit_id to each log for joining
