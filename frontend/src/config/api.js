@@ -1,7 +1,7 @@
 // src/api.js
 export const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
-  'https://api.familyhabittracker.com/login'
+  'https://api.familyhabittracker.com'
 
 
 export const apiRequest = async (endpoint, options = {}) => {
