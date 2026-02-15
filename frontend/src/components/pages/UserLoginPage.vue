@@ -32,7 +32,7 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { API_BASE_URL } from '@/config/api';
+import { API_BASE_URL } from '../../config/api.js';
 
 const router = useRouter();
 const loginError = ref(false);
@@ -52,6 +52,7 @@ const submitForm = async () => {
 
     const response = await fetch(`${API_BASE_URL}/login`, {
       method: 'POST',
+      credentials: "include",
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
     });
