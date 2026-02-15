@@ -100,7 +100,9 @@ const fetchProfiles = async () => {
   const startTime = Date.now();
   
   try {
-    const response = await fetch(`${API_BASE_URL}/users/${userId}/profiles`);
+    const response = await fetch(`${API_BASE_URL}/users/${userId}/profiles`, {
+      credentials: 'include'
+    });
     if (!response.ok) throw new Error("Failed to fetch profiles");
     const data = await response.json();
 

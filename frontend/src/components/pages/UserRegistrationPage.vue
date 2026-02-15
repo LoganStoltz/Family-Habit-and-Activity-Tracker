@@ -76,6 +76,7 @@ async function submitForm() {
   try {
     const response = await fetch(`${API_BASE_URL}/users`, {
       method: "POST",
+      credentials: 'include',
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         user: {

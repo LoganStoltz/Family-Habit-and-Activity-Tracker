@@ -65,6 +65,7 @@ const handleSubmit = async () => {
   try {
     const res = await fetch(`${props.apiBase}/habits/${local.value.id}`, {
       method: 'PATCH',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
       body: JSON.stringify({ habit: { name: local.value.name, description: local.value.description } })
     })

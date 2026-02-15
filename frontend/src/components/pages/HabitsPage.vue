@@ -184,7 +184,9 @@ const onLogged = async (habitId) => {
 // Fetch habits for current profile
 const fetchHabits = async () => {
   try {
-    const response = await fetch(`${API_BASE_URL}/users/${userId}/profiles/${profileId}/habits`);
+    const response = await fetch(`${API_BASE_URL}/users/${userId}/profiles/${profileId}/habits`, {
+      credentials: 'include'
+    });
     const data = await response.json();
     habits.value = data;
     for (const habit of data) {
@@ -198,7 +200,9 @@ const fetchHabits = async () => {
 // Fetch logs for a habit
 const fetchLogs = async (habitId) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/habits/${habitId}/habit_logs`);
+    const response = await fetch(`${API_BASE_URL}/habits/${habitId}/habit_logs`, {
+      credentials: 'include'
+    });
     const data = await response.json();
     habitLogs.value[habitId] = data;
   } catch (err) {
@@ -245,6 +249,7 @@ const removeHabit = async (habitId) => {
   try {
     const response = await fetch(`${API_BASE_URL}/habits/${habitId}`, {
       method: 'DELETE',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' }
     });
     if (!response.ok) {

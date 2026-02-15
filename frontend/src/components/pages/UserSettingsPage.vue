@@ -191,6 +191,7 @@ const saveUser = async () => {
       `${API_BASE_URL}/users/${currentUser.value.id}`,
       {
         method: 'PUT',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -275,6 +276,7 @@ const deleteUser = async () => {
       `${API_BASE_URL}/users/${currentUser.value.id}`,
       {
         method: 'DELETE',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         }

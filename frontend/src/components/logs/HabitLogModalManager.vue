@@ -134,6 +134,7 @@ const handleLogSubmitted = async (logData) => {
       `${API_BASE_URL}/habits/${selectedHabit.value.id}/habit_logs`,
       {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       }

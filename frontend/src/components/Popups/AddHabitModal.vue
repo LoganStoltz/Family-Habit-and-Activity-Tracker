@@ -80,6 +80,7 @@ const handleSubmit = async () => {
   try {
     const res = await fetch(`${props.apiBase}/users/${props.userId}/profiles/${props.profileId}/habits`, {
       method: 'POST',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify(payload)
     })
