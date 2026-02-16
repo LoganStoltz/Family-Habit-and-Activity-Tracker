@@ -300,6 +300,7 @@ const handleLogModalClose = (type) => {
 .habitsPage {
   max-width: 1600px;
   margin: 20px auto;
+  padding: 0 12px 0 20px;
 }
 
 .habitsContent {
@@ -645,6 +646,46 @@ const handleLogModalClose = (type) => {
   }
   .dashboard-card {
     padding: 1.2rem 0.7rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .habitsPage {
+    padding: 0.75rem 0.5rem 0.75rem 1rem;
+  }
+
+  .habitPanels {
+    padding: 16px;
+  }
+
+  .dashboardHeader {
+    height: 64px;
+    margin: -16px -16px 16px -16px;
+    padding: 12px 14px;
+  }
+
+  .dashboardHeader h1 {
+    font-size: 1.25rem;
+  }
+
+  .header-left,
+  .header-right {
+    width: auto;
+    min-height: 0;
+  }
+
+  .dashboard-cards {
+    margin: 12px;
+  }
+
+  .card-action-row {
+    flex-direction: column;
+  }
+
+  .card-action-btn,
+  .delete-habit-btn {
+    width: 100%;
+    text-align: center;
   }
 }
 </style>

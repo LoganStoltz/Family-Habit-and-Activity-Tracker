@@ -493,6 +493,7 @@ onMounted(fetchMilestones)
 .milestonesPage {
   max-width: 1600px;
   margin: 20px auto;
+  padding: 0 12px 0 20px;
 }
 
 .milestonesHeroSection {
@@ -505,6 +506,8 @@ onMounted(fetchMilestones)
 
 .milestonesPage :deep(.button-group) {
   position: absolute;
+  top: 10px;
+  left: 10px;
   z-index: 5;
 }
 
@@ -912,7 +915,7 @@ onMounted(fetchMilestones)
 
 @media (max-width: 640px) {
   .milestonesPage {
-    padding: 1rem;
+    padding: 1rem 0.75rem 1rem 1.2rem;
   }
 
   .milestonesHeroSection {
