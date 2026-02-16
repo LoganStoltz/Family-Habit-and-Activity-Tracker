@@ -195,7 +195,7 @@
 
 <script setup>
 import { computed, onMounted, ref } from 'vue'
-import { apiRequest } from '@/config/api'
+import { apiRequest } from '../../config/api.js'
 import closeElement from '../elements/closeElement.vue'
 
 const user = JSON.parse(localStorage.getItem('user') || '{}')
@@ -554,7 +554,7 @@ onMounted(fetchMilestones)
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
-  max-width:700px;
+  max-width: 700px;
 }
 
 .lede {
