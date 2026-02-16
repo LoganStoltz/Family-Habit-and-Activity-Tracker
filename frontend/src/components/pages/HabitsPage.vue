@@ -115,7 +115,7 @@
 
 <script setup>
 import { ref, onMounted, computed, defineExpose, defineEmits } from 'vue';
-import { API_BASE_URL } from '@/config/api';
+import { API_BASE_URL } from '../../config/api.js';
 import HabitsCard from '../elements/HabitsCard.vue';
 import closeElement from '../elements/closeElement.vue';
 
