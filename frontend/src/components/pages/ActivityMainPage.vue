@@ -806,13 +806,67 @@ onMounted(fetchData)
 
 /* Responsive */
 @media (max-width: 768px) {
-    .habits-table {
-        font-size: 0.85rem;
-    }
+  .activityMainPage {
+    padding: 0 0.5rem;
+  }
+
+  .activitySection {
+    margin: 12px 0;
+  }
+
+  .filterSection,
+  .activitySummary {
+    padding: 16px;
+  }
+
+  .filterSectionHeader,
+  .habitLogsSectionHeader {
+    height: 64px;
+    padding: 12px 14px;
+    margin: -16px -16px 16px -16px;
+  }
+
+  .filterSectionHeader h1,
+  .habitLogsSectionHeader h1 {
+    font-size: 1.25rem;
+  }
+
+  .header-left,
+  .header-right {
+    width: auto;
+    min-height: 0;
+  }
+
+  .filterConsole {
+    padding: 0 10px 12px 10px;
+  }
+
+  .filterInputs {
+    grid-template-columns: 1fr;
+  }
+
+  .clearButton {
+    width: 100%;
+    align-self: stretch;
+    transform: none;
+  }
+
+  .resultsCount {
+    font-size: 0.85rem;
+  }
+
+  .activitySummaryBody {
+    overflow-x: auto;
+  }
+
+  .habits-table {
+    font-size: 0.85rem;
+    min-width: 640px;
+  }
     
-    .habits-table th,
-    .habits-table td {
-        padding: 8px 10px;
-    }
+  .habits-table th,
+  .habits-table td {
+    padding: 8px 10px;
+  }
 }
 </style>

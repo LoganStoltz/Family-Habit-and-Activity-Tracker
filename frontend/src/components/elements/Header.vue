@@ -575,4 +575,55 @@ onUnmounted(() => {
     padding: 0.8rem 0.8rem;
   }
 }
+
+@media (max-width: 720px) {
+  .header {
+    height: auto;
+    padding: 0.75rem 1rem;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+
+  .user-section {
+    width: 100%;
+    order: 1;
+    justify-content: space-between;
+  }
+
+  .nav {
+    width: 100%;
+    order: 2;
+    padding-bottom: 0.35rem;
+    margin: 0;
+  }
+
+  .nav a,
+  .nav button {
+    font-size: 0.9rem;
+    padding: 0.65rem 0.8rem;
+  }
+
+  .profile-header-name {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-name-text {
+    max-width: 70px;
+  }
+
+  .profile-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 0.95rem;
+  }
+
+  .dropdown-menu {
+    right: auto;
+    left: 0;
+    min-width: 100%;
+  }
+}
 </style>
