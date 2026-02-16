@@ -167,8 +167,10 @@ onMounted(() => {
 
 // Save user changes
 const saveUser = async () => {
-  if (!currentUser.value) {
-    saveMessage.value = { type: 'error', text: 'No user logged in' };
+  const u = currentUser.value;
+
+  if (!u || !u.id) {
+    saveMessage.value = { type: 'error', text: 'No user id found. Please log in again.' };
     return;
   }
 
@@ -186,12 +188,15 @@ const saveUser = async () => {
     isSaving.value = true;
     saveMessage.value = null;
 
-    const response = await fetch(`${API_BASE_URL}/users`, {
+    const url = `${API_BASE_URL}/users/${u.id}`;
+    console.log("PATCH URL:", url);
+
+    const response = await fetch(url, {
       method: 'PATCH',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-      user: {
+        user: {
           first_name: editForm.value.first_name,
           last_name: editForm.value.last_name,
           email: editForm.value.email,
@@ -205,33 +210,25 @@ const saveUser = async () => {
       throw new Error(`Failed to update user: ${response.status} ${text}`);
     }
 
+    // Your controller currently returns the user object directly
     const updatedUser = await response.json();
 
-    const newUser = {
-      id: updatedUser.id,
-      first_name: updatedUser.first_name,
-      last_name: updatedUser.last_name,
-      email: updatedUser.email,
-      phone_number: updatedUser.phone_number
-    };
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+    currentUser.value = updatedUser;
 
-    localStorage.setItem('user', JSON.stringify(newUser));
-    currentUser.value = newUser;
     window.dispatchEvent(new Event('storage'));
 
     saveMessage.value = { type: 'success', text: 'User updated successfully!' };
     setTimeout(() => (saveMessage.value = null), 3000);
-  } catch (err) {
+  } catch (err: unknown) {
     console.error('Error saving user:', err);
-    let message = 'Failed to save user. Please try again.';
-    if (err instanceof Error) {
-      message = err.message;
-    }
-    saveMessage.value = { type: 'error', text: message };
+    const msg = err instanceof Error ? err.message : String(err);
+    saveMessage.value = { type: 'error', text: msg };
   } finally {
     isSaving.value = false;
   }
 };
+
 
 // Reset form to current values
 const resetForm = () => {
