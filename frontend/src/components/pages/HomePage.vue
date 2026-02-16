@@ -162,186 +162,188 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted , onUnmounted} from 'vue';
-import { apiRequest } from '../../config/api'; 
+import { ref, onMounted, onUnmounted } from 'vue'
+import { apiRequest } from '../../config/api'
 
 interface Profile {
-  id: number;
-  firstName: string;
-  lastName?: string;
-  dob?: string;
-  profile_type?: string;
-  activeHabitsCount?: number;
-  currentStreak?: number;
-  completedToday?: number;
-  totalAchievements?: number;
+  id: number
+  firstName: string
+  lastName?: string
+  dob?: string
+  profile_type?: string
+  activeHabitsCount?: number
+  currentStreak?: number
+  completedToday?: number
+  totalAchievements?: number
 }
 
-const profile = ref<Profile | null>(null);
-const user = ref<any | null>(null);
-const activeHabitsCount = ref(0);
-const currentStreak = ref(0);
-const completedToday = ref(0);
-const totalAchievements = ref(0);
+const profile = ref<Profile | null>(null)
+const user = ref<any | null>(null)
+
+const activeHabitsCount = ref(0)
+const currentStreak = ref(0)
+const completedToday = ref(0)
+const totalAchievements = ref(0)
 
 const loadUser = () => {
-  const storedUser = localStorage.getItem('user');
-  user.value = storedUser ? JSON.parse(storedUser) : null;
-};
+  const stored = localStorage.getItem('user')
+  user.value = stored ? JSON.parse(stored) : null
+}
+
+const getUserId = (): number | null => {
+  const stored = localStorage.getItem('user')
+  if (!stored) return null
+  try {
+    const u = JSON.parse(stored)
+    return u?.id ?? u?.user_id ?? null
+  } catch {
+    return null
+  }
+}
 
 const loadProfile = () => {
-  const storedUser = localStorage.getItem('user');
+  const storedUser = localStorage.getItem('user')
   if (!storedUser) {
-    localStorage.removeItem('profile');
-    profile.value = null;
-    return;
+    localStorage.removeItem('profile')
+    profile.value = null
+    return
   }
-  const storedProfile = localStorage.getItem('profile');
+
+  const storedProfile = localStorage.getItem('profile')
   if (storedProfile) {
-    profile.value = JSON.parse(storedProfile);
-    fetchProfileStats();
+    profile.value = JSON.parse(storedProfile)
+    fetchProfileStats()
   }
-};
+}
 
-// Normalize various user-id keys that may exist in localStorage
-const getUserId = (): number | null => {
-  const storedUser = localStorage.getItem('user');
-  if (!storedUser) return null;
-  try {
-    const user = JSON.parse(storedUser);
-    return user?.id ?? user?.user_id ?? null;
-  } catch {
-    return null;
-  }
-};
-
-// Format a Date object as YYYY-MM-DD in local time
+// ---- Date helpers (local time safe) ----
 const formatYMD = (d: Date): string => {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${y}-${m}-${day}`;
-};
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${y}-${m}-${day}`
+}
 
-// Handle either 'YYYY-MM-DD' or ISO strings by returning 'YYYY-MM-DD'
 const normalizeYMD = (s: string | undefined | null): string => {
-  if (!s) return '';
-  return s.slice(0, 10);
-};
+  if (!s) return ''
+  return s.slice(0, 10)
+}
 
-// Compute the longest streak (consecutive days ending today) across habits
+// ---- Streak helper ----
 const computeMaxStreakByHabit = (logsPerHabit: Array<Array<any>>): number => {
-  const todayStr = formatYMD(new Date());
-  let maxStreak = 0;
+  const todayStr = formatYMD(new Date())
+  let maxStreak = 0
 
   for (const logs of logsPerHabit) {
-    const dates = new Set<string>(logs.map(l => normalizeYMD(l.log_date)));
-    // Fast skip if nothing today
-    if (!dates.has(todayStr)) continue;
+    const dates = new Set<string>(logs.map(l => normalizeYMD(l.log_date)))
 
-    let streak = 0;
-    let cursor = new Date();
+    if (!dates.has(todayStr)) continue
+
+    let streak = 0
+    const cursor = new Date()
     while (dates.has(formatYMD(cursor))) {
-      streak += 1;
-      // Move to previous day in local time
-      cursor.setDate(cursor.getDate() - 1);
+      streak += 1
+      cursor.setDate(cursor.getDate() - 1)
     }
-    if (streak > maxStreak) maxStreak = streak;
+
+    if (streak > maxStreak) maxStreak = streak
   }
-  return maxStreak;
-};
 
-// Fetch progress stats from backend
+  return maxStreak
+}
+
+// ---- Main stats fetch ----
 const fetchProfileStats = async () => {
-  if (!profile.value) return;
+  if (!profile.value) return
 
-  const userId = getUserId();
-  const profileId = profile.value.id;
-  if (!userId || !profileId) return;
+  const userId = getUserId()
+  const profileId = profile.value.id
+  if (!userId || !profileId) return
 
   try {
-    // 1) Habits for this profile
-    const habitsRes = await apiRequest(`/users/${userId}/profiles/${profileId}/habits`);
-    if (!habitsRes.ok) throw new Error(`Failed to fetch habits (${habitsRes.status})`);
-    const habits: Array<any> = await habitsRes.json();
+    // 1) Habits
+    const habits = (await apiRequest(`/users/${userId}/profiles/${profileId}/habits`)) || []
+    const habitsArr: Array<any> = Array.isArray(habits) ? habits : []
 
-    activeHabitsCount.value = Array.isArray(habits) ? habits.length : 0;
+    activeHabitsCount.value = habitsArr.length
 
-    // 2) Logs per habit (to compute completedToday, streak, total logs)
-    const logsPromises = (habits || []).map(async (h) => {
-      const res = await apiRequest(`/habits/${h.id}/habit_logs`);
-      if (!res.ok) return [] as Array<any>;
-      const logs = await res.json();
-      return Array.isArray(logs) ? logs : [];
-    });
-    const logsPerHabit = await Promise.all(logsPromises);
-    const allLogs = logsPerHabit.reduce((acc, logs) => acc.concat(logs), []);
+    // 2) Logs per habit
+    const logsPerHabit = await Promise.all(
+      habitsArr.map(async (h) => {
+        try {
+          const logs = (await apiRequest(`/habits/${h.id}/habit_logs`)) || []
+          return Array.isArray(logs) ? logs : []
+        } catch {
+          return []
+        }
+      })
+    )
 
-    const todayStr = formatYMD(new Date());
-    completedToday.value = allLogs.filter(l => normalizeYMD(l.log_date) === todayStr).length;
+    const allLogs = logsPerHabit.reduce(
+      (acc, logs) => acc.concat(logs),
+      [] as Array<any>
+      )
+    const todayStr = formatYMD(new Date())
+    completedToday.value = allLogs.filter(l => normalizeYMD(l.log_date) === todayStr).length
 
-    // 3) Milestones for this profile
-    const milestonesRes = await apiRequest(`/users/${userId}/profiles/${profileId}/milestones`);
-    let milestones: Array<any> = [];
-    if (milestonesRes.ok) {
-      const m = await milestonesRes.json();
-      milestones = Array.isArray(m) ? m : [];
+    // 3) Milestones
+    let milestonesArr: Array<any> = []
+    try {
+      const milestones = (await apiRequest(`/users/${userId}/profiles/${profileId}/milestones`)) || []
+      milestonesArr = Array.isArray(milestones) ? milestones : []
+    } catch {
+      milestonesArr = []
     }
 
-    totalAchievements.value = allLogs.length + milestones.length;
-
-    // 4) Current streak (max across habits)
-    currentStreak.value = computeMaxStreakByHabit(logsPerHabit);
+    // 4) Total + streak
+    totalAchievements.value = allLogs.length + milestonesArr.length
+    currentStreak.value = computeMaxStreakByHabit(logsPerHabit)
   } catch (err) {
-    console.error('Failed to fetch progress stats', err);
+    console.error('Failed to fetch progress stats', err)
   }
-};
+}
 
 const formatDate = (dateString: string) => {
-  if (!dateString) return '';
-  
-  // Parse the date string manually to avoid timezone issues (date being off by one day)
-  // Assumes format is YYYY-MM-DD
-  const [year, month, day] = dateString.split('-').map(Number);
-  
-  // Create date object with local timezone (month is 0-indexed)
-  const date = new Date(year, month - 1, day);
-  
-  return date.toLocaleDateString('en-US', { 
-    year: 'numeric', 
-    month: 'long', 
-    day: 'numeric' 
-  });
-};
+  if (!dateString) return ''
+  const [year, month, day] = dateString.split('-').map(Number)
+  const date = new Date(year, month - 1, day)
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
+}
+
+// ---- Lifecycle + events ----
+const handleProfileUpdate = (event: Event) => {
+  const customEvent = event as CustomEvent
+  if (customEvent.detail) {
+    profile.value = customEvent.detail
+    fetchProfileStats()
+  } else {
+    loadProfile()
+  }
+}
+
+const handleStorageUpdate = () => {
+  loadUser()
+  loadProfile()
+}
 
 onMounted(() => {
-  loadUser();
-  loadProfile();
-  
-  const handleProfileUpdate = (event: Event) => {
-    const customEvent = event as CustomEvent;
-    if (customEvent.detail) {
-      profile.value = customEvent.detail;
-      fetchProfileStats();
-    } else {
-      loadProfile();
-    }
-  };
+  loadUser()
+  loadProfile()
 
-  const handleStorageUpdate = () => {
-    loadUser();
-    loadProfile();
-  };
+  window.addEventListener('profileUpdated', handleProfileUpdate)
+  window.addEventListener('storage', handleStorageUpdate)
+})
 
-  window.addEventListener('profileUpdated', handleProfileUpdate);
-  window.addEventListener('storage', handleStorageUpdate);
-
-  onUnmounted(() => {
-    window.removeEventListener('profileUpdated', handleProfileUpdate);
-    window.removeEventListener('storage', handleStorageUpdate);
-  });
-});
+onUnmounted(() => {
+  window.removeEventListener('profileUpdated', handleProfileUpdate)
+  window.removeEventListener('storage', handleStorageUpdate)
+})
 </script>
+
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
