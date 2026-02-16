@@ -191,7 +191,7 @@ const saveUser = async () => {
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        user: {
+      user: {
           first_name: editForm.value.first_name,
           last_name: editForm.value.last_name,
           email: editForm.value.email,
