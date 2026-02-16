@@ -186,31 +186,27 @@ const saveUser = async () => {
     isSaving.value = true;
     saveMessage.value = null;
 
-    // Make PUT request to backend
-    const response = await fetch(
-      `${API_BASE_URL}/users/${currentUser.value.id}`,
-      {
-        method: 'PATCH',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+    const response = await fetch(`${API_BASE_URL}/users`, {
+      method: 'PATCH',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user: {
           first_name: editForm.value.first_name,
           last_name: editForm.value.last_name,
           email: editForm.value.email,
           phone_number: editForm.value.phone_number
-        })
-      }
-    );
+        }
+      })
+    });
 
     if (!response.ok) {
-      throw new Error(`Failed to update user: ${response.status}`);
+      const text = await response.text().catch(() => '');
+      throw new Error(`Failed to update user: ${response.status} ${text}`);
     }
 
     const updatedUser = await response.json();
 
-    // Update local storage with new user data
     const newUser = {
       id: updatedUser.id,
       first_name: updatedUser.first_name,
@@ -221,19 +217,17 @@ const saveUser = async () => {
 
     localStorage.setItem('user', JSON.stringify(newUser));
     currentUser.value = newUser;
-
-    // Dispatch storage event to update Header and other components
     window.dispatchEvent(new Event('storage'));
 
     saveMessage.value = { type: 'success', text: 'User updated successfully!' };
-
-    // Clear message after 3 seconds
-    setTimeout(() => {
-      saveMessage.value = null;
-    }, 3000);
-  } catch (error) {
-    console.error('Error saving user:', error);
-    saveMessage.value = { type: 'error', text: 'Failed to save user. Please try again.' };
+    setTimeout(() => (saveMessage.value = null), 3000);
+  } catch (err) {
+    console.error('Error saving user:', err);
+    let message = 'Failed to save user. Please try again.';
+    if (err instanceof Error) {
+      message = err.message;
+    }
+    saveMessage.value = { type: 'error', text: message };
   } finally {
     isSaving.value = false;
   }
