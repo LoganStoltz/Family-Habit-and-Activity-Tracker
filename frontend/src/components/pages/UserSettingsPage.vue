@@ -190,7 +190,7 @@ const saveUser = async () => {
     const response = await fetch(
       `${API_BASE_URL}/users/${currentUser.value.id}`,
       {
-        method: 'PUT',
+        method: 'PATCH',
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
