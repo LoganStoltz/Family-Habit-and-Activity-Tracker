@@ -246,7 +246,7 @@ onUnmounted(() => {
 .nav a, .nav button {
   text-decoration: none;
   color: var(--text-primary);
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 600;
   padding: 0.75rem 1.5rem;
   border-radius: var(--radius-medium);
@@ -540,7 +540,7 @@ onUnmounted(() => {
   }
   
   .nav a, .nav button {
-    font-size: 0.88rem;
+    font-size: 0.9rem;
     padding: 0.8rem 0.8rem;
     white-space: nowrap;
   }
@@ -571,7 +571,7 @@ onUnmounted(() => {
   }
   
   .nav a, .nav button {
-    font-size: 0.95rem;
+    font-size: 1rem;
     padding: 0.8rem 0.8rem;
   }
 }

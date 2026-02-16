@@ -439,7 +439,6 @@ onMounted(fetchData)
 .activityMainPage {
     max-width: 1600px;
     margin: 0 auto;
-  padding: 0 12px 0 20px;
 }
 
 .activitySection {
@@ -507,7 +506,7 @@ onMounted(fetchData)
 /* Position collapse buttons on left side of headers, vertically centered */
 .activitySection :deep(.button-group) {
   top: 0px;
-  left: 10px;
+  left: 0px;
   right: auto;
   height: 30px;
   z-index: 0;
@@ -808,7 +807,7 @@ onMounted(fetchData)
 /* Responsive */
 @media (max-width: 768px) {
   .activityMainPage {
-    padding: 0 0.5rem 0 0.9rem;
+    padding: 0 0.5rem;
   }
 
   .activitySection {
