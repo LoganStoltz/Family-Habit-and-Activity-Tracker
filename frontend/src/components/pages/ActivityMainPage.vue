@@ -167,11 +167,11 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import { apiRequest } from '@/config/api'
-import HabitsPage from '../pages/HabitsPage.vue';
-import ConfirmDeleteModal from '../Popups/ConfirmDeleteModal.vue';
-import CloseElement from '@/components/elements/closeElement.vue';
+import { ref, computed, onMounted } from 'vue'
+import { apiRequest } from '../../config/api.js'
+import HabitsPage from '../pages/HabitsPage.vue'
+import ConfirmDeleteModal from '../Popups/ConfirmDeleteModal.vue'
+import CloseElement from '@/components/elements/closeElement.vue'
 
 // Get user and profile from LocalStorage
 const user = JSON.parse(localStorage.getItem('user') || '{}')
@@ -197,66 +197,61 @@ const logToDelete = ref(null)
 const isFilterCollapsed = ref(false)
 const isTableCollapsed = ref(false)
 const isHabitsCollapsed = ref(false)
+
 // Fetch all habits for the profile
 const fetchHabits = async () => {
   if (!userId || !profileId) {
-    error.value = 'User or profile not found. Please log in.'
-    return
+    throw new Error('User or profile not found. Please log in.')
   }
-  
-  try {
-    const response = await apiRequest(`/users/${userId}/profiles/${profileId}/habits`)
-    if (!response.ok) {
-      throw new Error(`Failed to fetch habits: ${response.status}`)
-    }
-    const data = await response.json()
-    habits.value = data
-  } catch (err) {
-    console.error('Error fetching habits:', err)
-    throw err
-  }
+
+  // apiRequest RETURNS JSON (and throws on HTTP errors)
+  const data = await apiRequest(`/users/${userId}/profiles/${profileId}/habits`)
+  habits.value = Array.isArray(data) ? data : []
 }
 
 // Fetch logs for all habits
 const fetchAllLogs = async () => {
   const allLogs = []
-  
+
+  // apiRequest RETURNS JSON (and throws on HTTP errors)
   for (const habit of habits.value) {
     try {
-      const response = await apiRequest(`/habits/${habit.id}/habit_logs`)
-      if (response.ok) {
-        const logs = await response.json()
-        // Add habit_id to each log for joining
-        logs.forEach(log => {
-          log.habit_id = habit.id
-        })
-        allLogs.push(...logs)
-      }
+      const logs = await apiRequest(`/habits/${habit.id}/habit_logs`)
+      const logsArray = Array.isArray(logs) ? logs : []
+
+      logsArray.forEach((log) => {
+        log.habit_id = habit.id
+      })
+
+      allLogs.push(...logsArray)
     } catch (err) {
       console.error(`Error fetching logs for habit ${habit.id}:`, err)
+      // keep going for other habits
     }
   }
-  
+
   habitLogs.value = allLogs
 }
 
 // Computed property to join logs with habit names
 const enrichedLogs = computed(() => {
-  return habitLogs.value.map(log => {
-    const habit = habits.value.find(h => h.id === log.habit_id)
-    return {
-      ...log,
-      habitName: habit?.name || 'Unknown Habit',
-      category: habit?.category || 'N/A'
-    }
-  }).sort((a, b) => new Date(b.created_at) - new Date(a.created_at)) // Most recent first
+  return habitLogs.value
+    .map((log) => {
+      const habit = habits.value.find((h) => h.id === log.habit_id)
+      return {
+        ...log,
+        habitName: habit?.name || 'Unknown Habit',
+        category: habit?.category || 'N/A',
+      }
+    })
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
 })
 
 const availableCategories = computed(() => {
   const categoriesSet = new Set(
     habits.value
-      .map(log => log.category)
-      .filter(cat => cat && cat !== 'N/A')
+      .map((h) => h.category)
+      .filter((cat) => cat && cat !== 'N/A')
   )
   return Array.from(categoriesSet).sort()
 })
@@ -267,30 +262,45 @@ const filteredLogs = computed(() => {
 
   if (searchLogId.value.trim()) {
     const search = searchLogId.value.toLowerCase().trim()
-    logs = logs.filter(log => 
-      log.id.toString().toLowerCase().includes(search)
-    )
+    logs = logs.filter((log) => log.id?.toString().toLowerCase().includes(search))
   }
-  
-  // Filter by habit name
+
   if (searchName.value.trim()) {
     const search = searchName.value.toLowerCase().trim()
-    logs = logs.filter(log => 
-      log.habitName.toLowerCase().includes(search)
-    )
+    logs = logs.filter((log) => (log.habitName || '').toLowerCase().includes(search))
   }
 
-  // Filter by category
   if (selectedCategory.value) {
-    logs = logs.filter(log => log.category === selectedCategory.value)
+    logs = logs.filter((log) => log.category === selectedCategory.value)
   }
 
+  // Your dropdown values are like "1_week", not "start - end"
+  // So compute a cutoff date based on the selection.
   if (selectedDate.value) {
-    const [startDate, endDate] = selectedDate.value.split(' - ')
-    logs = logs.filter(log => {
-      const logDate = new Date(log.created_at)
-      return logDate >= new Date(startDate) && logDate <= new Date(endDate)
-    })
+    const now = new Date()
+    const cutoff = new Date(now)
+
+    switch (selectedDate.value) {
+      case '1_week':
+        cutoff.setDate(now.getDate() - 7)
+        break
+      case '1_month':
+        cutoff.setDate(now.getDate() - 30)
+        break
+      case '3_months':
+        cutoff.setMonth(now.getMonth() - 3)
+        break
+      case '6_months':
+        cutoff.setMonth(now.getMonth() - 6)
+        break
+      case '1_year':
+        cutoff.setFullYear(now.getFullYear() - 1)
+        break
+      default:
+        break
+    }
+
+    logs = logs.filter((log) => new Date(log.created_at) >= cutoff)
   }
 
   return logs
@@ -304,17 +314,14 @@ const filteredAndSortedLogs = computed(() => {
     let aVal = a[sortColumn.value]
     let bVal = b[sortColumn.value]
 
-    // Handle date sorting
     if (sortColumn.value === 'created_at') {
       aVal = new Date(aVal)
       bVal = new Date(bVal)
     }
-    
-    // Handle null/undefined values
+
     if (aVal == null) return 1
     if (bVal == null) return -1
-    
-    // String comparison (case-insensitive)
+
     if (typeof aVal === 'string') {
       aVal = aVal.toLowerCase()
       bVal = bVal.toLowerCase()
@@ -332,6 +339,7 @@ const clearFilters = () => {
   searchName.value = ''
   selectedCategory.value = ''
   selectedDate.value = ''
+  searchLogId.value = ''
 }
 
 // Show confirmation modal for delete
@@ -340,7 +348,6 @@ const confirmDeleteLog = (log) => {
   showConfirmDeleteModal.value = true
 }
 
-// Cancel delete
 const cancelDeleteLog = () => {
   logToDelete.value = null
   showConfirmDeleteModal.value = false
@@ -354,24 +361,16 @@ const deleteLog = async () => {
   deletingLogId.value = log.id
 
   try {
-    const response = await apiRequest(
-      `/habits/${log.habit_id}/habit_logs/${log.id}`,
-      { method: 'DELETE' }
-    )
+    // apiRequest will throw if delete fails
+    await apiRequest(`/habits/${log.habit_id}/habit_logs/${log.id}`, { method: 'DELETE' })
 
-    if (!response.ok) {
-      throw new Error(`Failed to delete log: ${response.status}`)
-    }
-
-    // Refresh logs after deletion
     await fetchData()
-    
-    // Close modal
+
     showConfirmDeleteModal.value = false
     logToDelete.value = null
   } catch (err) {
     console.error('Error deleting log:', err)
-    error.value = 'Failed to delete log. Please try again.'
+    error.value = err?.message || 'Failed to delete log. Please try again.'
   } finally {
     deletingLogId.value = null
   }
@@ -380,16 +379,13 @@ const deleteLog = async () => {
 // Sort by column
 const sortBy = (column) => {
   if (sortColumn.value === column) {
-    // Toggle direction if same column
     sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc'
   } else {
-    // New column, default to ascending
     sortColumn.value = column
     sortDirection.value = 'asc'
   }
 }
 
-// Get sort icon for column
 const getSortIcon = (column) => {
   if (sortColumn.value !== column) return '⇅'
   return sortDirection.value === 'asc' ? '↑' : '↓'
@@ -399,12 +395,13 @@ const getSortIcon = (column) => {
 const fetchData = async () => {
   loading.value = true
   error.value = ''
-  
+
   try {
     await fetchHabits()
     await fetchAllLogs()
   } catch (err) {
-    error.value = err.message || 'Failed to load data'
+    console.error(err)
+    error.value = err?.message || 'Failed to load data'
   } finally {
     loading.value = false
   }
@@ -414,33 +411,29 @@ const fetchData = async () => {
 const formatDate = (dateString) => {
   if (!dateString) return 'N/A'
   const date = new Date(dateString)
-  return date.toLocaleString('en-US', { 
-    year: 'numeric', 
-    month: 'short', 
+  return date.toLocaleString('en-US', {
+    year: 'numeric',
+    month: 'short',
     day: 'numeric',
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
   })
 }
 
-// Handle collapse/expand toggle for filter section
+// Collapse handlers
 const handleFilterToggle = (collapsed) => {
   isFilterCollapsed.value = collapsed
 }
-
-// Handle collapse/expand toggle for table section
 const handleTableToggle = (collapsed) => {
   isTableCollapsed.value = collapsed
 }
-
-// Handle collapse/expand toggle for habits section
 const handleHabitsToggle = (collapsed) => {
   isHabitsCollapsed.value = collapsed
 }
 
-// Fetch on component mount
 onMounted(fetchData)
 </script>
+
 
 <style scoped>
 .activityMainPage {
