@@ -912,7 +912,39 @@ onMounted(fetchMilestones)
 
 @media (max-width: 640px) {
   .milestonesPage {
+    padding: 1rem;
+  }
+
+  .milestonesHeroSection {
+    padding-bottom: 12px;
+  }
+
+  .milestoneSectionHeader {
+    height: 64px;
+    padding: 12px 14px;
+  }
+
+  .content-grid {
     padding: 1.25rem;
+    gap: 1.25rem;
+  }
+
+  .milestoneInfo h1 {
+    font-size: 2rem;
+    white-space: normal;
+    max-width: 100%;
+  }
+
+  .lede {
+    font-size: 0.98rem;
+  }
+
+  .addMilestoneCard {
+    padding: 16px;
+  }
+
+  .card-header {
+    margin: -16px -16px 12px -16px;
   }
 
   .milestoneStats {
@@ -921,6 +953,57 @@ onMounted(fetchMilestones)
 
   .filter-controls {
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  }
+
+  .row {
+    grid-template-columns: 1fr;
+  }
+
+  .primary {
+    width: 100%;
+  }
+
+  .timelineSection-card {
+    padding: 0.9rem;
+  }
+
+  .card-actions {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .action-buttons {
+    width: 100%;
+  }
+
+  .action-buttons .ghost,
+  .action-buttons .danger {
+    flex: 1 1 0;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .milestoneSectionHeader h1 {
+    font-size: 1.25rem;
+  }
+
+  .milestoneInfo h1 {
+    font-size: 1.7rem;
+  }
+
+  .milestoneStatCard {
+    padding: 0.85rem 1rem;
+  }
+
+  .card-top {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35rem;
+  }
+
+  .card-meta {
+    flex-wrap: wrap;
   }
 }
 </style>
