@@ -204,28 +204,23 @@ const userId = user?.id
 const profileId = profile?.id
 const profileName = profile?.firstName || 'your little one'
 
-const isMilestonesCollapsed = ref(false);
-const isFiltersCollapsed = ref(false);
-const isMilestoneLogsCollapsed = ref(false);
-const emit = defineEmits(['toggle', 'minimize']);
+const isMilestonesCollapsed = ref(false)
+const isFiltersCollapsed = ref(false)
+const isMilestoneLogsCollapsed = ref(false)
+const emit = defineEmits(['toggle', 'minimize'])
 
 const handleToggleMilestones = (collapsed) => {
-  isMilestonesCollapsed.value = collapsed;
-  // Emit to parent component
-  emit('toggle', collapsed);
-};
-
+  isMilestonesCollapsed.value = collapsed
+  emit('toggle', collapsed)
+}
 const handleToggleFilters = (collapsed) => {
-  isFiltersCollapsed.value = collapsed;
-  // Emit to parent component
-  emit('toggle', collapsed);
-};
-
+  isFiltersCollapsed.value = collapsed
+  emit('toggle', collapsed)
+}
 const handleToggleMilestoneLogs = (collapsed) => {
-  isMilestoneLogsCollapsed.value = collapsed;
-  // Emit to parent component
-  emit('toggle', collapsed);
-};
+  isMilestoneLogsCollapsed.value = collapsed
+  emit('toggle', collapsed)
+}
 
 const categories = ['Firsts', 'Movement', 'Language', 'Health', 'Sleep', 'Social', 'Play', 'Growth']
 const moods = ['Delighted', 'Proud', 'Curious', 'Sleepy', 'Playful', 'Comforted']
@@ -261,11 +256,11 @@ const normalizeMilestone = (raw) => ({
   tags: Array.isArray(raw.tags)
     ? raw.tags
     : raw.tags
-        ? String(raw.tags)
-            .split(',')
-            .map(tag => tag.trim())
-            .filter(Boolean)
-        : [],
+      ? String(raw.tags)
+          .split(',')
+          .map(tag => tag.trim())
+          .filter(Boolean)
+      : [],
   favorite: Boolean(raw.favorite)
 })
 
@@ -277,15 +272,14 @@ const fetchMilestones = async () => {
 
   loading.value = true
   error.value = ''
+
   try {
-    const response = await apiRequest(`/users/${userId}/profiles/${profileId}/milestones`)
-    if (!response.ok) {
-      throw new Error('Failed to load milestones')
-    }
-    const data = await response.json()
+    // apiRequest RETURNS JSON (and throws on HTTP errors)
+    const data = await apiRequest(`/users/${userId}/profiles/${profileId}/milestones`)
     milestones.value = Array.isArray(data) ? data.map(normalizeMilestone) : []
   } catch (err) {
-    error.value = err.message || 'Could not load milestones'
+    console.error(err)
+    error.value = err?.message || 'Could not load milestones'
   } finally {
     loading.value = false
   }
@@ -308,15 +302,14 @@ const addMilestone = async () => {
   }
 
   try {
-    const response = await apiRequest(`/users/${userId}/profiles/${profileId}/milestones`, {
+    // apiRequest RETURNS JSON (and throws on HTTP errors)
+    const created = await apiRequest(`/users/${userId}/profiles/${profileId}/milestones`, {
       method: 'POST',
       body: JSON.stringify({ milestone: payload })
     })
-    if (!response.ok) {
-      throw new Error('Could not save milestone')
-    }
-    const created = await response.json()
-    milestones.value = [ normalizeMilestone(created), ...milestones.value ]
+
+    milestones.value = [normalizeMilestone(created), ...milestones.value]
+
     form.value = {
       title: '',
       category: categories[0],
@@ -327,19 +320,22 @@ const addMilestone = async () => {
       tags: ''
     }
   } catch (err) {
-    error.value = err.message || 'Could not save milestone'
+    console.error(err)
+    error.value = err?.message || 'Could not save milestone'
   }
 }
 
 const deleteMilestone = async (id) => {
-  const previous = [ ...milestones.value ]
+  const previous = [...milestones.value]
   milestones.value = milestones.value.filter(item => item.id !== id)
+
   try {
-    const response = await apiRequest(`/milestones/${id}`, { method: 'DELETE' })
-    if (!response.ok) throw new Error('Delete failed')
+    // apiRequest will throw if DELETE fails
+    await apiRequest(`/milestones/${id}`, { method: 'DELETE' })
   } catch (err) {
+    console.error(err)
     milestones.value = previous
-    error.value = err.message || 'Could not delete milestone'
+    error.value = err?.message || 'Could not delete milestone'
   }
 }
 
@@ -355,23 +351,24 @@ const duplicateMilestone = async (item) => {
   }
 
   try {
-    const response = await apiRequest(`/users/${userId}/profiles/${profileId}/milestones`, {
+    const created = await apiRequest(`/users/${userId}/profiles/${profileId}/milestones`, {
       method: 'POST',
       body: JSON.stringify({ milestone: payload })
     })
-    if (!response.ok) throw new Error('Could not duplicate milestone')
-    const created = await response.json()
-    milestones.value = [ normalizeMilestone(created), ...milestones.value ]
+    milestones.value = [normalizeMilestone(created), ...milestones.value]
   } catch (err) {
-    error.value = err.message || 'Could not duplicate milestone'
+    console.error(err)
+    error.value = err?.message || 'Could not duplicate milestone'
   }
 }
 
 const toggleFavorite = async (id) => {
   const idx = milestones.value.findIndex(m => m.id === id)
   if (idx === -1) return
+
   const previous = milestones.value[idx]
   const updated = { ...previous, favorite: !previous.favorite }
+
   milestones.value = [
     ...milestones.value.slice(0, idx),
     updated,
@@ -379,18 +376,19 @@ const toggleFavorite = async (id) => {
   ]
 
   try {
-    const response = await apiRequest(`/milestones/${id}`, {
+    // apiRequest will throw if PATCH fails
+    await apiRequest(`/milestones/${id}`, {
       method: 'PATCH',
       body: JSON.stringify({ milestone: { favorite: updated.favorite } })
     })
-    if (!response.ok) throw new Error('Could not update favorite')
   } catch (err) {
+    console.error(err)
     milestones.value = [
       ...milestones.value.slice(0, idx),
       previous,
       ...milestones.value.slice(idx + 1)
     ]
-    error.value = err.message || 'Could not update favorite'
+    error.value = err?.message || 'Could not update favorite'
   }
 }
 
@@ -448,6 +446,18 @@ const topCategory = computed(() => {
 
 const favoriteCount = computed(() => milestones.value.filter(item => item.favorite).length)
 
+const formatRelative = (date) => {
+  const diff = Math.abs(Date.now() - date.getTime())
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+  if (days === 0) return 'Today'
+  if (days === 1) return 'Yesterday'
+  if (days < 30) return `${days} days ago`
+  const months = Math.floor(days / 30)
+  if (months < 12) return `${months} mo ago`
+  const years = Math.floor(months / 12)
+  return `${years} yr ago`
+}
+
 const lastUpdated = computed(() => {
   if (!milestones.value.length) return 'Not yet'
   const newest = milestones.value
@@ -475,20 +485,9 @@ const formatDate = (dateString) => {
   })
 }
 
-const formatRelative = (date) => {
-  const diff = Math.abs(Date.now() - date.getTime());
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24))
-  if (days === 0) return 'Today'
-  if (days === 1) return 'Yesterday'
-  if (days < 30) return `${days} days ago`
-  const months = Math.floor(days / 30)
-  if (months < 12) return `${months} mo ago`
-  const years = Math.floor(months / 12)
-  return `${years} yr ago`
-}
-
 onMounted(fetchMilestones)
 </script>
+
 
 <style scoped>
 .milestonesPage {
