@@ -531,6 +531,7 @@ onUnmounted(() => {
   .nav {
     gap: 1rem;
     overflow-x: auto;
+    padding-top: 4px;
     scrollbar-width: none;
     -ms-overflow-style: none;
   }
@@ -579,7 +580,7 @@ onUnmounted(() => {
 @media (max-width: 720px) {
   .header {
     height: auto;
-    padding: 0.75rem 1rem;
+    padding: 0.25rem;
     flex-wrap: wrap;
     gap: 0.6rem;
   }
