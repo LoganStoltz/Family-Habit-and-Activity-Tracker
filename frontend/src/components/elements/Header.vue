@@ -586,7 +586,6 @@ onUnmounted(() => {
     padding-bottom: 0.35rem;
     margin: 0;
     flex: 1 1 auto;
-    min-width: 0;
   }
 
   .nav a,
@@ -615,7 +614,7 @@ onUnmounted(() => {
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 580px) {
   .profile-name-text {
     max-width: 70px;
   }
@@ -630,6 +629,7 @@ onUnmounted(() => {
   .nav button {
     font-size: 0.7rem;
     margin: 0;
+    padding: 0.8rem 0.5rem;
   }
 
   .dropdown-menu {
