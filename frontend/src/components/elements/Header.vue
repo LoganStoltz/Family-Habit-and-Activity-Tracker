@@ -308,6 +308,7 @@ onUnmounted(() => {
 
 .user-section {
   display: flex;
+  flex-direction: row;
   align-items: center;
   gap: 1rem;
 }
@@ -525,7 +526,6 @@ onUnmounted(() => {
 @media (max-width: 1000px) {
   .header {
     padding: 0 1rem;
-    height: 4rem;
   }
   
   .nav {
@@ -536,14 +536,14 @@ onUnmounted(() => {
     -ms-overflow-style: none;
   }
   
-  .nav::-webkit-scrollbar {
-    display: none;
-  }
-  
   .nav a, .nav button {
     font-size: 0.9rem;
     padding: 0.8rem 0.8rem;
     white-space: nowrap;
+  }
+
+  .nav::-webkit-scrollbar {
+    display: none;
   }
   
   .profile-header-name {
@@ -568,23 +568,25 @@ onUnmounted(() => {
 
 @media (max-width: 720px) {
   .header {
-    height: auto;
     padding: 0.25rem;
-    flex-wrap: wrap;
-    gap: 0.6rem;
+    gap: 0.1rem;
+    flex-wrap: nowrap;
   }
 
   .user-section {
-    width: 100%;
-    order: 1;
-    justify-content: space-between;
+    width: auto;
+    order: 0;
+    justify-content: flex-end;
+    flex: 0 0 auto;
   }
 
   .nav {
-    width: 100%;
-    order: 2;
+    width: auto;
+    order: 0;
     padding-bottom: 0.35rem;
     margin: 0;
+    flex: 1 1 auto;
+    min-width: 0;
   }
 
   .nav a,
@@ -593,9 +595,24 @@ onUnmounted(() => {
     padding: 0.65rem 0.8rem;
   }
 
+
   .profile-header-name {
-    width: 100%;
-    justify-content: space-between;
+    cursor: pointer;
+    padding: 0.3rem 0.2rem 0.3rem 0.35rem;
+    gap: 0.35rem;
+  }
+
+  .dropdown-arrow-icon {
+    margin-left: -6px;
+    font-size: 0.7rem;
+  }
+
+  .profile-name-text {
+    display: none;
+  }
+  
+  .profile-type-badge {
+    display: none;
   }
 }
 
