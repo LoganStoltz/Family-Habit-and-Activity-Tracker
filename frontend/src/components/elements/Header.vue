@@ -592,7 +592,6 @@ onUnmounted(() => {
   .nav a,
   .nav button {
     font-size: 0.9rem;
-    padding: 0.65rem 0.8rem;
   }
 
 
@@ -629,7 +628,7 @@ onUnmounted(() => {
 
   .nav a,
   .nav button {
-    font-size: 0.5rem;
+    font-size: 0.7rem;
   }
 
   .dropdown-menu {
