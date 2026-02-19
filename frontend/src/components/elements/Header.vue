@@ -614,7 +614,7 @@ onUnmounted(() => {
   }
 }
 
-@media (max-width: 580px) {
+@media (max-width: 480px) {
   .profile-name-text {
     max-width: 70px;
   }
