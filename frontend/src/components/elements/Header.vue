@@ -529,7 +529,7 @@ onUnmounted(() => {
   }
   
   .nav {
-    gap: 1rem;
+    gap: 0.6rem;
     overflow-x: auto;
     padding-top: 4px;
     scrollbar-width: none;
@@ -629,6 +629,7 @@ onUnmounted(() => {
   .nav a,
   .nav button {
     font-size: 0.7rem;
+    margin: 0;
   }
 
   .dropdown-menu {
