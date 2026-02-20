@@ -504,7 +504,7 @@ onUnmounted(() => {
 
 .welcome-panel {
   width: 100%;
-  padding: 3.5rem;
+  padding: 2rem;
   background: linear-gradient(135deg, rgba(79, 157, 255, 0.15), rgba(116, 235, 213, 0.08));
   border-radius: 28px;
   box-shadow: var(--box-shadow-default);
@@ -920,7 +920,7 @@ onUnmounted(() => {
 }
 
 /* Responsive Design */
-@media (max-width: 1024px) {
+@media (max-width: 1000px) {
   .hero-section {
     grid-template-columns: 1fr;
     gap: 2rem;
@@ -948,7 +948,7 @@ onUnmounted(() => {
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 720px) {
   .HomePage-main-section {
     padding: 2rem 1.5rem;
     gap: 2rem;

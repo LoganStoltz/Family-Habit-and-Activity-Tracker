@@ -5,9 +5,12 @@
       <div class="habitPanels" :class="{ collapsed: isCollapsed }">
         <div class="dashboardHeader">
           <div class="header-left">
-            <button class="activityButton" @click="showAddNewHabit = true">Add Habit</button>
+            <button class="activityButton" @click="showAddNewHabit = true">
+              <span class="add-habit-label">Add Habit</span>
+              <span class="add-habit-icon" aria-hidden="true">+</span>
+            </button>
           </div>
-          <h1>Habits & Care</h1>
+          <h1>{{ profile.firstName.charAt(0).toUpperCase() + profile.firstName.slice(1) }}'s Habits</h1>
           <div class="header-right">
             <button class="editingModeButton" :class="{ active: toggleEditingMode }" @click="toggleEditingMode = !toggleEditingMode">✏️</button>
           </div>
@@ -300,10 +303,8 @@ const handleLogModalClose = (type) => {
 .habitsPage {
   max-width: 1600px;
   margin: 20px auto;
-}
-
-.habitsContent {
-  margin-top: 20px;
+  padding: 0 20px;
+  box-sizing: border-box;
 }
 
 /* Habits & Care Section Styling */
@@ -337,7 +338,7 @@ const handleLogModalClose = (type) => {
 }
 
 .dashboardHeader h1 {
-  font-size: 1.5rem;
+  font-size: rem;
   margin: 0;
   color: white;
   font-weight: 700;
@@ -496,21 +497,6 @@ const handleLogModalClose = (type) => {
   justify-content: flex-end;
 }
 
-.header-left,
-.header-right {
-  width: 180px;
-  display: flex;
-  align-items: center;
-}
-
-.header-left {
-  justify-content: flex-start;
-}
-
-.header-right {
-  justify-content: flex-end;
-}
-
 .no-dashboard-cards {
   text-align: center;
   color: #666;
@@ -616,29 +602,72 @@ const handleLogModalClose = (type) => {
   text-align: left;
 }
 
+.activityButton .add-habit-icon {
+  display: none;
+}
+
 @keyframes modalSlideIn {
   from { opacity: 0; transform: translateY(-30px) scale(0.95);}
   to { opacity: 1; transform: translateY(0) scale(1);}
 }
 
 /* Responsive */
-@media (max-width: 1200px) {
-  .habitPanels {
-    max-width: 100%;
-  }
-  .dashboard-cards {
-    grid-template-columns: 1fr 1fr;
-    gap: 18px;
-  }
+@media (max-width: 1000px) {
   .dashboardHeader {
-    margin: -24px -20px 20px -20px;
-    padding: 2px;
+    gap: 0.5rem;
+    padding: 12px 14px;
+  }
+
+  .dashboardHeader h1{
+    font-size: 1.5rem;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0 0.35rem;
+  }
+
+  .header-left,
+  .header-right {
+    width: 56px;
+    min-height: 40px;
+    flex: 0 0 56px;
+  }
+
+  .dashboardHeader .activityButton {
+    width: 50px;
+    height: 50px;
+    min-width: 40px;
+    min-height: 40px;
+    padding: 0;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .activityButton .add-habit-label {
+    display: none;
+  }
+
+  .activityButton .add-habit-icon {
+    display: inline-block;
+    line-height: 1;
+    font-size: 1.5rem;
+    font-weight: 700;
   }
 }
-@media (max-width: 800px) {
-  .dashboard-header h1 {
-    font-size: 2rem;
+@media (max-width: 720px) {
+  .dashboardHeader h1{
+    font-size: 1.3rem;
   }
+
+  .header-left,
+  .header-right {
+    width: 50px;
+    flex: 0 0 50px;
+  }
+
   .dashboard-cards {
     grid-template-columns: 1fr;
     gap: 1rem;

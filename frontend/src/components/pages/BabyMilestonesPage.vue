@@ -493,6 +493,8 @@ onMounted(fetchMilestones)
 .milestonesPage {
   max-width: 1600px;
   margin: 20px auto;
+  padding: 0 20px;
+  box-sizing: border-box;
 }
 
 .milestonesHeroSection {
@@ -900,7 +902,7 @@ onMounted(fetchMilestones)
   color: #1f2a3d;
 }
 
-@media (max-width: 1080px) {
+@media (max-width: 1000px) {
   .milestonesHeroSection {
     grid-template-columns: 1fr;
   }
@@ -910,11 +912,8 @@ onMounted(fetchMilestones)
   }
 }
 
-@media (max-width: 640px) {
-  .milestonesPage {
-    padding: 1rem;
-  }
-
+@media (max-width: 720px) {
+  
   .milestonesHeroSection {
     padding-bottom: 12px;
   }
