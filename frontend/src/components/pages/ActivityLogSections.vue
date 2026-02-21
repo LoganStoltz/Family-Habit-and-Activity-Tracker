@@ -11,17 +11,6 @@
         <div class="filterConsole">
           <div class="filterInputs">
             <div class="filterGroup">
-              <label for="searchLogId">Log ID:</label>
-              <input
-                id="searchLogId"
-                v-model="searchLogId"
-                type="text"
-                placeholder="Search by Log ID..."
-                class="filterInput"
-              />
-            </div>
-
-            <div class="filterGroup">
               <label for="searchName">Habit Name:</label>
               <input
                 id="searchName"
@@ -64,6 +53,17 @@
               </select>
             </div>
 
+            <div class="filterGroup">
+              <label for="searchLogId">Log ID:</label>
+              <input
+                id="searchLogId"
+                v-model="searchLogId"
+                type="text"
+                placeholder="Search by Log ID..."
+                class="filterInput"
+              />
+            </div>
+
             <button @click="clearFilters" class="clearButton">Clear Filters</button>
           </div>
         </div>
@@ -77,10 +77,10 @@
         <div class="header-left">
           <button class="activityButton" @click="fetchData">
             <span class="refresh-logs-label">Refresh Logs</span>
-            <span class="refresh-logs-icon" aria-hidden="true">+</span>
+            <span class="refresh-logs-icon" aria-hidden="true">⟳</span>
           </button>
         </div>
-        <h1>Habit Logs Table</h1>
+        <h1>Habit Logs</h1>
         <div class="header-right">
           <button class="editingModeButton" :class="{ active: showActionsColumn }" @click="showActionsColumn = !showActionsColumn">✏️</button>
         </div>
@@ -90,7 +90,36 @@
         <p v-else-if="error" class="error">{{ error }}</p>
         <p v-else-if="enrichedLogs.length === 0">No habit logs found.</p>
 
-        <table v-else class="habits-table">
+        <div v-else class="HabitLogsCards">
+            <div v-for="log in filteredAndSortedLogs" :key="log.id" class="habitLogCard">
+                <div>
+                    <h3>{{ log.habitName }}</h3>
+                    <p><strong>Category:</strong> {{ log.category || 'N/A' }}</p>
+                </div>
+                <div>
+                    <p><strong>Logged At:</strong> {{ formatDate(log.updated_at) }}</p>
+                    <p><strong>Log ID:</strong> {{ log.id }}</p>
+                </div>
+                <div>
+                    <p><strong>Details:</strong> {{ formatExtraData(log.extra_data) }}</p>
+                </div>
+                
+                <div>
+                    <p><strong>Notes:</strong> {{ log.notes || 'N/A' }}</p>
+                </div>
+                
+                <button
+                v-if="showActionsColumn"
+                class="delete-log-btn"
+                @click="confirmDeleteLog(log)"
+                :disabled="deletingLogId === log.id"
+                >
+                {{ deletingLogId === log.id ? 'Deleting...' : '🗑️ Delete' }}
+                </button>
+            </div>
+
+        </div>
+        <!--<table v-else class="habits-table">
           <thead>
             <tr>
               <th @click="sortBy('id')" class="sortable">
@@ -131,7 +160,7 @@
               </td>
             </tr>
           </tbody>
-        </table>
+        </table>-->
       </div>
     </section>
 
@@ -214,6 +243,7 @@ const enrichedLogs = computed(() => {
   return habitLogs.value
     .map((log) => {
       const habit = habits.value.find((h) => h.id === log.habit_id)
+
       return {
         ...log,
         habitName: habit?.name || 'Unknown Habit',
@@ -386,6 +416,20 @@ const formatDate = (dateString) => {
   })
 }
 
+const formatExtraData = (extraData) => {
+  if (!extraData || (typeof extraData === 'object' && Object.keys(extraData).length === 0)) {
+    return 'N/A'
+  }
+
+  if (typeof extraData === 'string') return extraData
+
+  try {
+    return JSON.stringify(extraData)
+  } catch {
+    return 'N/A'
+  }
+}
+
 const handleFilterToggle = (collapsed) => {
   isFilterCollapsed.value = collapsed
 }
@@ -510,6 +554,55 @@ onMounted(fetchData)
   font-weight: 600;
 }
 
+.HabitLogsCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.habitLogCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  background: linear-gradient(135deg, rgba(79, 157, 255, 0.08), rgba(116, 235, 213, 0.08));
+  border: 1px solid rgba(79, 157, 255, 0.2);
+  border-radius: 14px;
+  padding: 1rem 1.1rem;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.habitLogCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.12);
+}
+
+.habitLogCard h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1e3a5f;
+}
+
+.habitLogCard p {
+  margin: 0.2rem 0;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  text-align: left;
+  color: #334155;
+}
+
+.habitLogCard strong {
+  color: #1e3a5f;
+}
+
+.habitLogCard .delete-log-btn {
+  margin-top: 0.2rem;
+  align-self: flex-start;
+}
+
+/*
 .habits-table {
   width: 100%;
   border-collapse: collapse;
@@ -597,6 +690,7 @@ onMounted(fetchData)
   cursor: not-allowed;
   transform: none;
 }
+*/
 
 .filterSectionBody {
   transition: all 0.3s ease;
@@ -730,6 +824,16 @@ onMounted(fetchData)
 
   .resultsCount {
     font-size: 0.85rem;
+  }
+
+  .HabitLogsCards {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
+
+  .habitLogCard {
+    padding: 0.9rem;
+    border-radius: 12px;
   }
 
   .activitySummaryBody {

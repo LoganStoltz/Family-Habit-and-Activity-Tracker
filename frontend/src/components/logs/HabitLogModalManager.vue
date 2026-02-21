@@ -125,10 +125,19 @@ const closeModal = () => {
 // Handle log submission from category-specific components
 const handleLogSubmitted = async (logData) => {
   try {
+    const storedProfile = localStorage.getItem('profile')
+    const profile = storedProfile ? JSON.parse(storedProfile) : null
+
+    const { notes, ...extraData } = logData || {}
+
     const payload = {
-      logged_date: new Date().toISOString().split('T')[0],
-      ...logData
-    };
+      habit_log: {
+        profile_id: profile?.id || null,
+        log_date: new Date().toISOString().split('T')[0],
+        notes: notes || '',
+        extra_data: extraData
+      }
+    }
 
     const response = await fetch(
       `${API_BASE_URL}/habits/${selectedHabit.value.id}/habit_logs`,

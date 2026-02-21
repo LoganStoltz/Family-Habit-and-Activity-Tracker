@@ -143,7 +143,16 @@
       <section class="timelineSection">
         <close-element @minimize="$emit('minimize')" :showCollapse="true" @toggle="handleToggleMilestoneLogs" />
         <div class="milestoneSectionHeader">
+          <div class="header-left">
+            <button class="activityButton" @click="fetchData">
+              <span class="refresh-logs-label">Refresh Logs</span>
+              <span class="refresh-logs-icon" aria-hidden="true">⟳</span>
+            </button>
+          </div>
           <h1>Milestone Logs</h1>
+          <div class="header-right">
+            <button class="editingModeButton" :class="{ active: toggleEditingMode }" @click="toggleEditingMode = !toggleEditingMode">✏️</button>
+          </div>
         </div>
         <div class="closeElement" :class=" { collapsed: isMilestoneLogsCollapsed }">
           <div class="timelineSection-content">
@@ -178,7 +187,6 @@
                     <div class="card-actions">
                       <span class="pill muted">Mood: {{ item.mood }}</span>
                       <div class="action-buttons">
-                        <button class="ghost" type="button" @click="duplicateMilestone(item)">Duplicate</button>
                         <button class="danger" type="button" @click="deleteMilestone(item.id)">Delete</button>
                       </div>
                     </div>
@@ -336,29 +344,6 @@ const deleteMilestone = async (id) => {
     console.error(err)
     milestones.value = previous
     error.value = err?.message || 'Could not delete milestone'
-  }
-}
-
-const duplicateMilestone = async (item) => {
-  const payload = {
-    title: `${item.title}`,
-    category: item.category,
-    occurred_at: new Date(item.occurredAt).toISOString(),
-    notes: item.notes,
-    mood: item.mood,
-    tags: item.tags,
-    favorite: false
-  }
-
-  try {
-    const created = await apiRequest(`/users/${userId}/profiles/${profileId}/milestones`, {
-      method: 'POST',
-      body: JSON.stringify({ milestone: payload })
-    })
-    milestones.value = [normalizeMilestone(created), ...milestones.value]
-  } catch (err) {
-    console.error(err)
-    error.value = err?.message || 'Could not duplicate milestone'
   }
 }
 
@@ -543,6 +528,26 @@ onMounted(fetchMilestones)
   font-weight: 700;
   text-align: center;
   flex: 1;
+}
+
+.refresh-logs-icon {
+  display: none;
+}
+
+.timelineSection .milestoneSectionHeader .header-left,
+.timelineSection .milestoneSectionHeader .header-right {
+  width: 180px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+.timelineSection .milestoneSectionHeader .header-left {
+  justify-content: flex-start;
+}
+
+.timelineSection .milestoneSectionHeader .header-right {
+  justify-content: flex-end;
 }
 
 .milestoneInfo h1 {
@@ -772,6 +777,7 @@ onMounted(fetchMilestones)
 
 .timelineSection-items {
   display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 0.8rem;
 }
 
@@ -910,6 +916,50 @@ onMounted(fetchMilestones)
   .content-grid {
     grid-template-columns: 1fr;
   }
+
+  .timelineSection .milestoneSectionHeader {
+    gap: 0.5rem;
+    padding: 12px 14px;
+  }
+
+  .timelineSection .milestoneSectionHeader h1 {
+    font-size: 1.5rem;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0 0.35rem;
+  }
+
+  .timelineSection .milestoneSectionHeader .header-left,
+  .timelineSection .milestoneSectionHeader .header-right {
+    width: 56px;
+    min-height: 40px;
+    flex: 0 0 56px;
+  }
+
+  .timelineSection .milestoneSectionHeader .activityButton {
+    width: 50px;
+    height: 50px;
+    min-width: 40px;
+    min-height: 40px;
+    padding: 0;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .timelineSection .milestoneSectionHeader .refresh-logs-label {
+    display: none;
+  }
+
+  .timelineSection .milestoneSectionHeader .refresh-logs-icon {
+    display: inline-block;
+    line-height: 1;
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
 }
 
 @media (max-width: 720px) {
@@ -921,6 +971,16 @@ onMounted(fetchMilestones)
   .milestoneSectionHeader {
     height: 64px;
     padding: 12px 14px;
+  }
+
+  .timelineSection .milestoneSectionHeader h1 {
+    font-size: 1.3rem;
+  }
+
+  .timelineSection .milestoneSectionHeader .header-left,
+  .timelineSection .milestoneSectionHeader .header-right {
+    width: 50px;
+    flex: 0 0 50px;
   }
 
   .content-grid {
