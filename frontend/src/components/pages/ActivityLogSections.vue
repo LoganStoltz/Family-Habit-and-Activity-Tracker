@@ -179,6 +179,44 @@ const fetchAllLogs = async () => {
   habitLogs.value = allLogs
 }
 
+const habitLogCounts = computed(() => {
+  return habitLogs.value.reduce((accumulator, log) => {
+    const habitId = log.habit_id
+    if (!habitId) return accumulator
+
+    accumulator[habitId] = (accumulator[habitId] || 0) + 1
+    return accumulator
+  }, {})
+})
+
+const habitLogOrdinals = computed(() => {
+  const grouped = habitLogs.value.reduce((accumulator, log) => {
+    const habitId = log.habit_id
+    if (!habitId) return accumulator
+
+    if (!accumulator[habitId]) accumulator[habitId] = []
+    accumulator[habitId].push(log)
+    return accumulator
+  }, {})
+
+  const ordinalMap = {}
+
+  Object.values(grouped).forEach((logsForHabit) => {
+    logsForHabit
+      .slice()
+      .sort((a, b) => {
+        const dateDiff = new Date(a.created_at) - new Date(b.created_at)
+        if (dateDiff !== 0) return dateDiff
+        return (a.id || 0) - (b.id || 0)
+      })
+      .forEach((log, index) => {
+        ordinalMap[log.id] = index + 1
+      })
+  })
+
+  return ordinalMap
+})
+
 const enrichedLogs = computed(() => {
   return habitLogs.value
     .map((log) => {
@@ -188,6 +226,8 @@ const enrichedLogs = computed(() => {
         ...log,
         habitName: habit?.name || 'Unknown Habit',
         category: habit?.category || 'N/A',
+        habitLogCount: habitLogCounts.value[log.habit_id] || 0,
+        habitLogOrdinal: habitLogOrdinals.value[log.id] || 0,
       }
     })
     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))

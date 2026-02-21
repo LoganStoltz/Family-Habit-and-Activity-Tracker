@@ -7,13 +7,12 @@
       <div class="card-title-block">
         <div class="card-title-row">
           <span class="card-title">{{ habit.name }}</span>
+        </div>
+        <div class="card-meta">
           <span v-if="(habit?.category || 'generic') !== 'generic'" class="chip" :style="{ color: palette.accent }">
             {{ habit.category }}
           </span>
-        </div>
-        <div class="card-meta">
           <span class="pill" :style="{ color: palette.accent, backgroundColor: palette.tint }">{{ logs.length }} total logs</span>
-          <span class="pill muted">ID #{{ habit.id }}</span>
         </div>
       </div>
     </div>
@@ -47,6 +46,7 @@
 
     <div class="card-action-row">
       <button
+        v-if="!toggleEditingMode"
         class="card-action-btn"
         :style="localActionBtnStyle"
         @click="onLog"
@@ -188,34 +188,35 @@ function onDelete() { emit('delete-habit', props.habit); }
   border-radius: 16px;
   padding: 18px 18px 16px;
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-  border: 1px solid #e5e7eb;
-  transition: transform 0.16s ease, box-shadow 0.16s ease;
+  border: 2px solid rgba(15, 23, 42, 0.18);
+  transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
 }
 
 .dashboard-card:hover {
   transform: translateY(-1px);
   box-shadow: 0 16px 38px rgba(15, 23, 42, 0.12);
+  border-color: var(--accent);
 }
 
 .card-header {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   background: var(--tint);
   border-radius: 12px;
-  padding: 12px 12px 10px;
+  padding: 12px;
   margin: -6px -6px 12px;
 }
 
 .card-avatar {
-  width: 48px;
-  height: 48px;
+  width: 54px;
+  height: 54px;
   border-radius: 14px;
   display: grid;
   place-items: center;
   color: #ffffff;
   font-weight: 800;
-  font-size: 1.05rem;
+  font-size: 1.15rem;
   box-shadow: 0 10px 22px rgba(15, 23, 42, 0.18);
   background: var(--gradient);
 }
@@ -223,20 +224,28 @@ function onDelete() { emit('delete-habit', props.habit); }
 .card-title-block {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: 6px;
+  flex: 1;
+  min-width: 0;
 }
 
 .card-title-row {
   display: flex;
   align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
 }
 
 .card-title {
-  font-size: 1.12rem;
+  font-size: 1.1rem;
   font-weight: 800;
   color: #0f172a;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .chip {
@@ -247,25 +256,31 @@ function onDelete() { emit('delete-habit', props.habit); }
   font-size: 0.88rem;
   border: 1px solid #e2e8f0;
   color: var(--accent);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .card-meta {
   display: flex;
+  align-items: center;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
 }
 
 .pill {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 10px;
+  padding: 6px 11px;
   border-radius: 999px;
-  font-size: 0.9rem;
+  font-size: 0.86rem;
   font-weight: 700;
   background: #f8fafc;
   border: 1px solid #e2e8f0;
   color: var(--accent);
+  margin-top: 1px;
 }
 
 .pill.muted {
@@ -386,6 +401,7 @@ function onDelete() { emit('delete-habit', props.habit); }
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+  justify-content: center;
 }
 
 .card-action-btn {
@@ -399,6 +415,10 @@ function onDelete() { emit('delete-habit', props.habit); }
   background: #ffffff;
   transition: transform 0.14s ease, box-shadow 0.14s ease, filter 0.14s ease;
   box-shadow: 0 8px 18px rgba(15, 23, 42, 0.10);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  width: 200px;
 }
 
 .card-action-btn:hover:not(:disabled) {
@@ -448,6 +468,14 @@ function onDelete() { emit('delete-habit', props.habit); }
   .card-header {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .card-title-row {
+    width: 100%;
+  }
+
+  .chip {
+    max-width: 55%;
   }
 
   .card-action-row {
