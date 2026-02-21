@@ -91,76 +91,15 @@
         <p v-else-if="enrichedLogs.length === 0">No habit logs found.</p>
 
         <div v-else class="HabitLogsCards">
-            <div v-for="log in filteredAndSortedLogs" :key="log.id" class="habitLogCard">
-                <div>
-                    <h3>{{ log.habitName }}</h3>
-                    <p><strong>Category:</strong> {{ log.category || 'N/A' }}</p>
-                </div>
-                <div>
-                    <p><strong>Logged At:</strong> {{ formatDate(log.updated_at) }}</p>
-                    <p><strong>Log ID:</strong> {{ log.id }}</p>
-                </div>
-                <div>
-                    <p><strong>Details:</strong> {{ formatExtraData(log.extra_data) }}</p>
-                </div>
-                
-                <div>
-                    <p><strong>Notes:</strong> {{ log.notes || 'N/A' }}</p>
-                </div>
-                
-                <button
-                v-if="showActionsColumn"
-                class="delete-log-btn"
-                @click="confirmDeleteLog(log)"
-                :disabled="deletingLogId === log.id"
-                >
-                {{ deletingLogId === log.id ? 'Deleting...' : '🗑️ Delete' }}
-                </button>
-            </div>
-
+              <HabitLogCards
+                v-for="log in filteredAndSortedLogs"
+                :key="log.id"
+                :log="log"
+                :showActionsColumn="showActionsColumn"
+                :deletingLogId="deletingLogId"
+                @confirmDeleteLog="confirmDeleteLog"
+                />
         </div>
-        <!--<table v-else class="habits-table">
-          <thead>
-            <tr>
-              <th @click="sortBy('id')" class="sortable">
-                Log ID
-                <span class="sort-icon">{{ getSortIcon('id') }}</span>
-              </th>
-              <th @click="sortBy('habitName')" class="sortable">
-                Habit Name
-                <span class="sort-icon">{{ getSortIcon('habitName') }}</span>
-              </th>
-              <th @click="sortBy('category')" class="sortable">
-                Category
-                <span class="sort-icon">{{ getSortIcon('category') }}</span>
-              </th>
-              <th @click="sortBy('created_at')" class="sortable">
-                Logged At
-                <span class="sort-icon">{{ getSortIcon('created_at') }}</span>
-              </th>
-              <th>Notes</th>
-              <th v-if="showActionsColumn">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="log in filteredAndSortedLogs" :key="log.id">
-              <td>{{ log.id }}</td>
-              <td>{{ log.habitName }}</td>
-              <td>{{ log.category || 'N/A' }}</td>
-              <td>{{ formatDate(log.created_at) }}</td>
-              <td>{{ log.notes || 'N/A' }}</td>
-              <td v-if="showActionsColumn">
-                <button
-                  class="delete-log-btn"
-                  @click="confirmDeleteLog(log)"
-                  :disabled="deletingLogId === log.id"
-                >
-                  {{ deletingLogId === log.id ? 'Deleting...' : '🗑️ Delete' }}
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>-->
       </div>
     </section>
 
@@ -183,6 +122,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { apiRequest } from '../../config/api.js'
 import ConfirmDeleteModal from '../Popups/ConfirmDeleteModal.vue'
+import HabitLogCards from '../elements/habitLogCards.vue'
 import CloseElement from '@/components/elements/closeElement.vue'
 
 const emit = defineEmits(['minimize'])
@@ -375,20 +315,6 @@ const deleteLog = async () => {
   }
 }
 
-const sortBy = (column) => {
-  if (sortColumn.value === column) {
-    sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc'
-  } else {
-    sortColumn.value = column
-    sortDirection.value = 'asc'
-  }
-}
-
-const getSortIcon = (column) => {
-  if (sortColumn.value !== column) return '⇅'
-  return sortDirection.value === 'asc' ? '↑' : '↓'
-}
-
 const fetchData = async () => {
   loading.value = true
   error.value = ''
@@ -556,141 +482,22 @@ onMounted(fetchData)
 
 .HabitLogsCards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1rem;
   margin-top: 0.5rem;
 }
 
-.habitLogCard {
-  display: flex;
-  flex-direction: column;
-  gap: 0.85rem;
-  background: linear-gradient(135deg, rgba(79, 157, 255, 0.08), rgba(116, 235, 213, 0.08));
-  border: 1px solid rgba(79, 157, 255, 0.2);
-  border-radius: 14px;
-  padding: 1rem 1.1rem;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+@media (max-width: 1400px) {
+  .HabitLogsCards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
-.habitLogCard:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.12);
+@media (max-width: 1050px) {
+  .HabitLogsCards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
-
-.habitLogCard h3 {
-  margin: 0;
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: #1e3a5f;
-}
-
-.habitLogCard p {
-  margin: 0.2rem 0;
-  font-size: 0.95rem;
-  line-height: 1.4;
-  text-align: left;
-  color: #334155;
-}
-
-.habitLogCard strong {
-  color: #1e3a5f;
-}
-
-.habitLogCard .delete-log-btn {
-  margin-top: 0.2rem;
-  align-self: flex-start;
-}
-
-/*
-.habits-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1rem;
-  background: white;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-}
-
-.habits-table thead {
-  background: linear-gradient(135deg, #4f9dff, #74ebd5);
-  color: white;
-}
-
-.habits-table th {
-  padding: 12px 16px;
-  text-align: left;
-  font-weight: 600;
-  font-size: 0.95rem;
-  letter-spacing: 0.5px;
-}
-
-.habits-table tbody tr {
-  border-bottom: 1px solid #e0e7ef;
-  transition: background 0.2s;
-}
-
-.habits-table tbody tr:hover {
-  background: #f0f7ff;
-}
-
-.habits-table tbody tr:last-child {
-  border-bottom: none;
-}
-
-.habits-table td {
-  padding: 12px 16px;
-  color: #555;
-  font-size: 0.95rem;
-}
-
-.habits-table td:first-child {
-  font-weight: 600;
-  color: #4f9dff;
-}
-
-.sortable {
-  cursor: pointer;
-  user-select: none;
-  position: relative;
-  transition: background 0.2s;
-}
-
-.sortable:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.sort-icon {
-  margin-left: 6px;
-  font-size: 0.9rem;
-  opacity: 0.7;
-}
-
-.delete-log-btn {
-  padding: 6px 12px;
-  background: linear-gradient(135deg, #f43f5e, #e11d48);
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.85rem;
-  font-weight: 600;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 6px rgba(244, 63, 94, 0.2);
-}
-
-.delete-log-btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 10px rgba(244, 63, 94, 0.3);
-}
-
-.delete-log-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
-*/
 
 .filterSectionBody {
   transition: all 0.3s ease;
@@ -792,7 +599,6 @@ onMounted(fetchData)
 
   .filterSectionHeader,
   .habitLogsSectionHeader {
-    height: 64px;
     padding: 12px 14px;
     margin: -16px -16px 16px -16px;
   }
@@ -829,11 +635,6 @@ onMounted(fetchData)
   .HabitLogsCards {
     grid-template-columns: 1fr;
     gap: 0.85rem;
-  }
-
-  .habitLogCard {
-    padding: 0.9rem;
-    border-radius: 12px;
   }
 
   .activitySummaryBody {
