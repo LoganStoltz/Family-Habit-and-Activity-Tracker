@@ -398,12 +398,14 @@ onUnmounted(() => {
   position: absolute;
   top: calc(100% + 0.5rem);
   right: 0;
+  left: auto;
   background: rgba(30, 66, 95, 0.98);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: var(--radius-medium);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
   min-width: 200px;
+  max-width: calc(100vw - 1rem);
   z-index: 1001;
   overflow: hidden;
   animation: dropdownSlide 0.2s ease-out;
@@ -633,9 +635,10 @@ onUnmounted(() => {
   }
 
   .dropdown-menu {
-    right: auto;
-    left: 0;
-    min-width: 100%;
+    right: 0;
+    left: auto;
+    width: min(280px, calc(100vw - 1rem));
+    min-width: 0;
   }
 }
 </style>
