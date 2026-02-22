@@ -172,25 +172,14 @@
                   <span>{{ group.items.length }} saved</span>
                 </div>
                 <div class="timelineSection-items">
-                  <article v-for="item in group.items" :key="item.id" class="timelineSection-card">
-                    <div class="card-top">
-                      <div class="card-meta">
-                        <span class="pill pill-soft">{{ item.category }}</span>
-                        <span class="muted">{{ formatDate(item.occurredAt) }}</span>
-                      </div>
-                      <button class="icon-btn" type="button" @click="toggleFavorite(item.id)">
-                        <span :class="['star', { active: item.favorite }]">★</span>
-                      </button>
-                    </div>
-                    <h3>{{ item.title }}</h3>
-                    <p class="note" v-if="item.notes">{{ item.notes }}</p>
-                    <div class="card-actions">
-                      <span class="pill muted">Mood: {{ item.mood }}</span>
-                      <div class="action-buttons">
-                        <button class="danger" type="button" @click="deleteMilestone(item.id)">Delete</button>
-                      </div>
-                    </div>
-                  </article>
+                  <MilestoneLogCard
+                    v-for="item in group.items"
+                    :key="item.id"
+                    :item="item"
+                    :show-actions-column="toggleEditingMode"
+                    @toggle-favorite="toggleFavorite"
+                    @delete-milestone="deleteMilestone"
+                  />
                 </div>
               </div>
             </div>
@@ -205,6 +194,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { apiRequest } from '../../config/api.js'
 import closeElement from '../elements/closeElement.vue'
+import MilestoneLogCard from '../elements/MilestoneLogCard.vue'
 
 const user = JSON.parse(localStorage.getItem('user') || '{}')
 const profile = JSON.parse(localStorage.getItem('profile') || '{}')
@@ -253,6 +243,11 @@ const filtersSection = ref({
 const milestones = ref([])
 const loading = ref(false)
 const error = ref('')
+const toggleEditingMode = ref(false)
+
+const fetchData = async () => {
+  await fetchMilestones()
+}
 
 const normalizeMilestone = (raw) => ({
   id: raw.id,

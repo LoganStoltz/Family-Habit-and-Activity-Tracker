@@ -28,9 +28,11 @@
               :incrementing="incrementing"
               :incrementError="incrementError"
               :isDeleting="isDeleting"
+              :isFavorite="isHabitFavorite(habit.id)"
               @edit-habit="editHabit"
               @delete-habit="confirmDeleteHabit"
               @log-habit="handleIncrement"
+              @toggle-favorite-habit="toggleFavoriteHabit"
               :toggleEditingMode="toggleEditingMode"
             />
           </template>
@@ -148,6 +150,7 @@ const editTarget = ref(null);
 
 const toggleEditingMode = ref(false);
 const isCollapsed = ref(false);
+const favoriteHabitIds = ref([]);
 
 const logManager = ref(null); // ref to HabitLogModalManager
 
@@ -163,6 +166,36 @@ const user = JSON.parse(localStorage.getItem('user') || '{}');
 const userId = user?.id;
 const profile = JSON.parse(localStorage.getItem('profile') || '{}'); // make profile a top-level const
 const profileId = profile?.id;
+
+const getFavoriteHabitStorageKey = () => `favorite_habits_${userId || 'guest'}_${profileId || 'none'}`;
+
+const loadFavoriteHabits = () => {
+  try {
+    const raw = localStorage.getItem(getFavoriteHabitStorageKey());
+    const parsed = raw ? JSON.parse(raw) : [];
+    favoriteHabitIds.value = Array.isArray(parsed) ? parsed.map(Number).filter(Boolean) : [];
+  } catch {
+    favoriteHabitIds.value = [];
+  }
+};
+
+const saveFavoriteHabits = () => {
+  localStorage.setItem(getFavoriteHabitStorageKey(), JSON.stringify(favoriteHabitIds.value));
+};
+
+const isHabitFavorite = (habitId) => favoriteHabitIds.value.includes(Number(habitId));
+
+const toggleFavoriteHabit = (habit) => {
+  const habitId = Number(habit?.id);
+  if (!habitId) return;
+
+  const alreadyFavorite = favoriteHabitIds.value.includes(habitId);
+  favoriteHabitIds.value = alreadyFavorite
+    ? favoriteHabitIds.value.filter((id) => id !== habitId)
+    : [...favoriteHabitIds.value, habitId];
+
+  saveFavoriteHabits();
+};
 
 // Open correct modal for logging — call LogModalManager.openModal
 const handleIncrement = (habit) => {
@@ -268,9 +301,23 @@ const removeHabit = async (habitId) => {
 };
 
 // Computed habits
-const filteredHabits = computed(() => habits.value);
+const filteredHabits = computed(() => {
+  return [...habits.value].sort((a, b) => {
+    const aFavorite = isHabitFavorite(a?.id) ? 1 : 0;
+    const bFavorite = isHabitFavorite(b?.id) ? 1 : 0;
 
-onMounted(fetchHabits);
+    if (aFavorite !== bFavorite) return bFavorite - aFavorite;
+
+    const aName = String(a?.name || '');
+    const bName = String(b?.name || '');
+    return aName.localeCompare(bName);
+  });
+});
+
+onMounted(() => {
+  loadFavoriteHabits();
+  fetchHabits();
+});
 
 // update editHabit to open the edit modal
 const editHabit = (habit) => {

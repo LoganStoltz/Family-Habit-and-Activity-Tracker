@@ -7,6 +7,15 @@
       <div class="card-title-block">
         <div class="card-title-row">
           <span class="card-title">{{ habit.name }}</span>
+          <button
+            class="favorite-btn"
+            :class="{ active: isFavorite }"
+            type="button"
+            @click="onToggleFavorite"
+            aria-label="Toggle favorite habit"
+          >
+            <span class="favorite-star">★</span>
+          </button>
         </div>
         <div class="card-meta">
           <span v-if="(habit?.category || 'generic') !== 'generic'" class="chip" :style="{ color: palette.accent }">
@@ -89,10 +98,11 @@ const props = defineProps({
   incrementError: { type: Object, default: () => ({}) },
   isDeleting: { type: Object, default: () => ({}) },
   isEditing: { type: Object, default: () => ({}) },
-  toggleEditingMode: { type: Boolean, default: false }
+  toggleEditingMode: { type: Boolean, default: false },
+  isFavorite: { type: Boolean, default: false }
 });
 
-const emit = defineEmits(['log-habit', 'edit-habit', 'delete-habit']);
+const emit = defineEmits(['log-habit', 'edit-habit', 'delete-habit', 'toggle-favorite-habit']);
 
 const palette = computed(() => {
   const options = [
@@ -179,6 +189,7 @@ const cardVars = computed(() => ({
 function onLog() { emit('log-habit', props.habit); }
 function onEdit() { emit('edit-habit', props.habit); }
 function onDelete() { emit('delete-habit', props.habit); }
+function onToggleFavorite() { emit('toggle-favorite-habit', props.habit); }
 </script>
 
 <style scoped>
@@ -235,6 +246,48 @@ function onDelete() { emit('delete-habit', props.habit); }
   align-items: center;
   gap: 8px;
   min-width: 0;
+}
+
+.favorite-btn {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.14s ease;
+  box-shadow: none;
+}
+
+.favorite-btn:hover {
+  background: var(--tint) !important; 
+  border-color: var(--accent);
+}
+
+.favorite-btn:active,
+.favorite-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.favorite-star {
+  font-size: 1rem;
+  line-height: 1;
+  color: #94a3b8;
+  transition: color 0.2s ease;
+}
+
+.favorite-btn:hover .favorite-star {
+  color: var(--accent);
+}
+
+.favorite-btn:active .favorite-star,
+.favorite-btn.active .favorite-star {
+  color: #ffffff;
 }
 
 .card-title {
