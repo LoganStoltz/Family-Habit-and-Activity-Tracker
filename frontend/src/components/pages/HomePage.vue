@@ -95,6 +95,30 @@
       </div>
     </div>
 
+    <div v-if="user && profile && favoriteHabits.length" class="feature-section favorite-habits-section">
+      <div class="quick-access-header">
+        <h2>Favorite Habits</h2>
+      </div>
+      <div class="favorite-habits-grid">
+        <HabitsCard
+          v-for="habit in favoriteHabits"
+          :key="habit.id"
+          :habit="habit"
+          :logs="favoriteHabitLogs[habit.id] || []"
+          :incrementing="homeIncrementing"
+          :incrementError="homeIncrementError"
+          :isDeleting="homeIsDeleting"
+          :isEditing="homeIsEditing"
+          :toggleEditingMode="false"
+          :isFavorite="true"
+          @log-habit="goToHabits"
+          @edit-habit="goToHabits"
+          @delete-habit="goToHabits"
+          @toggle-favorite-habit="toggleFavoriteFromHome"
+        />
+      </div>
+    </div>
+
     <!-- Feature Cards Sections-->
     <div v-if="user && profile" class="feature-section">
       <div class="quick-access-header">
@@ -162,7 +186,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, defineAsyncComponent } from 'vue'
+import { useRouter } from 'vue-router'
 import { apiRequest } from '../../config/api'
 
 interface Profile {
@@ -184,6 +209,18 @@ const activeHabitsCount = ref(0)
 const currentStreak = ref(0)
 const completedToday = ref(0)
 const totalAchievements = ref(0)
+const favoriteHabits = ref<Array<any>>([])
+const allHabits = ref<Array<any>>([])
+const favoriteHabitLogs = ref<Record<number, Array<any>>>({})
+
+const homeIncrementing = ref<Record<number, boolean>>({})
+const homeIncrementError = ref<Record<number, string>>({})
+const homeIsDeleting = ref<Record<number, boolean>>({})
+const homeIsEditing = ref<Record<number, boolean>>({})
+
+const HabitsCard = defineAsyncComponent(() => import('../elements/HabitsCard.vue') as Promise<any>)
+
+const router = useRouter()
 
 const loadUser = () => {
   const stored = localStorage.getItem('user')
@@ -201,11 +238,30 @@ const getUserId = (): number | null => {
   }
 }
 
+const getFavoriteHabitIds = (currentUserId: number | null, currentProfileId: number | null): number[] => {
+  const key = `favorite_habits_${currentUserId || 'guest'}_${currentProfileId || 'none'}`
+  try {
+    const stored = localStorage.getItem(key)
+    const parsed = stored ? JSON.parse(stored) : []
+    return Array.isArray(parsed) ? parsed.map(Number).filter(Boolean) : []
+  } catch {
+    return []
+  }
+}
+
+const saveFavoriteHabitIds = (currentUserId: number | null, currentProfileId: number | null, ids: number[]) => {
+  const key = `favorite_habits_${currentUserId || 'guest'}_${currentProfileId || 'none'}`
+  localStorage.setItem(key, JSON.stringify(ids))
+}
+
 const loadProfile = () => {
   const storedUser = localStorage.getItem('user')
   if (!storedUser) {
     localStorage.removeItem('profile')
     profile.value = null
+    allHabits.value = []
+    favoriteHabits.value = []
+    favoriteHabitLogs.value = {}
     return
   }
 
@@ -264,6 +320,13 @@ const fetchProfileStats = async () => {
     // 1) Habits
     const habits = (await apiRequest(`/users/${userId}/profiles/${profileId}/habits`)) || []
     const habitsArr: Array<any> = Array.isArray(habits) ? habits : []
+    allHabits.value = habitsArr
+
+    const favoriteIds = getFavoriteHabitIds(userId, profileId)
+
+    favoriteHabits.value = habitsArr
+      .filter((habit) => favoriteIds.includes(Number(habit?.id)))
+      .sort((a, b) => favoriteIds.indexOf(Number(a?.id)) - favoriteIds.indexOf(Number(b?.id)))
 
     activeHabitsCount.value = habitsArr.length
 
@@ -278,6 +341,15 @@ const fetchProfileStats = async () => {
         }
       })
     )
+
+    const logsByHabit: Record<number, Array<any>> = {}
+    habitsArr.forEach((habit, index) => {
+      const habitId = Number(habit?.id)
+      if (habitId) {
+        logsByHabit[habitId] = logsPerHabit[index] || []
+      }
+    })
+    favoriteHabitLogs.value = logsByHabit
 
     const allLogs = logsPerHabit.reduce(
       (acc, logs) => acc.concat(logs),
@@ -301,6 +373,30 @@ const fetchProfileStats = async () => {
   } catch (err) {
     console.error('Failed to fetch progress stats', err)
   }
+}
+
+const goToHabits = () => {
+  router.push('/habits')
+}
+
+const toggleFavoriteFromHome = (habit: any) => {
+  const userId = getUserId()
+  const profileId = profile.value?.id ?? null
+  const habitId = Number(habit?.id)
+  if (!userId || !profileId || !habitId) return
+
+  const currentFavoriteIds = getFavoriteHabitIds(userId, profileId)
+  const isFavorite = currentFavoriteIds.includes(habitId)
+
+  const nextFavoriteIds = isFavorite
+    ? currentFavoriteIds.filter((id) => id !== habitId)
+    : [...currentFavoriteIds, habitId]
+
+  saveFavoriteHabitIds(userId, profileId, nextFavoriteIds)
+
+  favoriteHabits.value = allHabits.value
+    .filter((item) => nextFavoriteIds.includes(Number(item?.id)))
+    .sort((a, b) => nextFavoriteIds.indexOf(Number(a?.id)) - nextFavoriteIds.indexOf(Number(b?.id)))
 }
 
 const formatDate = (dateString: string) => {
@@ -786,6 +882,66 @@ onUnmounted(() => {
   background-clip: text;
 }
 
+.favorite-habits-section {
+  margin-top: -1.5rem;
+}
+
+.favorite-habits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.favorite-habits-grid :deep(.dashboard-card) {
+  background: rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.favorite-habits-grid :deep(.dashboard-card:hover) {
+  background: rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.favorite-habits-grid :deep(.card-header) {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.favorite-habits-grid :deep(.chip),
+.favorite-habits-grid :deep(.pill) {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.favorite-habits-grid :deep(.card-progress) {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.favorite-habits-grid :deep(.progress-bar) {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.favorite-habits-grid :deep(.card-title),
+.favorite-habits-grid :deep(.progress-label-main),
+.favorite-habits-grid :deep(.progress-label-sub),
+.favorite-habits-grid :deep(.progress-percentage),
+.favorite-habits-grid :deep(.day-label),
+.favorite-habits-grid :deep(.card-action-btn),
+.favorite-habits-grid :deep(.favorite-star) {
+  color: #eaf2ff;
+}
+
+.favorite-habits-grid :deep(.favorite-btn) {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.favorite-habits-grid :deep(.favorite-btn:not(.active)) {
+  background: rgba(255, 255, 255, 0.08);
+}
+
 /* Feature Cards Grid */
 .features-grid {
   display: grid;
@@ -1042,6 +1198,14 @@ onUnmounted(() => {
 
   .feature-card h3 {
     font-size: 1.3rem;
+  }
+
+  .favorite-habits-section {
+    margin-top: 0;
+  }
+
+  .favorite-habits-grid {
+    grid-template-columns: 1fr;
   }
 }
 

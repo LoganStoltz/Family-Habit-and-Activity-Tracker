@@ -418,7 +418,6 @@ const handleLogModalClose = (type) => {
 }
 
 .collapsible-content {
-  max-height: 5000px;
   overflow: visible;
   opacity: 1;
   transition: all 0.4s ease;

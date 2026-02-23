@@ -517,27 +517,60 @@ function onToggleFavorite() { emit('toggle-favorite-habit', props.habit); }
   margin-top: 10px;
 }
 
-@media (max-width: 520px) {
+@media (max-width: 1000px) {
+  .dashboard-card {
+    padding: 14px;
+  }
+
+  .card-header {
+    padding: 10px;
+    gap: 10px;
+    margin: -4px -4px 10px;
+  }
+
+  .card-avatar {
+    width: 48px;
+    height: 48px;
+    font-size: 1rem;
+  }
+
+  .card-title {
+    font-size: 1rem;
+  }
+
+  .card-progress {
+    padding: 12px;
+  }
+
+  .card-action-row {
+    justify-content: stretch;
+  }
+
+  .card-action-btn,
+  .delete-habit-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 720px) {
   .card-header {
     flex-direction: column;
     align-items: flex-start;
   }
 
+  .card-title-block,
   .card-title-row {
     width: 100%;
   }
 
-  .chip {
-    max-width: 55%;
-  }
-
-  .card-action-row {
-    flex-direction: column;
+  .card-meta {
+    width: 100%;
   }
 
   .progress-header {
     flex-direction: column;
     align-items: flex-start;
+    gap: 6px;
   }
 
   .progress-percentage {
@@ -547,9 +580,49 @@ function onToggleFavorite() { emit('toggle-favorite-habit', props.habit); }
   .streak-dots {
     gap: 6px;
   }
+}
+
+@media (max-width: 480px) {
+  .dashboard-card {
+    padding: 12px;
+  }
+
+  .card-title {
+    font-size: 0.95rem;
+  }
+
+  .favorite-btn {
+    width: 28px;
+    height: 28px;
+  }
+
+  .chip {
+    max-width: 58%;
+    font-size: 0.8rem;
+  }
+
+  .pill {
+    font-size: 0.8rem;
+    padding: 5px 9px;
+  }
+
+  .progress-label-main {
+    font-size: 0.86rem;
+  }
+
+  .progress-label-sub {
+    font-size: 0.75rem;
+  }
 
   .day-label {
-    font-size: 0.65rem;
+    font-size: 0.62rem;
+  }
+
+  .card-action-btn,
+  .delete-habit-btn {
+    font-size: 0.9rem;
+    padding: 0.7rem 0.9rem;
   }
 }
+
 </style>
