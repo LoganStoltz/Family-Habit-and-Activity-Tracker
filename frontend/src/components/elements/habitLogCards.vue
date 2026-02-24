@@ -44,7 +44,13 @@
 
     <footer v-if="showActionsColumn" class="cardActions">
       <button
-        class="delete-log-btn"
+        class="edit-log-btn card-action-btn"
+        @click="emit('editHabit', log)"
+      >
+        ✏️ Edit Habit
+      </button>
+      <button
+        class="delete-log-btn card-action-btn"
         @click="emit('confirmDeleteLog', log)"
         :disabled="deletingLogId === log.id"
       >
@@ -70,7 +76,7 @@ defineProps({
   },
 })
 
-const emit = defineEmits(['confirmDeleteLog'])
+const emit = defineEmits(['confirmDeleteLog', 'editHabit'])
 
 const getPalette = (habitId) => {
   const options = [
@@ -399,25 +405,46 @@ const getDetailEntries = (extraData) => {
 }
 
 .cardActions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.7rem;
+  flex-wrap: wrap;
   padding-top: 0.1rem;
 }
 
+.card-action-btn {
+  border: 1px solid #d9e2ec;
+  border-radius: 12px;
+  padding: 0.78rem 1.15rem;
+  cursor: pointer;
+  font-size: 0.92rem;
+  font-weight: 800;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), opacity var(--transition-fast);
+  width: 200px;
+}
+
+.edit-log-btn {
+  background: #0f172a;
+  color: #f8fafc;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.18);
+}
+
+.edit-log-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.22);
+}
+
 .delete-log-btn {
-  padding: 0.5rem 0.86rem;
   background: linear-gradient(135deg, #f43f5e, #e11d48);
   color: white;
   border: none;
-  border-radius: var(--radius-small);
-  cursor: pointer;
-  font-size: 0.84rem;
-  font-weight: 700;
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast), opacity var(--transition-fast);
-  box-shadow: 0 3px 8px rgba(244, 63, 94, 0.24);
+  box-shadow: 0 12px 24px rgba(244, 63, 94, 0.24);
 }
 
 .delete-log-btn:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 5px 12px rgba(244, 63, 94, 0.32);
+  box-shadow: 0 16px 30px rgba(244, 63, 94, 0.3);
 }
 
 .delete-log-btn:disabled {
@@ -433,6 +460,10 @@ const getDetailEntries = (extraData) => {
 
   .logCell {
     min-height: unset;
+  }
+
+  .card-action-btn {
+    width: 100%;
   }
 }
 </style>
