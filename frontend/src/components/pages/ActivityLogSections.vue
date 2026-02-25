@@ -596,7 +596,7 @@ onMounted(fetchData)
 }
 
 .filterSelect option {
-  color: #333;
+  color: #ffffff;
 }
 
 .filterInput:focus,

@@ -111,9 +111,9 @@
           :isEditing="homeIsEditing"
           :toggleEditingMode="false"
           :isFavorite="true"
-          @log-habit="goToHabits"
-          @edit-habit="goToHabits"
-          @delete-habit="goToHabits"
+          @log-habit="openHabitLogModal"
+          @edit-habit=" router.push(`/habits/${habit.id}/edit`)"
+          @delete-habit="openDeleteLogModal"
           @toggle-favorite-habit="toggleFavoriteFromHome"
         />
       </div>
@@ -182,6 +182,12 @@
         </router-link>
       </div>
     </div>
+
+    <HabitLogModalManager
+      ref="homeLogManager"
+      @close="handleHomeLogModalClose"
+      @logged="onHomeLogged"
+    />
   </section>
 </template>
 
@@ -217,8 +223,10 @@ const homeIncrementing = ref<Record<number, boolean>>({})
 const homeIncrementError = ref<Record<number, string>>({})
 const homeIsDeleting = ref<Record<number, boolean>>({})
 const homeIsEditing = ref<Record<number, boolean>>({})
+const homeLogManager = ref<any | null>(null)
 
 const HabitsCard = defineAsyncComponent(() => import('../elements/HabitsCard.vue') as Promise<any>)
+const HabitLogModalManager = defineAsyncComponent(() => import('../logs/HabitLogModalManager.vue') as Promise<any>)
 
 const router = useRouter()
 
@@ -375,8 +383,25 @@ const fetchProfileStats = async () => {
   }
 }
 
-const goToHabits = () => {
-  router.push('/habits')
+const openHabitLogModal = (habit: any) => {
+  if (homeLogManager.value && typeof homeLogManager.value.openModal === 'function') {
+    homeLogManager.value.openModal(habit)
+  } else {
+    console.warn('Home log modal manager is not available')
+  }
+}
+
+const onHomeLogged = async () => {
+  await fetchProfileStats()
+}
+
+const handleHomeLogModalClose = () => {
+  // reserved for modal close side effects
+}
+
+const openDeleteLogModal = (habit: any) => {
+  // Handle delete logic her  e
+  console.log('Delete habit:', habit)
 }
 
 const toggleFavoriteFromHome = (habit: any) => {
