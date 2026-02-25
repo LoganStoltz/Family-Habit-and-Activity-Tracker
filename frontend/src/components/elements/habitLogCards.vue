@@ -45,9 +45,9 @@
     <footer v-if="showActionsColumn" class="cardActions">
       <button
         class="edit-log-btn card-action-btn"
-        @click="emit('editHabit', log)"
+        @click="emit('editHabitLog', log)"
       >
-        ✏️ Edit Habit
+        ✏️ Edit Habit Log
       </button>
       <button
         class="delete-log-btn card-action-btn"
@@ -76,7 +76,7 @@ defineProps({
   },
 })
 
-const emit = defineEmits(['confirmDeleteLog', 'editHabit'])
+const emit = defineEmits(['confirmDeleteLog', 'editHabitLog'])
 
 const getPalette = (habitId) => {
   const options = [

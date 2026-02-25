@@ -97,6 +97,8 @@
                 :log="log"
                 :showActionsColumn="showActionsColumn"
                 :deletingLogId="deletingLogId"
+                @editHabitLog="openEditLogModal"
+                @editHabit="openEditLogModal"
                 @confirmDeleteLog="confirmDeleteLog"
                 />
         </div>
@@ -115,6 +117,13 @@
       @confirm="deleteLog"
       @cancel="cancelDeleteLog"
     />
+
+    <EditHabitLogModal
+      v-if="showEditLogModal"
+      :log="logToEdit"
+      @save="handleLogUpdated"
+      @close="closeEditLogModal"
+    />
   </div>
 </template>
 
@@ -122,6 +131,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { apiRequest } from '../../config/api.js'
 import ConfirmDeleteModal from '../Popups/ConfirmDeleteModal.vue'
+import EditHabitLogModal from '../Popups/EditHabitLogModal.vue'
 import HabitLogCards from '../elements/habitLogCards.vue'
 import CloseElement from '@/components/elements/closeElement.vue'
 
@@ -146,6 +156,8 @@ const deletingLogId = ref(null)
 const showActionsColumn = ref(false)
 const showConfirmDeleteModal = ref(false)
 const logToDelete = ref(null)
+const showEditLogModal = ref(false)
+const logToEdit = ref(null)
 const isFilterCollapsed = ref(false)
 const isTableCollapsed = ref(false)
 
@@ -327,6 +339,21 @@ const clearFilters = () => {
 const confirmDeleteLog = (log) => {
   logToDelete.value = log
   showConfirmDeleteModal.value = true
+}
+
+const openEditLogModal = (log) => {
+  logToEdit.value = log
+  showEditLogModal.value = true
+}
+
+const closeEditLogModal = () => {
+  logToEdit.value = null
+  showEditLogModal.value = false
+}
+
+const handleLogUpdated = async () => {
+  await fetchData()
+  closeEditLogModal()
 }
 
 const cancelDeleteLog = () => {
