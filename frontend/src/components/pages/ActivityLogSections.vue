@@ -81,7 +81,15 @@
           </button>
         </div>
         <h1>Habit Logs</h1>
-        <div class="header-right">
+        <div class="header-right header-actions">
+          <button
+            class="editingModeButton viewModeButton"
+            :class="{ active: viewMode === 'table' }"
+            @click="toggleViewMode"
+            :title="viewMode === 'table' ? 'Switch to card view' : 'Switch to table view'"
+          >
+            {{ viewMode === 'table' ? '🧩' : '📋' }}
+          </button>
           <button class="editingModeButton" :class="{ active: showActionsColumn }" @click="showActionsColumn = !showActionsColumn">✏️</button>
         </div>
       </div>
@@ -90,7 +98,7 @@
         <p v-else-if="error" class="error">{{ error }}</p>
         <p v-else-if="enrichedLogs.length === 0">No habit logs found.</p>
 
-        <div v-else class="HabitLogsCards">
+        <div v-else-if="viewMode === 'cards'" class="HabitLogsCards">
               <HabitLogCards
                 v-for="log in filteredAndSortedLogs"
                 :key="log.id"
@@ -101,6 +109,54 @@
                 @editHabit="openEditLogModal"
                 @confirmDeleteLog="confirmDeleteLog"
                 />
+        </div>
+
+        <div v-else class="tableWrap">
+          <table class="habits-table">
+            <thead>
+              <tr>
+                <th>Log #</th>
+                <th>Habit</th>
+                <th>Category</th>
+                <th>Logged At</th>
+                <th>Notes</th>
+                <th>Details</th>
+                <th v-if="showActionsColumn">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="log in filteredAndSortedLogs" :key="`table-${log.id}`">
+                <td>{{ getStableLogNumber(log) }}</td>
+                <td>{{ log.habitName || 'Unknown Habit' }}</td>
+                <td>{{ log.category || 'N/A' }}</td>
+                <td>{{ formatDate(log.created_at || log.updated_at) }}</td>
+                <td class="tableNotes">{{ log.notes || 'N/A' }}</td>
+                <td class="tableDetails">
+                  <ul v-if="getExtraDataEntries(log.extra_data).length" class="tableDetailsList">
+                    <li
+                      v-for="entry in getExtraDataEntries(log.extra_data)"
+                      :key="`${log.id}-${entry.key}`"
+                      class="tableDetailsItem"
+                    >
+                      <span class="tableDetailsKey">{{ entry.label }}:</span>
+                      <span class="tableDetailsValue">{{ entry.value }}</span>
+                    </li>
+                  </ul>
+                  <span v-else>N/A</span>
+                </td>
+                <td v-if="showActionsColumn" class="tableActions">
+                  <button class="tableActionBtn edit" @click="openEditLogModal(log)">Edit</button>
+                  <button
+                    class="tableActionBtn delete"
+                    @click="confirmDeleteLog(log)"
+                    :disabled="deletingLogId === log.id"
+                  >
+                    {{ deletingLogId === log.id ? 'Deleting...' : 'Delete' }}
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </section>
@@ -156,10 +212,15 @@ const deletingLogId = ref(null)
 const showActionsColumn = ref(false)
 const showConfirmDeleteModal = ref(false)
 const logToDelete = ref(null)
+const viewMode = ref('cards')
 const showEditLogModal = ref(false)
 const logToEdit = ref(null)
 const isFilterCollapsed = ref(false)
 const isTableCollapsed = ref(false)
+
+const toggleViewMode = () => {
+  viewMode.value = viewMode.value === 'cards' ? 'table' : 'cards'
+}
 
 const fetchHabits = async () => {
   if (!userId || !profileId) {
@@ -257,11 +318,6 @@ const availableCategories = computed(() => {
 const filteredLogs = computed(() => {
   let logs = enrichedLogs.value
 
-  if (searchLogId.value.trim()) {
-    const search = searchLogId.value.toLowerCase().trim()
-    logs = logs.filter((log) => log.id?.toString().toLowerCase().includes(search))
-  }
-
   if (searchName.value.trim()) {
     const search = searchName.value.toLowerCase().trim()
     logs = logs.filter((log) => (log.habitName || '').toLowerCase().includes(search))
@@ -301,7 +357,7 @@ const filteredLogs = computed(() => {
   return logs
 })
 
-const filteredAndSortedLogs = computed(() => {
+const sortedFilteredLogs = computed(() => {
   const logs = [...filteredLogs.value]
 
   logs.sort((a, b) => {
@@ -327,6 +383,26 @@ const filteredAndSortedLogs = computed(() => {
   })
 
   return logs
+})
+
+const stableLogNumberMap = computed(() => {
+  return sortedFilteredLogs.value.reduce((accumulator, log, index) => {
+    accumulator[log.id] = index
+    return accumulator
+  }, {})
+})
+
+const getStableLogNumber = (log) => {
+  return stableLogNumberMap.value[log?.id] ?? 'N/A'
+}
+
+const filteredAndSortedLogs = computed(() => {
+  const logs = [...sortedFilteredLogs.value]
+
+  if (!searchLogId.value.trim()) return logs
+
+  const search = searchLogId.value.toLowerCase().trim()
+  return logs.filter((log) => String(getStableLogNumber(log)).toLowerCase().includes(search))
 })
 
 const clearFilters = () => {
@@ -421,6 +497,57 @@ const formatExtraData = (extraData) => {
   } catch {
     return 'N/A'
   }
+}
+
+const toDisplayLabel = (key) => {
+  return String(key)
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .replace(/[_-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/^./, (char) => char.toUpperCase())
+}
+
+const formatDetailValue = (value) => {
+  if (value == null || value === '') return 'N/A'
+  if (typeof value === 'boolean') return value ? 'Yes' : 'No'
+  if (Array.isArray(value)) return value.length ? value.join(', ') : 'N/A'
+  if (typeof value === 'object') return formatExtraData(value)
+  return String(value)
+}
+
+const parseExtraDataObject = (extraData) => {
+  if (!extraData) return null
+
+  if (typeof extraData === 'object' && !Array.isArray(extraData)) {
+    return extraData
+  }
+
+  if (typeof extraData === 'string') {
+    try {
+      const parsed = JSON.parse(extraData)
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        return parsed
+      }
+    } catch {
+      return null
+    }
+  }
+
+  return null
+}
+
+const getExtraDataEntries = (extraData) => {
+  const objectData = parseExtraDataObject(extraData)
+  if (!objectData) return []
+
+  return Object.keys(objectData)
+    .sort((a, b) => a.localeCompare(b))
+    .map((key) => ({
+      key,
+      label: toDisplayLabel(key),
+      value: formatDetailValue(objectData[key]),
+    }))
 }
 
 const handleFilterToggle = (collapsed) => {
@@ -552,6 +679,132 @@ onMounted(fetchData)
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1rem;
   margin-top: 0.5rem;
+}
+
+.header-actions {
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.viewModeButton {
+  min-width: 55px;
+  min-height: 55px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.tableWrap {
+  width: 100%;
+  overflow-x: auto;
+  margin-top: 0.5rem;
+  border-radius: 12px;
+  border: 1px solid #d7e3f5;
+  box-shadow: 0 10px 22px rgba(37, 99, 235, 0.1);
+}
+
+.habits-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: transparent;
+  border: 1px solid black;
+  min-width: 980px;
+  background: #af74fc;
+}
+
+.habits-table th,
+.habits-table td {
+  border-bottom: 1px solid #dce8f8;
+  padding: 12px 14px;
+  text-align: left;
+  vertical-align: top;
+  color: #253246;
+  font-size: 0.92rem;
+  border: 1px solid transparent;
+}
+
+.habits-table th {
+  background: linear-gradient(135deg, rgba(79, 157, 255, 0.18), rgba(116, 235, 213, 0.18));
+  font-weight: 800;
+  color: #19324e;
+  text-transform: uppercase;
+  letter-spacing: 0.35px;
+}
+
+.habits-table tbody tr {
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.habits-table tbody tr:nth-child(even) {
+  background: rgba(245, 250, 255, 0.9);
+}
+
+.habits-table tbody tr:hover {
+  background: rgba(116, 235, 213, 0.1);
+}
+
+.tableNotes,
+.tableDetails {
+  max-width: 300px;
+}
+
+.tableNotes {
+  white-space: normal;
+  line-height: 1.4;
+}
+
+.tableDetailsList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.tableDetailsItem {
+  line-height: 1.35;
+}
+
+.tableDetailsKey {
+  font-weight: 800;
+  color: #1f3f66;
+  margin-right: 0.2rem;
+}
+
+.tableDetailsValue {
+  color: #30455f;
+  word-break: break-word;
+}
+
+.tableActions {
+  display: flex;
+  gap: 0.5rem;
+  min-width: 160px;
+}
+
+.tableActionBtn {
+  border: none;
+  border-radius: 8px;
+  padding: 0.45rem 0.7rem;
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: white;
+}
+
+.tableActionBtn.edit {
+  background: #0f172a;
+}
+
+.tableActionBtn.delete {
+  background: #dc2626;
+}
+
+.tableActionBtn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
 }
 
 @media (max-width: 1400px) {
@@ -736,9 +989,9 @@ onMounted(fetchData)
 
   .habitLogsSectionHeader .header-left,
   .habitLogsSectionHeader .header-right {
-    width: 56px;
+    width: 108px;
     min-height: 40px;
-    flex: 0 0 56px;
+    flex: 0 0 108px;
   }
 
   .habitLogsSectionHeader .activityButton {
@@ -772,8 +1025,8 @@ onMounted(fetchData)
 
   .habitLogsSectionHeader .header-left,
   .habitLogsSectionHeader .header-right {
-    width: 50px;
-    flex: 0 0 50px;
+    width: 96px;
+    flex: 0 0 96px;
   }
 }
 </style>
