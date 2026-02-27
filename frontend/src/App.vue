@@ -1,12 +1,16 @@
 <template>
   <div id="app">
     <Header />
-    <router-view />
+    <main class="appContent">
+      <router-view />
+    </main>
+    <Footer />
   </div>
 </template> 
 
 <script setup>
 import Header from './components/elements/Header.vue';
+import Footer from './components/elements/Footer.vue';
 
 </script>
 
@@ -64,6 +68,12 @@ body {
 
 #app {
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.appContent {
+  flex: 1;
 }
 
 /* Generic Global Button Styles */

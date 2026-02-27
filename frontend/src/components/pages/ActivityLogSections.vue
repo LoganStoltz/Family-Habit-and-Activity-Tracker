@@ -701,48 +701,49 @@ onMounted(fetchData)
   overflow-x: auto;
   margin-top: 0.5rem;
   border-radius: 12px;
-  border: 1px solid #d7e3f5;
-  box-shadow: 0 10px 22px rgba(37, 99, 235, 0.1);
+  border: 1px solid rgba(154, 187, 224, 0.58);
+  box-shadow: 0 10px 24px rgba(5, 12, 26, 0.22);
+  background: rgba(26, 48, 70, 0.46);
 }
 
 .habits-table {
   width: 100%;
   border-collapse: collapse;
-  background: transparent;
-  border: 1px solid black;
   min-width: 980px;
-  background: #af74fc;
+  background: transparent;
 }
 
 .habits-table th,
 .habits-table td {
-  border-bottom: 1px solid #dce8f8;
-  padding: 12px 14px;
+  border-bottom: 1px solid rgba(154, 187, 224, 0.36);
+  padding: 13px 14px;
   text-align: left;
   vertical-align: top;
-  color: #253246;
-  font-size: 0.92rem;
-  border: 1px solid transparent;
+  color: #d8e4f2;
+  font-size: 0.9rem;
 }
 
 .habits-table th {
-  background: linear-gradient(135deg, rgba(79, 157, 255, 0.18), rgba(116, 235, 213, 0.18));
+  background: rgba(46, 82, 116, 0.82);
+  border-bottom: 1px solid rgba(186, 216, 247, 0.52);
   font-weight: 800;
-  color: #19324e;
+  color: var(--text-primary);
   text-transform: uppercase;
-  letter-spacing: 0.35px;
+  letter-spacing: 0.45px;
+  font-size: 0.78rem;
 }
 
 .habits-table tbody tr {
-  background: rgba(255, 255, 255, 0.88);
+  background: rgba(41, 73, 101, 0.4);
+  transition: background-color 0.2s ease;
 }
 
 .habits-table tbody tr:nth-child(even) {
-  background: rgba(245, 250, 255, 0.9);
+  background: rgba(33, 63, 90, 0.44);
 }
 
 .habits-table tbody tr:hover {
-  background: rgba(116, 235, 213, 0.1);
+  background: rgba(126, 163, 206, 0.42);
 }
 
 .tableNotes,
@@ -769,12 +770,12 @@ onMounted(fetchData)
 
 .tableDetailsKey {
   font-weight: 800;
-  color: #1f3f66;
+  color: var(--accent-blue);
   margin-right: 0.2rem;
 }
 
 .tableDetailsValue {
-  color: #30455f;
+  color: #cfe0f2;
   word-break: break-word;
 }
 
@@ -792,19 +793,25 @@ onMounted(fetchData)
   font-size: 0.82rem;
   font-weight: 700;
   color: white;
+  transition: transform 0.15s ease, filter 0.2s ease;
 }
 
 .tableActionBtn.edit {
-  background: #0f172a;
+  background: linear-gradient(135deg, #384c6b, #4f9dff);
 }
 
 .tableActionBtn.delete {
-  background: #dc2626;
+  background: linear-gradient(135deg, #a4161a, #dc2626);
 }
 
 .tableActionBtn:disabled {
   opacity: 0.65;
   cursor: not-allowed;
+}
+
+.tableActionBtn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
 }
 
 @media (max-width: 1400px) {
