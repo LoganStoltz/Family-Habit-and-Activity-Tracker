@@ -151,6 +151,16 @@
           </div>
           <h1>Milestone Logs</h1>
           <div class="header-right">
+            <span class="selectedCount">Selected: {{ selectedMilestoneIds.length }}</span>
+            <button
+              class="editingModeButton"
+              :class="{ active: allVisibleMilestonesSelected }"
+              @click="toggleSelectAllVisibleMilestones"
+              :disabled="!filteredMilestones.length"
+              title="Select all visible milestones"
+            >
+              ✓
+            </button>
             <button class="editingModeButton" :class="{ active: toggleEditingMode }" @click="toggleEditingMode = !toggleEditingMode">✏️</button>
           </div>
         </div>
@@ -176,7 +186,10 @@
                     v-for="item in group.items"
                     :key="item.id"
                     :item="item"
+                    :selection-enabled="true"
+                    :is-selected="isMilestoneSelected(item.id)"
                     :show-actions-column="toggleEditingMode"
+                    @toggle-selection="toggleMilestoneSelection"
                     @toggle-favorite="toggleFavorite"
                     @delete-milestone="deleteMilestone"
                   />
@@ -244,6 +257,7 @@ const milestones = ref([])
 const loading = ref(false)
 const error = ref('')
 const toggleEditingMode = ref(false)
+const selectedMilestoneIds = ref([])
 
 const fetchData = async () => {
   await fetchMilestones()
@@ -280,6 +294,7 @@ const fetchMilestones = async () => {
     // apiRequest RETURNS JSON (and throws on HTTP errors)
     const data = await apiRequest(`/users/${userId}/profiles/${profileId}/milestones`)
     milestones.value = Array.isArray(data) ? data.map(normalizeMilestone) : []
+    selectedMilestoneIds.value = []
   } catch (err) {
     console.error(err)
     error.value = err?.message || 'Could not load milestones'
@@ -402,6 +417,34 @@ const filteredMilestones = computed(() => {
 
   return result
 })
+
+const allVisibleMilestonesSelected = computed(() => {
+  if (!filteredMilestones.value.length) return false
+  return filteredMilestones.value.every((item) => selectedMilestoneIds.value.includes(item.id))
+})
+
+const isMilestoneSelected = (milestoneId) => selectedMilestoneIds.value.includes(milestoneId)
+
+const toggleMilestoneSelection = (milestoneId) => {
+  if (isMilestoneSelected(milestoneId)) {
+    selectedMilestoneIds.value = selectedMilestoneIds.value.filter((id) => id !== milestoneId)
+    return
+  }
+
+  selectedMilestoneIds.value = [...selectedMilestoneIds.value, milestoneId]
+}
+
+const toggleSelectAllVisibleMilestones = () => {
+  const visibleIds = filteredMilestones.value.map((item) => item.id)
+  if (!visibleIds.length) return
+
+  if (allVisibleMilestonesSelected.value) {
+    selectedMilestoneIds.value = selectedMilestoneIds.value.filter((id) => !visibleIds.includes(id))
+    return
+  }
+
+  selectedMilestoneIds.value = Array.from(new Set([...selectedMilestoneIds.value, ...visibleIds]))
+}
 
 const groupedMilestones = computed(() => {
   const formatter = new Intl.DateTimeFormat('en', { month: 'long', year: 'numeric' })
@@ -543,6 +586,14 @@ onMounted(fetchMilestones)
 
 .timelineSection .milestoneSectionHeader .header-right {
   justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.selectedCount {
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .milestoneInfo h1 {
@@ -928,9 +979,9 @@ onMounted(fetchMilestones)
 
   .timelineSection .milestoneSectionHeader .header-left,
   .timelineSection .milestoneSectionHeader .header-right {
-    width: 56px;
+    width: 110px;
     min-height: 40px;
-    flex: 0 0 56px;
+    flex: 0 0 110px;
   }
 
   .timelineSection .milestoneSectionHeader .activityButton {
@@ -955,6 +1006,10 @@ onMounted(fetchMilestones)
     font-size: 1.5rem;
     font-weight: 700;
   }
+
+  .selectedCount {
+    display: none;
+  }
 }
 
 @media (max-width: 720px) {
@@ -974,8 +1029,8 @@ onMounted(fetchMilestones)
 
   .timelineSection .milestoneSectionHeader .header-left,
   .timelineSection .milestoneSectionHeader .header-right {
-    width: 50px;
-    flex: 0 0 50px;
+    width: 108px;
+    flex: 0 0 108px;
   }
 
   .content-grid {

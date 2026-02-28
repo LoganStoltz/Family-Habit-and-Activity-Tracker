@@ -1,6 +1,14 @@
 <template>
   <article class="habitLogCard" :style="getCardVars(log.habit_id || log.id)">
     <header class="logHeader">
+      <label v-if="selectionEnabled" class="selectToggle" :title="isSelected ? 'Unselect log' : 'Select log'">
+        <input
+          type="checkbox"
+          :checked="isSelected"
+          @change="emit('toggle-log-selection', log.id)"
+          :aria-label="`Select log ${log.id}`"
+        />
+      </label>
       <h3 class="habitTitle">{{ log.habitName || 'Unknown Habit' }}</h3>
       <div class="headerBadges">
         <span class="categoryBadge">{{ log.category || 'N/A' }}</span>
@@ -74,9 +82,17 @@ defineProps({
     type: [Number, String],
     default: null,
   },
+  selectionEnabled: {
+    type: Boolean,
+    default: false,
+  },
+  isSelected: {
+    type: Boolean,
+    default: false,
+  },
 })
 
-const emit = defineEmits(['confirmDeleteLog', 'editHabitLog'])
+const emit = defineEmits(['confirmDeleteLog', 'editHabitLog', 'toggle-log-selection'])
 
 const getPalette = (habitId) => {
   const options = [
@@ -239,6 +255,23 @@ const getDetailEntries = (extraData) => {
   padding: 0.6rem 0.75rem;
   margin: -0.9rem -0.9rem 0 -0.9rem;
   min-width: 0;
+}
+
+.selectToggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+}
+
+.selectToggle input[type='checkbox'] {
+  cursor: pointer;
+  width: 14px;
+  height: 14px;
 }
 
 .headerBadges {

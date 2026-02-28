@@ -1,6 +1,14 @@
 <template>
   <article class="milestoneLogCard" :style="getCardVars(item.id)">
     <header class="logHeader">
+      <label v-if="selectionEnabled" class="selectToggle" :title="isSelected ? 'Unselect milestone' : 'Select milestone'">
+        <input
+          type="checkbox"
+          :checked="isSelected"
+          @change="emit('toggleSelection', item.id)"
+          :aria-label="`Select milestone ${item.id}`"
+        />
+      </label>
       <h3 class="milestoneTitle">{{ item.title || 'Untitled Milestone' }}</h3>
       <div class="headerBadges">
         <span class="categoryBadge">{{ item.category || 'Uncategorized' }}</span>
@@ -61,9 +69,17 @@ defineProps({
     type: Boolean,
     default: false,
   },
+  selectionEnabled: {
+    type: Boolean,
+    default: false,
+  },
+  isSelected: {
+    type: Boolean,
+    default: false,
+  },
 })
 
-const emit = defineEmits(['toggleFavorite', 'deleteMilestone'])
+const emit = defineEmits(['toggleFavorite', 'deleteMilestone', 'toggleSelection'])
 
 const milestonePalette = {
   accent: '#7c3aed',
@@ -125,6 +141,23 @@ const formatDate = (dateString) => {
   padding: 0.6rem 0.75rem;
   margin: -0.9rem -0.9rem 0 -0.9rem;
   min-width: 0;
+}
+
+.selectToggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+}
+
+.selectToggle input[type='checkbox'] {
+  cursor: pointer;
+  width: 14px;
+  height: 14px;
 }
 
 .headerBadges {

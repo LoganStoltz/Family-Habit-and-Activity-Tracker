@@ -82,6 +82,7 @@
         </div>
         <h1>Habit Logs</h1>
         <div class="header-right header-actions">
+          <span class="selectedCount">Selected: {{ selectedLogIds.length }}</span>
           <button
             class="editingModeButton viewModeButton"
             :class="{ active: viewMode === 'table' }"
@@ -103,8 +104,11 @@
                 v-for="log in filteredAndSortedLogs"
                 :key="log.id"
                 :log="log"
+                :selectionEnabled="true"
+                :isSelected="isLogSelected(log.id)"
                 :showActionsColumn="showActionsColumn"
                 :deletingLogId="deletingLogId"
+                @toggle-log-selection="toggleLogSelection"
                 @editHabitLog="openEditLogModal"
                 @editHabit="openEditLogModal"
                 @confirmDeleteLog="confirmDeleteLog"
@@ -115,6 +119,15 @@
           <table class="habits-table">
             <thead>
               <tr>
+                <th class="selectColumn">
+                  <input
+                    type="checkbox"
+                    :checked="allVisibleSelected"
+                    :disabled="!filteredAndSortedLogs.length"
+                    @change="toggleSelectAllVisible"
+                    aria-label="Select all visible habit logs"
+                  />
+                </th>
                 <th>Log #</th>
                 <th>Habit</th>
                 <th>Category</th>
@@ -125,7 +138,15 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="log in filteredAndSortedLogs" :key="`table-${log.id}`">
+              <tr v-for="log in filteredAndSortedLogs" :key="`table-${log.id}`" :class="{ selectedRow: isLogSelected(log.id) }">
+                <td class="selectColumn">
+                  <input
+                    type="checkbox"
+                    :checked="isLogSelected(log.id)"
+                    @change="toggleLogSelection(log.id)"
+                    :aria-label="`Select log ${getStableLogNumber(log)}`"
+                  />
+                </td>
                 <td>{{ getStableLogNumber(log) }}</td>
                 <td>{{ log.habitName || 'Unknown Habit' }}</td>
                 <td>{{ log.category || 'N/A' }}</td>
@@ -217,6 +238,7 @@ const showEditLogModal = ref(false)
 const logToEdit = ref(null)
 const isFilterCollapsed = ref(false)
 const isTableCollapsed = ref(false)
+const selectedLogIds = ref([])
 
 const toggleViewMode = () => {
   viewMode.value = viewMode.value === 'cards' ? 'table' : 'cards'
@@ -405,6 +427,34 @@ const filteredAndSortedLogs = computed(() => {
   return logs.filter((log) => String(getStableLogNumber(log)).toLowerCase().includes(search))
 })
 
+const allVisibleSelected = computed(() => {
+  if (!filteredAndSortedLogs.value.length) return false
+  return filteredAndSortedLogs.value.every((log) => selectedLogIds.value.includes(log.id))
+})
+
+const isLogSelected = (logId) => selectedLogIds.value.includes(logId)
+
+const toggleLogSelection = (logId) => {
+  if (isLogSelected(logId)) {
+    selectedLogIds.value = selectedLogIds.value.filter((id) => id !== logId)
+    return
+  }
+
+  selectedLogIds.value = [...selectedLogIds.value, logId]
+}
+
+const toggleSelectAllVisible = () => {
+  const visibleIds = filteredAndSortedLogs.value.map((log) => log.id)
+  if (!visibleIds.length) return
+
+  if (allVisibleSelected.value) {
+    selectedLogIds.value = selectedLogIds.value.filter((id) => !visibleIds.includes(id))
+    return
+  }
+
+  selectedLogIds.value = Array.from(new Set([...selectedLogIds.value, ...visibleIds]))
+}
+
 const clearFilters = () => {
   searchName.value = ''
   selectedCategory.value = ''
@@ -465,6 +515,7 @@ const fetchData = async () => {
   try {
     await fetchHabits()
     await fetchAllLogs()
+    selectedLogIds.value = []
   } catch (err) {
     console.error(err)
     error.value = err?.message || 'Failed to load data'
@@ -622,6 +673,13 @@ onMounted(fetchData)
   justify-content: flex-end;
 }
 
+.selectedCount {
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
 .filterSection.collapsed .filterSectionHeader,
 .activitySummary.collapsed .habitLogsSectionHeader {
   margin: 0px -20px 0 -20px;
@@ -744,6 +802,22 @@ onMounted(fetchData)
 
 .habits-table tbody tr:hover {
   background: rgba(126, 163, 206, 0.42);
+}
+
+.habits-table tbody tr.selectedRow {
+  background: rgba(79, 157, 255, 0.28);
+}
+
+.selectColumn {
+  width: 42px;
+  min-width: 42px;
+  text-align: center;
+}
+
+.selectColumn input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
 }
 
 .tableNotes,
@@ -1034,6 +1108,10 @@ onMounted(fetchData)
   .habitLogsSectionHeader .header-right {
     width: 96px;
     flex: 0 0 96px;
+  }
+
+  .selectedCount {
+    display: none;
   }
 }
 </style>
