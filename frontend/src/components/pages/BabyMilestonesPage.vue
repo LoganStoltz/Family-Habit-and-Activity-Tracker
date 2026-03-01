@@ -151,9 +151,10 @@
           </div>
           <h1>Milestone Logs</h1>
           <div class="header-right">
-            <span class="selectedCount">Selected: {{ selectedMilestoneIds.length }}</span>
+            <span v-if="toggleEditingMode" class="selectedCount">Selected: {{ selectedMilestoneIds.length }}</span>
             <button
-              class="editingModeButton"
+              v-if="toggleEditingMode"
+              class="editingModeButton milestoneModeButton"
               :class="{ active: allVisibleMilestonesSelected }"
               @click="toggleSelectAllVisibleMilestones"
               :disabled="!filteredMilestones.length"
@@ -161,7 +162,7 @@
             >
               ✓
             </button>
-            <button class="editingModeButton" :class="{ active: toggleEditingMode }" @click="toggleEditingMode = !toggleEditingMode">✏️</button>
+            <button class="editingModeButton milestoneModeButton" :class="{ active: toggleEditingMode }" @click="handleToggleEditingMode">✏️</button>
           </div>
         </div>
         <div class="closeElement" :class=" { collapsed: isMilestoneLogsCollapsed }">
@@ -186,7 +187,7 @@
                     v-for="item in group.items"
                     :key="item.id"
                     :item="item"
-                    :selection-enabled="true"
+                    :selection-enabled="toggleEditingMode"
                     :is-selected="isMilestoneSelected(item.id)"
                     :show-actions-column="toggleEditingMode"
                     @toggle-selection="toggleMilestoneSelection"
@@ -426,6 +427,8 @@ const allVisibleMilestonesSelected = computed(() => {
 const isMilestoneSelected = (milestoneId) => selectedMilestoneIds.value.includes(milestoneId)
 
 const toggleMilestoneSelection = (milestoneId) => {
+  if (!toggleEditingMode.value) return
+
   if (isMilestoneSelected(milestoneId)) {
     selectedMilestoneIds.value = selectedMilestoneIds.value.filter((id) => id !== milestoneId)
     return
@@ -435,6 +438,8 @@ const toggleMilestoneSelection = (milestoneId) => {
 }
 
 const toggleSelectAllVisibleMilestones = () => {
+  if (!toggleEditingMode.value) return
+
   const visibleIds = filteredMilestones.value.map((item) => item.id)
   if (!visibleIds.length) return
 
@@ -444,6 +449,14 @@ const toggleSelectAllVisibleMilestones = () => {
   }
 
   selectedMilestoneIds.value = Array.from(new Set([...selectedMilestoneIds.value, ...visibleIds]))
+}
+
+const handleToggleEditingMode = () => {
+  toggleEditingMode.value = !toggleEditingMode.value
+
+  if (!toggleEditingMode.value) {
+    selectedMilestoneIds.value = []
+  }
 }
 
 const groupedMilestones = computed(() => {
@@ -594,6 +607,16 @@ onMounted(fetchMilestones)
   font-size: 0.8rem;
   font-weight: 700;
   white-space: nowrap;
+}
+
+.milestoneModeButton {
+  min-width: 55px;
+  min-height: 55px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  line-height: 1;
 }
 
 .milestoneInfo h1 {
@@ -996,6 +1019,11 @@ onMounted(fetchMilestones)
     justify-content: center;
   }
 
+  .timelineSection .milestoneSectionHeader .milestoneModeButton {
+    min-width: 50px;
+    min-height: 50px;
+  }
+
   .timelineSection .milestoneSectionHeader .refresh-logs-label {
     display: none;
   }
@@ -1031,6 +1059,11 @@ onMounted(fetchMilestones)
   .timelineSection .milestoneSectionHeader .header-right {
     width: 108px;
     flex: 0 0 108px;
+  }
+
+  .timelineSection .milestoneSectionHeader .milestoneModeButton {
+    min-width: 48px;
+    min-height: 48px;
   }
 
   .content-grid {

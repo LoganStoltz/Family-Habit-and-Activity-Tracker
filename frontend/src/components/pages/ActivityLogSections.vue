@@ -82,7 +82,7 @@
         </div>
         <h1>Habit Logs</h1>
         <div class="header-right header-actions">
-          <span class="selectedCount">Selected: {{ selectedLogIds.length }}</span>
+          <span v-if="showActionsColumn" class="selectedCount">Selected: {{ selectedLogIds.length }}</span>
           <button
             class="editingModeButton viewModeButton"
             :class="{ active: viewMode === 'table' }"
@@ -91,7 +91,7 @@
           >
             {{ viewMode === 'table' ? '🧩' : '📋' }}
           </button>
-          <button class="editingModeButton" :class="{ active: showActionsColumn }" @click="showActionsColumn = !showActionsColumn">✏️</button>
+          <button class="editingModeButton" :class="{ active: showActionsColumn }" @click="handleToggleEditingMode">✏️</button>
         </div>
       </div>
       <div class="activitySummaryBody">
@@ -104,7 +104,7 @@
                 v-for="log in filteredAndSortedLogs"
                 :key="log.id"
                 :log="log"
-                :selectionEnabled="true"
+                :selectionEnabled="showActionsColumn"
                 :isSelected="isLogSelected(log.id)"
                 :showActionsColumn="showActionsColumn"
                 :deletingLogId="deletingLogId"
@@ -119,7 +119,7 @@
           <table class="habits-table">
             <thead>
               <tr>
-                <th class="selectColumn">
+                <th v-if="showActionsColumn" class="selectColumn">
                   <input
                     type="checkbox"
                     :checked="allVisibleSelected"
@@ -138,8 +138,8 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="log in filteredAndSortedLogs" :key="`table-${log.id}`" :class="{ selectedRow: isLogSelected(log.id) }">
-                <td class="selectColumn">
+              <tr v-for="log in filteredAndSortedLogs" :key="`table-${log.id}`" :class="{ selectedRow: showActionsColumn && isLogSelected(log.id) }">
+                <td v-if="showActionsColumn" class="selectColumn">
                   <input
                     type="checkbox"
                     :checked="isLogSelected(log.id)"
@@ -435,6 +435,8 @@ const allVisibleSelected = computed(() => {
 const isLogSelected = (logId) => selectedLogIds.value.includes(logId)
 
 const toggleLogSelection = (logId) => {
+  if (!showActionsColumn.value) return
+
   if (isLogSelected(logId)) {
     selectedLogIds.value = selectedLogIds.value.filter((id) => id !== logId)
     return
@@ -444,6 +446,8 @@ const toggleLogSelection = (logId) => {
 }
 
 const toggleSelectAllVisible = () => {
+  if (!showActionsColumn.value) return
+
   const visibleIds = filteredAndSortedLogs.value.map((log) => log.id)
   if (!visibleIds.length) return
 
@@ -453,6 +457,14 @@ const toggleSelectAllVisible = () => {
   }
 
   selectedLogIds.value = Array.from(new Set([...selectedLogIds.value, ...visibleIds]))
+}
+
+const handleToggleEditingMode = () => {
+  showActionsColumn.value = !showActionsColumn.value
+
+  if (!showActionsColumn.value) {
+    selectedLogIds.value = []
+  }
 }
 
 const clearFilters = () => {
