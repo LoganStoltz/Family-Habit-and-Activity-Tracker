@@ -8,6 +8,7 @@
         <router-link to="/habits" class="btn-habits" v-if="user && profile">Habits</router-link>
         <router-link to="/activity-main" class="btn-activity-main" v-if="user && profile">Habit Logs</router-link>
         <router-link to="/baby-milestones" class="btn-baby-milestones" v-if="user && profile && profile.profile_type === 'Baby'">Milestones</router-link>
+        <router-link to="/pdf-builder" class="btn-pdf-builder" v-if="user && profile">PDF Builder</router-link>
       </nav>
       <div class="user-section" v-if="user">
         <div class="user-menu-container">

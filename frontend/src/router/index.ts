@@ -9,6 +9,7 @@ import UserSettings from '@/components/pages/UserSettingsPage.vue';
 import HabitsPage from '@/components/pages/HabitsPage.vue';
 import ActivityMainPage from '@/components/pages/ActivityMainPage.vue';
 import BabyMilestonesPage from '@/components/pages/BabyMilestonesPage.vue';
+import PdfBuilderPage from '@/components/pages/PdfBuilderPage.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -22,7 +23,8 @@ const router = createRouter({
     { path: '/user-settings', name: 'UserSettings', component: UserSettings },
     { path: '/habits', name: 'HabitsPage', component: HabitsPage },
     { path: '/activity-main', name: 'ActivityMainPage', component: ActivityMainPage },
-    { path: '/baby-milestones', name: 'BabyMilestonesPage', component: BabyMilestonesPage }
+    { path: '/baby-milestones', name: 'BabyMilestonesPage', component: BabyMilestonesPage },
+    { path: '/pdf-builder', name: 'PdfBuilderPage', component: PdfBuilderPage }
   ]
 });
 export default router

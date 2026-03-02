@@ -222,6 +222,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { apiRequest } from '../../config/api.js'
 import ConfirmDeleteModal from '../Popups/ConfirmDeleteModal.vue'
 import EditHabitLogModal from '../Popups/EditHabitLogModal.vue'
@@ -234,6 +235,7 @@ const user = JSON.parse(localStorage.getItem('user') || '{}')
 const profile = JSON.parse(localStorage.getItem('profile') || '{}')
 const userId = user?.id
 const profileId = profile?.id
+const router = useRouter()
 
 const habits = ref([])
 const habitLogs = ref([])
@@ -484,6 +486,22 @@ const clearSelectedLogs = () => {
 }
 
 const prepareSelectedLogsPdf = () => {
+  const selectedLogs = enrichedLogs.value
+    .filter((log) => selectedLogIds.value.includes(log.id))
+    .map((log) => ({
+      id: log.id,
+      habitName: log.habitName || 'Unknown Habit',
+      category: log.category || 'N/A',
+      created_at: log.created_at || log.updated_at,
+      notes: log.notes || '',
+      extra_data: log.extra_data || null,
+      habit_id: log.habit_id,
+    }))
+
+  localStorage.setItem('selectedHabitLogsForPdf', JSON.stringify(selectedLogs))
+  localStorage.setItem('pdfBuilderActiveTab', 'habit-logs')
+  router.push('/pdf-builder')
+
   return selectedLogIds.value
 }
 

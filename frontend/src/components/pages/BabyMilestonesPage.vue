@@ -212,6 +212,7 @@
 
 <script setup>
 import { computed, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { apiRequest } from '../../config/api.js'
 import closeElement from '../elements/closeElement.vue'
 import MilestoneLogCard from '../elements/MilestoneLogCard.vue'
@@ -221,6 +222,7 @@ const profile = JSON.parse(localStorage.getItem('profile') || '{}')
 const userId = user?.id
 const profileId = profile?.id
 const profileName = profile?.firstName || 'your little one'
+const router = useRouter()
 
 const isMilestonesCollapsed = ref(false)
 const isFiltersCollapsed = ref(false)
@@ -466,6 +468,23 @@ const clearSelectedMilestones = () => {
 }
 
 const prepareSelectedMilestonesPdf = () => {
+  const selectedMilestones = milestones.value
+    .filter((item) => selectedMilestoneIds.value.includes(item.id))
+    .map((item) => ({
+      id: item.id,
+      title: item.title,
+      category: item.category || 'Uncategorized',
+      occurredAt: item.occurredAt,
+      notes: item.notes || '',
+      mood: item.mood || 'Delighted',
+      tags: Array.isArray(item.tags) ? item.tags : [],
+      favorite: Boolean(item.favorite),
+    }))
+
+  localStorage.setItem('selectedMilestonesForPdf', JSON.stringify(selectedMilestones))
+  localStorage.setItem('pdfBuilderActiveTab', 'milestones')
+  router.push('/pdf-builder')
+
   return selectedMilestoneIds.value
 }
 
