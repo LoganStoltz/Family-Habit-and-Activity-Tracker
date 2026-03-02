@@ -153,14 +153,20 @@
           <div class="header-right">
             <span v-if="toggleEditingMode" class="selectedCount">Selected: {{ selectedMilestoneIds.length }}</span>
             <button
-              v-if="toggleEditingMode"
+              v-if="toggleEditingMode && selectedMilestoneIds.length > 0"
               class="editingModeButton milestoneModeButton"
-              :class="{ active: allVisibleMilestonesSelected }"
-              @click="toggleSelectAllVisibleMilestones"
-              :disabled="!filteredMilestones.length"
-              title="Select all visible milestones"
+              @click="prepareSelectedMilestonesPdf"
+              title="Prepare selected milestones for PDF"
             >
-              ✓
+              📄
+            </button>
+            <button
+              v-if="toggleEditingMode && selectedMilestoneIds.length > 0"
+              class="editingModeButton milestoneModeButton"
+              @click="clearSelectedMilestones"
+              title="Clear selected milestones"
+            >
+              ✖
             </button>
             <button class="editingModeButton milestoneModeButton" :class="{ active: toggleEditingMode }" @click="handleToggleEditingMode">✏️</button>
           </div>
@@ -453,10 +459,14 @@ const toggleSelectAllVisibleMilestones = () => {
 
 const handleToggleEditingMode = () => {
   toggleEditingMode.value = !toggleEditingMode.value
+}
 
-  if (!toggleEditingMode.value) {
-    selectedMilestoneIds.value = []
-  }
+const clearSelectedMilestones = () => {
+  selectedMilestoneIds.value = []
+}
+
+const prepareSelectedMilestonesPdf = () => {
+  return selectedMilestoneIds.value
 }
 
 const groupedMilestones = computed(() => {

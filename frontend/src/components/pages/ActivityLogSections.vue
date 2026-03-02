@@ -84,6 +84,22 @@
         <div class="header-right header-actions">
           <span v-if="showActionsColumn" class="selectedCount">Selected: {{ selectedLogIds.length }}</span>
           <button
+            v-if="showActionsColumn && selectedLogIds.length > 0"
+            class="editingModeButton viewModeButton"
+            @click="prepareSelectedLogsPdf"
+            title="Prepare selected logs for PDF"
+          >
+            📄
+          </button>
+          <button
+            v-if="showActionsColumn && selectedLogIds.length > 0"
+            class="editingModeButton viewModeButton"
+            @click="clearSelectedLogs"
+            title="Clear selected logs"
+          >
+            ✖
+          </button>
+          <button
             class="editingModeButton viewModeButton"
             :class="{ active: viewMode === 'table' }"
             @click="toggleViewMode"
@@ -461,10 +477,14 @@ const toggleSelectAllVisible = () => {
 
 const handleToggleEditingMode = () => {
   showActionsColumn.value = !showActionsColumn.value
+}
 
-  if (!showActionsColumn.value) {
-    selectedLogIds.value = []
-  }
+const clearSelectedLogs = () => {
+  selectedLogIds.value = []
+}
+
+const prepareSelectedLogsPdf = () => {
+  return selectedLogIds.value
 }
 
 const clearFilters = () => {
