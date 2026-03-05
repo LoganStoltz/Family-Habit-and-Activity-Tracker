@@ -4,18 +4,30 @@
     <div class="login-form-section">
       <h1 class="title">Login</h1>
 
+      <div
+        v-if="loginNotification"
+        class="login-notification"
+        :class="`login-notification--${loginNotification.type}`"
+        role="status"
+        aria-live="polite"
+      >
+        {{ loginNotification.message }}
+      </div>
+
         <form class="login-form" @submit.prevent="submitForm">
             <div class="form-group">
                 <label for="userName">Username or Email</label>
-                <input type="text" id="name" v-model="form.userName" @input="loginError = false" :class="{ 'input-error': loginError }" required />
+                <input type="text" id="name" v-model="form.userName" @input="handleFieldInput" :class="{ 'input-error': loginError }" required />
             </div>
 
             <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" v-model="form.password" @input="loginError = false" :class="{ 'input-error': loginError }" required/>
+                <input type="password" id="password" v-model="form.password" @input="handleFieldInput" :class="{ 'input-error': loginError }" required/>
             </div>
 
-            <button type="submit" class="submit-button">Login</button>
+            <button type="submit" class="submit-button" :disabled="isSubmitting">
+              {{ isSubmitting ? 'Logging in...' : 'Login' }}
+            </button>
             <div class="registration-link">
               <p> Don't have an account? 
                 <router-link to="/registration">Register here</router-link>
@@ -30,19 +42,51 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
+import { onBeforeUnmount, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { API_BASE_URL } from '../../config/api.js';
 
 const router = useRouter();
 const loginError = ref(false);
+const isSubmitting = ref(false);
+const loginNotification = ref<{ type: 'success' | 'error'; message: string } | null>(null);
+let notificationTimeout: ReturnType<typeof setTimeout> | null = null;
 
 const form = reactive({
   userName: '',
   password: ''
 });
 
+const setLoginNotification = (type: 'success' | 'error', message: string) => {
+  loginNotification.value = { type, message };
+
+  if (notificationTimeout) {
+    clearTimeout(notificationTimeout);
+  }
+
+  if (type === 'error') {
+    notificationTimeout = setTimeout(() => {
+      loginNotification.value = null;
+      notificationTimeout = null;
+    }, 5000);
+  }
+};
+
+const handleFieldInput = () => {
+  loginError.value = false;
+
+  if (loginNotification.value?.type === 'error') {
+    loginNotification.value = null;
+    if (notificationTimeout) {
+      clearTimeout(notificationTimeout);
+      notificationTimeout = null;
+    }
+  }
+};
+
 const submitForm = async () => {
+  isSubmitting.value = true;
+
   try {
     const isEmail = form.userName.includes('@');
     const body = isEmail
@@ -60,23 +104,33 @@ const submitForm = async () => {
 
     if (!response.ok) {
       loginError.value = true;
-      alert('Login failed: ' + (data.error || 'Invalid credentials'));
+      setLoginNotification('error', 'Login failed: ' + (data.error || 'Invalid credentials'));
       return;
     }
 
-    console.log('Login successful:', data);
     localStorage.setItem('user', JSON.stringify(data.user || data));
     if (data.token) localStorage.setItem('authToken', data.token);
 
     window.dispatchEvent(new Event('storage')); // notify Header.vue
-    router.push('/');
+    setLoginNotification('success', 'Login successful! Redirecting...');
+    setTimeout(() => {
+      router.push('/');
+    }, 700);
 
   } catch (err) {
     console.error(err);
     loginError.value = true;
-    alert('Something went wrong during login.');
+    setLoginNotification('error', 'Something went wrong during login. Please try again.');
+  } finally {
+    isSubmitting.value = false;
   }
 };
+
+onBeforeUnmount(() => {
+  if (notificationTimeout) {
+    clearTimeout(notificationTimeout);
+  }
+});
 
 </script>
 
@@ -162,6 +216,29 @@ const submitForm = async () => {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+}
+
+.login-notification {
+  margin-bottom: 1rem;
+  padding: 0.9rem 1rem;
+  border-radius: var(--radius-medium);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  border: 1px solid transparent;
+  animation: slideIn 0.25s ease-out;
+}
+
+.login-notification--success {
+  background: linear-gradient(135deg, rgba(116, 235, 213, 0.2), rgba(79, 157, 255, 0.12));
+  border-color: rgba(116, 235, 213, 0.45);
+  box-shadow: 0 4px 14px rgba(116, 235, 213, 0.2);
+}
+
+.login-notification--error {
+  background: linear-gradient(135deg, rgba(230, 57, 70, 0.22), rgba(230, 57, 70, 0.08));
+  border-color: rgba(230, 57, 70, 0.55);
+  box-shadow: 0 4px 14px rgba(230, 57, 70, 0.22);
 }
 
 .form-group {
@@ -263,6 +340,13 @@ const submitForm = async () => {
   color: #1e3a5f;
   transform: translateY(-3px);
   box-shadow: 0 8px 25px rgba(255, 209, 102, 0.5);
+}
+
+.submit-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 4px 15px rgba(79, 157, 255, 0.2);
 }
 
 /* Mobile responsiveness */

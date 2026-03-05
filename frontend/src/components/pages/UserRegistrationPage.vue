@@ -3,7 +3,17 @@
     <div class="registration-form-container">
       <h1 class="title">Register</h1>
 
-      <form class="registration-form" @submit.prevent="submitForm">
+      <div
+        v-if="registrationNotification"
+        class="registration-notification"
+        :class="`registration-notification--${registrationNotification.type}`"
+        role="status"
+        aria-live="polite"
+      >
+        {{ registrationNotification.message }}
+      </div>
+
+      <form class="registration-form" @submit.prevent="submitForm" @input="handleFieldInput">
         <div class="form-group">
           <label for="firstName">First Name</label>
           <input placeholder="REQUIRED" type="text" id="firstName" v-model="form.firstName" required />
@@ -39,7 +49,9 @@
           <input placeholder="REQUIRED" type="password" id="rePassword" v-model="form.rePassword" required />
         </div>
 
-        <button type="submit" class="submit-button">Register</button>
+        <button type="submit" class="submit-button" :disabled="isSubmitting">
+          {{ isSubmitting ? 'Creating account...' : 'Register' }}
+        </button>
         <div class="login-link">
               <p> Already have an account? 
                 <router-link to="/login">Login here</router-link>
@@ -52,10 +64,14 @@
 
 <script setup lang="ts">
 import { useRouter } from "vue-router";
-import { reactive } from "vue";
+import { onBeforeUnmount, reactive, ref } from "vue";
 import { API_BASE_URL } from '../../config/api.js';
   
 const router = useRouter();
+const isSubmitting = ref(false);
+const registrationNotification = ref<{ type: 'success' | 'error'; message: string } | null>(null);
+let notificationTimeout: ReturnType<typeof setTimeout> | null = null;
+let redirectTimeout: ReturnType<typeof setTimeout> | null = null;
 
 const form = reactive({
   firstName: "",
@@ -67,11 +83,38 @@ const form = reactive({
   rePassword: ""
 });
 
+const setRegistrationNotification = (type: 'success' | 'error', message: string) => {
+  registrationNotification.value = { type, message };
+
+  if (notificationTimeout) {
+    clearTimeout(notificationTimeout);
+  }
+
+  if (type === 'error') {
+    notificationTimeout = setTimeout(() => {
+      registrationNotification.value = null;
+      notificationTimeout = null;
+    }, 5000);
+  }
+};
+
+const handleFieldInput = () => {
+  if (registrationNotification.value?.type === 'error') {
+    registrationNotification.value = null;
+    if (notificationTimeout) {
+      clearTimeout(notificationTimeout);
+      notificationTimeout = null;
+    }
+  }
+};
+
 async function submitForm() {
   if (form.password !== form.rePassword) {
-    alert("Passwords do not match!");
+    setRegistrationNotification("error", "Passwords do not match.");
     return;
   }
+
+  isSubmitting.value = true;
 
   try {
     const response = await fetch(`${API_BASE_URL}/users`, {
@@ -95,20 +138,31 @@ async function submitForm() {
       const errors = Array.isArray(errorData.errors)
         ? errorData.errors.join(", ")
         : errorData.errors || "Unknown error";
-      alert("Error: " + errors);
+      setRegistrationNotification("error", "Registration failed: " + errors);
       return;
     }
 
-
-    const data = await response.json();
-    console.log("User created:", data);
-    alert("Registration successful!");
-    await router.push("/login");
+    await response.json();
+    setRegistrationNotification("success", "Registration successful! Redirecting to login...");
+    redirectTimeout = setTimeout(async () => {
+      await router.push("/login");
+    }, 900);
   } catch (err) {
     console.error(err);
-    alert("Something went wrong.");
+    setRegistrationNotification("error", "Something went wrong. Please try again.");
+  } finally {
+    isSubmitting.value = false;
   }
 }
+
+onBeforeUnmount(() => {
+  if (notificationTimeout) {
+    clearTimeout(notificationTimeout);
+  }
+  if (redirectTimeout) {
+    clearTimeout(redirectTimeout);
+  }
+});
 </script>
 
 <style scoped>
@@ -192,6 +246,29 @@ async function submitForm() {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+}
+
+.registration-notification {
+  margin-bottom: 1rem;
+  padding: 0.9rem 1rem;
+  border-radius: var(--radius-medium);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  border: 1px solid transparent;
+  animation: slideInUp 0.25s ease-out;
+}
+
+.registration-notification--success {
+  background: linear-gradient(135deg, rgba(116, 235, 213, 0.2), rgba(79, 157, 255, 0.12));
+  border-color: rgba(116, 235, 213, 0.45);
+  box-shadow: 0 4px 14px rgba(116, 235, 213, 0.2);
+}
+
+.registration-notification--error {
+  background: linear-gradient(135deg, rgba(230, 57, 70, 0.22), rgba(230, 57, 70, 0.08));
+  border-color: rgba(230, 57, 70, 0.55);
+  box-shadow: 0 4px 14px rgba(230, 57, 70, 0.22);
 }
 
 .form-group {
@@ -281,6 +358,13 @@ async function submitForm() {
 
 .submit-button:active {
   transform: translateY(-1px);
+}
+
+.submit-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 4px 15px rgba(79, 157, 255, 0.2);
 }
 
 .login-link {
