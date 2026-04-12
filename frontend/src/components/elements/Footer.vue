@@ -1,18 +1,8 @@
 <template>
   <footer class="appFooter">
-    Made by Logan Stoltz, {{ currentYear }} | {{ todayLabel }}
+    Made by Logan Stoltz, 2026 &copy; All rights reserved.
   </footer>
 </template>
-
-<script setup>
-const now = new Date();
-const currentYear = now.getFullYear();
-const todayLabel = new Intl.DateTimeFormat('en-US', {
-  weekday: 'short',
-  month: 'short',
-  day: 'numeric'
-}).format(now);
-</script>
 
 <style scoped>
 .appFooter {
